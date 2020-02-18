@@ -12,6 +12,7 @@ import 'package:http/http.dart' as http;
 import 'dart:async';
 import 'dart:convert';
 import 'dart:core';
+import 'manajemen_project/create_project.dart';
 import 'dart:io';
 
 String tokenType, accessToken;
@@ -83,169 +84,25 @@ class _DashboardState extends State<Dashboard> {
             ),
           ),
         ),
-        // drawer: Drawer(
-        //   child: GestureDetector(
-        //       onTap: () {},
-        //       child: Container(
-        //         child: Column(
-        //           children: <Widget>[
-        //             // Profil Drawer Here
-        //             UserAccountsDrawerHeader(
-        //               // accountName: Text("Muhammad Bakhrul Bila Sakhil"),
-        //               accountName: Text('Muhammad Bakhrul'),
-        //               accountEmail: Text('Bakhrulrpl@gmail.com'),
-        //               decoration: BoxDecoration(
-        //                 color: Color.fromRGBO(254, 86, 14, 1),
-        //               ),
-        //               // currentAccountPicture: CircleAvatar(
-        //               //   backgroundColor: Colors.white,
-        //               //   child: imageStore == '-'
-        //               //       ? Container(
-        //               //           height: 90,
-        //               //           width: 90,
-        //               //           child: ClipOval(
-        //               //               child: Image.asset('images/imgavatar.png',
-        //               //                   fit: BoxFit.fill)))
-        //               //       : Container(
-        //               //           height: 90,
-        //               //           width: 90,
-        //               //           child: ClipOval(
-        //               //               child: imageDashboardProfile == null
-        //               //                   ? FadeInImage.assetNetwork(
-        //               //                       fit: BoxFit.cover,
-        //               //                       placeholder: 'images/imgavatar.png',
-        //               //                       image: url(
-        //               //                           'storage/image/profile/$imageprofile'))
-        //               //                   : Image.file(imageDashboardProfile))),
-        //               // ),
-        //             ),
-        //             //  Menu Section Here
-        //             Expanded(
-        //               child: Container(
-        //                 // color: Colors.red,
-        //                 child: ListView(
-        //                   padding: EdgeInsets.zero,
-        //                   children: <Widget>[
-        //                     ListTile(
-        //                       title: Text(
-        //                         'Cari Event',
-        //                         style: TextStyle(
-        //                           fontSize: 16.0,
-        //                           fontFamily: 'Roboto',
-        //                           color: Color(0xff25282b),
-        //                         ),
-        //                       ),
-        //                       onTap: () {
-        //                         Navigator.pushNamed(context, "/semua_event");
-        //                       },
-        //                     ),
-        //                     ListTile(
-        //                       title: Text(
-        //                         'Event Saya',
-        //                         style: TextStyle(
-        //                           fontSize: 16.0,
-        //                           fontFamily: 'Roboto',
-        //                           color: Color(0xff25282b),
-        //                         ),
-        //                       ),
-        //                       onTap: () {
-        //                         Navigator.pushNamed(context, "/personal_event");
-        //                       },
-        //                     ),
-        //                     ListTile(
-        //                       title: Text(
-        //                         'Event Yang di Ikuti',
-        //                         style: TextStyle(
-        //                           fontSize: 16.0,
-        //                           fontFamily: 'Roboto',
-        //                           color: Color(0xff25282b),
-        //                         ),
-        //                       ),
-        //                       onTap: () {
-        //                         Navigator.pushNamed(context, "/follow_event");
-        //                       },
-        //                     ),
-        //                     ListTile(
-        //                       title: Text(
-        //                         'Event Order',
-        //                         style: TextStyle(
-        //                           fontSize: 16.0,
-        //                           fontFamily: 'Roboto',
-        //                           color: Color(0xff25282b),
-        //                         ),
-        //                       ),
-        //                       onTap: () {
-        //                         Navigator.pushNamed(context, "/event_order");
-        //                       },
-        //                     ),
-        //                   ],
-        //                 ),
-        //               ),
-        //             ),
-        //             Container(
-        //               decoration: BoxDecoration(
-        //                 border: Border(
-        //                   top: BorderSide(
-        //                     width: 0.5,
-        //                     color: Colors.black54,
-        //                   ),
-        //                 ),
-        //               ),
-        //               child: ListTile(
-        //                 title: Text(
-        //                   'Logout',
-        //                   style: TextStyle(
-        //                     fontSize: 16.0,
-        //                     fontFamily: 'Roboto',
-        //                     color: Color(0xff25282b),
-        //                   ),
-        //                 ),
-        //                 trailing: Icon(Icons.exit_to_app),
-        //                 onTap: () {
-        //                   showDialog(
-        //                     context: context,
-        //                     builder: (BuildContext context) => AlertDialog(
-        //                       title: Text('Peringatan!'),
-        //                       content: Text('Apa anda yakin ingin logout?'),
-        //                       actions: <Widget>[
-        //                         FlatButton(
-        //                           child: Text(
-        //                             'Tidak',
-        //                             style: TextStyle(color: Colors.black54),
-        //                           ),
-        //                           onPressed: () {
-        //                             Navigator.pop(context);
-        //                           },
-        //                         ),
-        //                         FlatButton(
-        //                           child: Text(
-        //                             'Ya',
-        //                             style: TextStyle(color: Colors.cyan),
-        //                           ),
-        //                           onPressed: () {
-        //                             removeSharedPrefs();
-        //                             Navigator.pop(context);
-        //                             Navigator.pop(context);
-        //                             Navigator.pushReplacementNamed(
-        //                                 context, "/login");
-        //                           },
-        //                         )
-        //                       ],
-        //                     ),
-        //                   );
-        //                 },
-        //               ),
-        //             ),
-        //           ],
-        //         ),
-        //       )),
-        // ),
         body: Center(
-          child: Text('testing'),
+          child: Column(
+            children: <Widget>[
+              FlatButton(
+                child: Text('create'),
+                onPressed:() async{
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ManajemenCreateProject(),
+                      ));
+                },
+              ),
+            ],
+          ),
        
         ),
            bottomNavigationBar:  BottomNavigationBar(
-            
+            backgroundColor: Colors.white,
             // type: BottomNavigationBarType.shifting,
             unselectedItemColor: Colors.grey,
             selectedItemColor:Color.fromRGBO(254, 86, 14, 1),
