@@ -1,3 +1,4 @@
+import 'package:todolist_app/src/pages/dashboard/home.dart';
 import 'package:todolist_app/src/routes/env.dart';
 import 'package:todolist_app/src/utils/utils.dart';
 import 'package:todolist_app/src/storage/storage.dart';
@@ -241,7 +242,7 @@ class _DashboardState extends State<Dashboard> {
         //       )),
         // ),
         body: Center(
-          child: Text('testing'),
+          child: Home(),
        
         ),
            bottomNavigationBar:  BottomNavigationBar(
