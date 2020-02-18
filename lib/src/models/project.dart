@@ -12,7 +12,7 @@ class Project {
     int id;
     String title;
     String start;
-    DateTime end;
+    String end;
 
     Project({
         this.id,
@@ -25,13 +25,13 @@ class Project {
         id: json["id"],
         title: json["title"],
         start: json["start"],
-        end: DateTime.parse(json["end"]),
+        end: json["end"],
     );
 
     Map<String, dynamic> toJson() => {
         "id": id,
         "title": title,
         "start": start,
-        "end": end.toIso8601String(),
+        "end": end,
     };
 }

@@ -1,4 +1,3 @@
-
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -9,8 +8,6 @@ import 'package:todolist_app/src/storage/storage.dart';
 import 'package:http/http.dart' as http;
 import 'dart:async';
 
-List<Project> listProject = [];
-
 class Home extends StatefulWidget {
   @override
   _HomeState createState() => _HomeState();
@@ -19,80 +16,104 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   String tokenType, accessToken;
   Map<String, String> requestHeaders = Map();
-  
-  
-   @override
+  List<Project> listProject = [];
+
+  @override
   void initState() {
     super.initState();
     getDataProject();
   }
-  
-  Future getDataProject() async {
+
+  Future<List<List>> getDataProject() async {
     var storage = new DataStore();
     var tokenTypeStorage = await storage.getDataString('token_type');
     var accessTokenStorage = await storage.getDataString('access_token');
-    
+
     tokenType = tokenTypeStorage;
     accessToken = accessTokenStorage;
     requestHeaders['Accept'] = 'application/json';
     requestHeaders['Authorization'] = '$tokenType $accessToken';
-    try {
-      final getProject = await http.get(url('api/project'),
-          headers: requestHeaders);
-    print(getProject.statusCode);
 
-      if (getProject.statusCode == 200) {
-        // if (_isSwitched == false) {
-        var listProject = json.decode(getProject.body);
-        var projects = listProject;
-        
-        for (var i in projects) {
+    setState(() {
+      // isLoading = true;
+    });
+    try {
+      final participant =
+          await http.get(url('api/project'), headers: requestHeaders);
+
+      if (participant.statusCode == 200) {
+        var listParticipantToJson = json.decode(participant.body);
+        var participants = listParticipantToJson;
+
+        for (var i in participants) {
           Project participant = Project(
-              // id: i['id'],
-              title: i['title'],
-              start: i['start'],
-              end: i['end']
-              );
+            title: i['title'].toString(),
+          );
           listProject.add(participant);
         }
-        
-        // return Navigator.pop(context);
-      } else if (getProject.statusCode == 401) {
-        Fluttertoast.showToast(msg: "Gagal Membatalkan Event");
+
         setState(() {
           // isLoading = false;
+          // isError = false;
         });
+      } else if (participant.statusCode == 401) {
+        Fluttertoast.showToast(
+            msg: "Token Telah Kadaluwarsa, Silahkan Login Kembali");
+        setState(() {
+          // isLoading = false;
+          // isError = true;
+        });
+      } else {
+        setState(() {
+          // isLoading = false;
+          // isError = true;
+        });
+        print(participant.body);
+        return null;
       }
     } on TimeoutException catch (_) {
-      Fluttertoast.showToast(msg: "Time out, silahkan coba lagi nanti");
       setState(() {
         // isLoading = false;
+        // isError = true;
       });
+      Fluttertoast.showToast(msg: "Timed out, Try again");
     } catch (e) {
-      Fluttertoast.showToast(msg: "$e");
       setState(() {
         // isLoading = false;
+        // isError = true;
       });
+      debugPrint('$e');
     }
+    return null;
   }
-
-
 
   @override
   Widget build(BuildContext context) {
     print("SALAH OPOE");
     print(listProject);
-    return Container(
-               child: ListView.builder(
-                 itemCount: listProject.length,
-                 itemBuilder: (BuildContext context, int index) { 
-                   return Card(
-                     child: Text("listProject[index].title"),
-
-                   );
-                  },
-                 
-               ),
-             );
+    return ListView.builder(
+      itemCount: listProject.length,
+      itemBuilder: (BuildContext context, int index) {
+        return Container(
+          height: 100,
+          child: Card(
+              elevation: 2.0,
+              child: ListTile(
+                leading: new Container(
+                    color: Colors.black,
+                    child: new Container(
+                        decoration: new BoxDecoration(
+                            color: Colors.green,
+                            borderRadius: new BorderRadius.only(
+                                topLeft: const Radius.circular(40.0),
+                                topRight: const Radius.circular(40.0))),
+                        child: Image.network(
+                            "http://www.kaosfutsal.com/wp-content/uploads/2019/12/placeholder.png"))),
+                title: Text("${listProject[index].title}"),
+                subtitle: Text("${listProject[index].title}"),
+              )),
+        );
+      },
+    );
   }
 }
