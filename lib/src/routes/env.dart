@@ -11,6 +11,7 @@
   //  String host = 'http://alamraya.club/';
   
 
+  //  String host = 'http://192.168.100.11/alamraya/mobile/todo_list/bisniskita_todolist/';
    String host = 'http://192.168.43.115/bisniskita_todolist/';
   // String host = 'http://192.168.137.1/myocin/';
   //  String host = 'http://192.168.43.115/myocin/public/';
