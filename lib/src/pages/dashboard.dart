@@ -1,4 +1,6 @@
 import 'package:todolist_app/src/pages/dashboard/home.dart';
+import 'package:todolist_app/src/pages/manajamen_user/index.dart';
+import 'package:todolist_app/src/pages/todolist/index.dart';
 import 'package:todolist_app/src/routes/env.dart';
 import 'package:todolist_app/src/utils/utils.dart';
 import 'package:todolist_app/src/storage/storage.dart';
@@ -17,7 +19,11 @@ import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 import 'dart:core';
 import 'dart:io';
 
+
 String tokenType, accessToken;
+String usernameprofile, emailprofile, imageprofile;
+String emailStore, imageStore, namaStore, phoneStore, locationStore;
+File imageDashboardProfile;
 Map dataUser;
 var datepickerfirst, datepickerlast;
 Map<String, String> requestHeaders = Map();
@@ -43,10 +49,27 @@ class _DashboardState extends State<Dashboard> {
     _tanggalakhirProject = 'kosong';
     datepickerfirst = FocusNode();
     getHeaderHTTP();
+    _getStoreData();
     datepickerlast = FocusNode();
     super.initState();
   }
+ _getStoreData() async {
+    DataStore user = new DataStore();
+    String namaRawUser = await user.getDataString('name');
+    String emailRawUser = await user.getDataString('email');
+    String phoneRawUser = await user.getDataString('phone');
+    String imageRawUser = await user.getDataString('image');
+    String locationRawUser = await user.getDataString('location');
 
+    setState(() {
+      imageDashboardProfile = null;
+      namaStore = namaRawUser;
+      emailStore = emailRawUser;
+      phoneStore = phoneRawUser;
+      imageStore = imageRawUser;
+      locationStore = locationRawUser;
+    });
+  }
   void dispose() {
     super.dispose();
   }
@@ -120,7 +143,9 @@ class _DashboardState extends State<Dashboard> {
                     width: double.infinity,
                     height: 50.0,
                     child: RaisedButton(
-                        onPressed: () async {},
+                        onPressed: () async {
+                          Navigator.push(context, MaterialPageRoute(builder: (context) =>  TodoList() ) );
+                        },
                         color: Colors.white,
                         elevation: 0,
                         textColor: primaryAppBarColor,
@@ -290,14 +315,14 @@ class _DashboardState extends State<Dashboard> {
         var addpesertaJson = json.decode(addadminevent.body);
         if (addpesertaJson['status'] == 'success') {
           progressApiAction.hide().then((isHidden) {
-            print(isHidden);
+            // print(isHidden);
           });
           Fluttertoast.showToast(msg: "Berhasil !");
         }
       } else {
         print(addadminevent.body);
         progressApiAction.hide().then((isHidden) {
-          print(isHidden);
+          // print(isHidden);
         });
         Fluttertoast.showToast(msg: "Gagal, Silahkan Coba Kembali");
       }
@@ -395,6 +420,10 @@ class _DashboardState extends State<Dashboard> {
               IconButton(
                 icon: Icon(Icons.person),
                 tooltip: "Profile",
+                onPressed: (){
+                  Navigator.push(context,
+                    MaterialPageRoute(builder:(context) => ManajemenUser() ));
+                },
               )
             ],
           ),

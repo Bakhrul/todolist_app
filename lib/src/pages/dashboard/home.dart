@@ -94,34 +94,50 @@ class _HomeState extends State<Home> {
   Widget build(BuildContext context) {
     print(listProject);
     return ListView.builder(
+      
       itemCount: listProject.length,
       itemBuilder: (BuildContext context, int index) {
-        return InkWell(
-          onTap: () async {
-            Navigator.push(context,
-                MaterialPageRoute(builder: (context) => DetailProject(idproject : listProject[index].id)));
-          },
-          child: Container(
-            height: 100,
-            child: Card(
-                elevation: 2.0,
-                child: ListTile(
-                  leading: new Container(
-                      color: Colors.black,
-                      child: new Container(
-                          decoration: new BoxDecoration(
-                              color: Colors.green,
-                              borderRadius: new BorderRadius.only(
-                                  topLeft: const Radius.circular(40.0),
-                                  topRight: const Radius.circular(40.0))),
-                          child: Image.network(
-                              "http://www.kaosfutsal.com/wp-content/uploads/2019/12/placeholder.png"))),
-                  title: Text("${listProject[index].title}"),
-                  subtitle: Text("${listProject[index].title}"),
-                )),
+        return Dismissible(
+          key: ObjectKey(listProject[index]),
+          background: stackBehindDismiss(),
+          child: InkWell(
+            onTap: () async {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => DetailProject(idproject : listProject[index].id)));
+            },
+            child: Container(
+              height: 100,
+              child: Card(
+                  elevation: 2.0,
+                  child: ListTile(
+                    leading: new Container(
+                        color: Colors.black,
+                        child: new Container(
+                            decoration: new BoxDecoration(
+                                color: Colors.green,
+                                borderRadius: new BorderRadius.only(
+                                    topLeft: const Radius.circular(40.0),
+                                    topRight: const Radius.circular(40.0))),
+                            child: Image.network(
+                                "http://www.kaosfutsal.com/wp-content/uploads/2019/12/placeholder.png"))),
+                    title: Text("${listProject[index].title}"),
+                    subtitle: Text("${listProject[index].title}"),
+                  )),
+            ),
           ),
         );
       },
+    );
+  }
+    Widget stackBehindDismiss() {
+    return Container(
+      alignment: Alignment.centerRight,
+      padding: EdgeInsets.only(right: 20.0),
+      color: Colors.red,
+      child: Icon(
+        Icons.delete,
+        color: Colors.white,
+      ),
     );
   }
 }
