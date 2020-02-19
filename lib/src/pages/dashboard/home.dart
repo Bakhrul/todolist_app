@@ -3,11 +3,12 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:todolist_app/src/models/project.dart';
-import 'package:todolist_app/src/pages/project/index.dart';
 import 'package:todolist_app/src/routes/env.dart';
 import 'package:todolist_app/src/storage/storage.dart';
 import 'package:http/http.dart' as http;
 import 'dart:async';
+
+import 'package:todolist_app/src/pages/manajemen_project/detail_project.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -48,6 +49,7 @@ class _HomeState extends State<Home> {
 
         for (var i in participants) {
           Project participant = Project(
+            id: i['id'],
             title: i['title'].toString(),
           );
           listProject.add(participant);
@@ -90,32 +92,52 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
+    print(listProject);
     return ListView.builder(
+      
       itemCount: listProject.length,
       itemBuilder: (BuildContext context, int index) {
-        return Container(
-          height: 100,
-          child: Card(
-              elevation: 2.0,
-              child: ListTile(
-                onTap: () => {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => Projects() ))
-                },
-                leading: new Container(
-                    color: Colors.black,
-                    child: new Container(
-                        decoration: new BoxDecoration(
-                            color: Colors.green,
-                            borderRadius: new BorderRadius.only(
-                                topLeft: const Radius.circular(40.0),
-                                topRight: const Radius.circular(40.0))),
-                        child: Image.network(
-                            "http://www.kaosfutsal.com/wp-content/uploads/2019/12/placeholder.png"))),
-                title: Text("${listProject[index].title}"),
-                subtitle: Text("${listProject[index].title}"),
-              )),
+        return Dismissible(
+          key: ObjectKey(listProject[index]),
+          background: stackBehindDismiss(),
+          child: InkWell(
+            onTap: () async {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => DetailProject(idproject : listProject[index].id)));
+            },
+            child: Container(
+              height: 100,
+              child: Card(
+                  elevation: 2.0,
+                  child: ListTile(
+                    leading: new Container(
+                        color: Colors.black,
+                        child: new Container(
+                            decoration: new BoxDecoration(
+                                color: Colors.green,
+                                borderRadius: new BorderRadius.only(
+                                    topLeft: const Radius.circular(40.0),
+                                    topRight: const Radius.circular(40.0))),
+                            child: Image.network(
+                                "http://www.kaosfutsal.com/wp-content/uploads/2019/12/placeholder.png"))),
+                    title: Text("${listProject[index].title}"),
+                    subtitle: Text("${listProject[index].title}"),
+                  )),
+            ),
+          ),
         );
       },
+    );
+  }
+    Widget stackBehindDismiss() {
+    return Container(
+      alignment: Alignment.centerRight,
+      padding: EdgeInsets.only(right: 20.0),
+      color: Colors.red,
+      child: Icon(
+        Icons.delete,
+        color: Colors.white,
+      ),
     );
   }
 }

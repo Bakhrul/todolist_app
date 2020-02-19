@@ -1,3 +1,4 @@
+import 'package:todolist_app/src/pages/auth/register.dart';
 import 'package:todolist_app/src/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
@@ -263,7 +264,7 @@ class _LoginPageState extends State<LoginPage> {
                   Container(
                     margin: EdgeInsets.only(bottom: 40.0),
                     child: Text(
-                      'EventZhee',
+                      'To Do List',
                       style: TextStyle(
                         color: Color.fromRGBO(254, 86, 14, 1),
                         fontSize: 42.0,
@@ -309,10 +310,10 @@ class _LoginPageState extends State<LoginPage> {
                           child: FlatButton(
                             padding: EdgeInsets.all(5.0),
                             onPressed: () async {
-                              // Navigator.push(
-                              //     context,
-                              //     MaterialPageRoute(
-                              //         builder: (context) => Register()));
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => Register()));
                             },
                             child: Text(
                               'Daftar Sekarang',

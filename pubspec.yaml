@@ -29,7 +29,11 @@ dependencies:
   email_validator:
   http:
   fluttertoast:
+  draggable_fab: ^0.1.1
   intl: ^0.15.0  
+  progress_dialog: ^1.2.1
+  image_picker: ^0.6.2+2
+  datetime_picker_formfield: ^0.4.3
 
 dev_dependencies:
   flutter_test:
