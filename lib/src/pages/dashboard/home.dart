@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:todolist_app/src/models/project.dart';
+import 'package:todolist_app/src/pages/project/index.dart';
 import 'package:todolist_app/src/routes/env.dart';
 import 'package:todolist_app/src/storage/storage.dart';
 import 'package:http/http.dart' as http;
@@ -89,8 +90,6 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    print("SALAH OPOE");
-    print(listProject);
     return ListView.builder(
       itemCount: listProject.length,
       itemBuilder: (BuildContext context, int index) {
@@ -99,6 +98,9 @@ class _HomeState extends State<Home> {
           child: Card(
               elevation: 2.0,
               child: ListTile(
+                onTap: () => {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => Projects() ))
+                },
                 leading: new Container(
                     color: Colors.black,
                     child: new Container(
