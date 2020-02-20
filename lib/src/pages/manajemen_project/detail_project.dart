@@ -26,6 +26,8 @@ String _urutkanvalue;
 Map<String, String> requestHeaders = Map();
 var datepickerlastTodo, datepickerfirstTodo;
 String _tanggalawalTodo, _tanggalakhirTodo;
+bool actionBackAppBar, iconButtonAppbarColor, isSendingMessage;
+TextEditingController _searchQuery = TextEditingController();
 TextEditingController _controllerNamaTodo = TextEditingController();
 TextEditingController _controllerdeskripsiTodo = TextEditingController();
 TextEditingController _tanggalawalTodoController = TextEditingController();
@@ -66,6 +68,8 @@ class _DetailProjectState extends State<DetailProject>
     _tanggalawalTodoController.text = '';
     _tanggalakhirTodoController.text = '';
     _controllerAddpeserta.text = '';
+    actionBackAppBar = true;
+    iconButtonAppbarColor = true;
     datepickerfirstTodo = FocusNode();
     getHeaderHTTP();
     datepickerlastTodo = FocusNode();
@@ -80,6 +84,34 @@ class _DetailProjectState extends State<DetailProject>
     timeSetToMinute();
     listTodoProject = [];
   }
+
+  void _handleSearchEnd() {
+    setState(() {
+      // ignore: new_with_non_type
+      actionBackAppBar = true;
+      iconButtonAppbarColor = true;
+      this.actionIcon = new Icon(
+        Icons.search,
+        color: Colors.white,
+      );
+      this.appBarTitle = new Text(
+        "Manajemen Project",
+        style: TextStyle(
+          color: Colors.white,
+          fontSize: 14,
+        ),
+      );
+    });
+  }
+
+  Widget appBarTitle = Text(
+    "Manajemen Project",
+    style: TextStyle(fontSize: 14),
+  );
+  Icon actionIcon = Icon(
+    Icons.search,
+    color: Colors.white,
+  );
 
   @override
   void dispose() {
@@ -203,7 +235,6 @@ class _DetailProjectState extends State<DetailProject>
   void _tambahmember() async {
     await progressApiAction.show();
     try {
-      Fluttertoast.showToast(msg: "Mohon Tunggu Sebentar");
       final addadminevent = await http
           .post(url('api/add_member_project'), headers: requestHeaders, body: {
         'member': _controllerAddpeserta.text,
@@ -232,7 +263,7 @@ class _DetailProjectState extends State<DetailProject>
             print(isHidden);
           });
           Fluttertoast.showToast(
-              msg: "Email ini belum terdaftar sebagai akun pengguna !");
+              msg: "Email Ini Belum Terdaftar Sebagai Akun Pengguna !");
         } else if (addpesertaJson['status'] == 'member sudah ada') {
           setState(() {
             _controllerAddpeserta.text = '';
@@ -243,7 +274,7 @@ class _DetailProjectState extends State<DetailProject>
           });
           String roleName = addpesertaJson['role'];
           Fluttertoast.showToast(
-              msg: "Akun ini sudah terdaftar sebagai $roleName");
+              msg: "Akun Ini Sudah Terdaftar Sebagai $roleName");
         }
       } else {
         setState(() {
@@ -281,7 +312,6 @@ class _DetailProjectState extends State<DetailProject>
   void _tambahtodo() async {
     await progressApiAction.show();
     try {
-      Fluttertoast.showToast(msg: "Mohon Tunggu Sebentar");
       final tambahtodoProject = await http
           .post(url('api/add_todo_project'), headers: requestHeaders, body: {
         'nama_todo': _controllerNamaTodo.text,
@@ -376,7 +406,6 @@ class _DetailProjectState extends State<DetailProject>
                   textColor: Colors.green,
                   child: Text('Ya'),
                   onPressed: () async {
-                    Fluttertoast.showToast(msg: "Mohon Tunggu Sebentar");
                     Navigator.pop(context);
                     await progressApiAction.show();
                     try {
@@ -442,7 +471,6 @@ class _DetailProjectState extends State<DetailProject>
                   textColor: Colors.green,
                   child: Text('Ya'),
                   onPressed: () async {
-                    Fluttertoast.showToast(msg: "Mohon Tunggu Sebentar");
                     Navigator.pop(context);
                     await progressApiAction.show();
                     try {
@@ -489,6 +517,82 @@ class _DetailProjectState extends State<DetailProject>
                 )
               ],
             ));
+  }
+
+  void gantiStatusTodo(idtodo, role) async {
+    showModalBottomSheet(
+        isScrollControlled: true,
+        context: context,
+        builder: (builder) {
+          return Container(
+            height: 230.0 + MediaQuery.of(context).viewInsets.bottom,
+            padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewInsets.bottom,
+                right: 15.0,
+                left: 15.0,
+                top: 15.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Center(
+                    child: Container(
+                        margin: EdgeInsets.only(top: 15.0),
+                        width: double.infinity,
+                        height: 45.0,
+                        child: RaisedButton(
+                            onPressed: role == 'Open'
+                                ? null
+                                : () async {
+                                    _updatestatusTodo(idtodo, 'Open');
+                                  },
+                            color: primaryAppBarColor,
+                            textColor: Colors.white,
+                            disabledColor: Color.fromRGBO(254, 86, 14, 0.7),
+                            disabledTextColor: Colors.white,
+                            splashColor: Colors.blueAccent,
+                            child: Text("Open To Do",
+                                style: TextStyle(color: Colors.white))))),
+                Center(
+                    child: Container(
+                        margin: EdgeInsets.only(top: 15.0),
+                        width: double.infinity,
+                        height: 45.0,
+                        child: RaisedButton(
+                            onPressed: role == 'Pending'
+                                ? null
+                                : () async {
+                                    _updatestatusTodo(idtodo, 'Pending');
+                                  },
+                            color: primaryAppBarColor,
+                            textColor: Colors.white,
+                            disabledColor: Color.fromRGBO(254, 86, 14, 0.7),
+                            disabledTextColor: Colors.white,
+                            splashColor: Colors.blueAccent,
+                            child: Text('Pending To Do',
+                                style: TextStyle(color: Colors.white))))),
+                Center(
+                    child: Container(
+                        margin: EdgeInsets.only(top: 15.0),
+                        width: double.infinity,
+                        height: 45.0,
+                        child: RaisedButton(
+                            onPressed: role == 'Finish'
+                                ? null
+                                : () async {
+                                    _updatestatusTodo(idtodo, 'Finish');
+                                  },
+                            color: primaryAppBarColor,
+                            textColor: Colors.white,
+                            disabledColor: Color.fromRGBO(254, 86, 14, 0.7),
+                            disabledTextColor: Colors.white,
+                            splashColor: Colors.blueAccent,
+                            child: Text("Finish To Do",
+                                style: TextStyle(color: Colors.white)))))
+              ],
+            ),
+          );
+        });
   }
 
   void gantiStatusMember(idmember, idrole) async {
@@ -571,7 +675,6 @@ class _DetailProjectState extends State<DetailProject>
     Navigator.pop(context);
     await progressApiAction.show();
     try {
-      Fluttertoast.showToast(msg: "Mohon Tunggu Sebentar");
       final updatetatusMember = await http.post(
           url('api/update_status_member_project'),
           headers: requestHeaders,
@@ -579,6 +682,48 @@ class _DetailProjectState extends State<DetailProject>
             'member': idmember,
             'project': widget.idproject.toString(),
             'role': role.toString(),
+          });
+
+      if (updatetatusMember.statusCode == 200) {
+        var updatetatusMemberjson = json.decode(updatetatusMember.body);
+        if (updatetatusMemberjson['status'] == 'success') {
+          progressApiAction.hide().then((isHidden) {
+            print(isHidden);
+          });
+          Fluttertoast.showToast(msg: "Berhasil !");
+          getDataTodo();
+        }
+      } else {
+        print(updatetatusMember.body);
+        progressApiAction.hide().then((isHidden) {
+          print(isHidden);
+        });
+        Fluttertoast.showToast(msg: "Gagal, Silahkan Coba Kembali");
+      }
+    } on TimeoutException catch (_) {
+      progressApiAction.hide().then((isHidden) {
+        print(isHidden);
+      });
+      Fluttertoast.showToast(msg: "Timed out, Try again");
+    } catch (e) {
+      progressApiAction.hide().then((isHidden) {
+        print(isHidden);
+      });
+      Fluttertoast.showToast(msg: "Gagal, Silahkan Coba Kembali");
+      print(e);
+    }
+  }
+
+  void _updatestatusTodo(idtodo, status) async {
+    Navigator.pop(context);
+    await progressApiAction.show();
+    try {
+      final updatetatusMember = await http.post(
+          url('api/update_status_todo_project'),
+          headers: requestHeaders,
+          body: {
+            'todo': idtodo.toString(),
+            'status': status,
           });
 
       if (updatetatusMember.statusCode == 200) {
@@ -626,11 +771,7 @@ class _DetailProjectState extends State<DetailProject>
             color: Colors.black, fontSize: 12.0, fontWeight: FontWeight.w600));
     return Scaffold(
       backgroundColor: Color.fromRGBO(242, 242, 242, 1),
-      appBar: AppBar(
-        backgroundColor: primaryAppBarColor,
-        title: Text('Manajemen Project', style: TextStyle(fontSize: 14)),
-        actions: <Widget>[],
-      ), //
+      appBar: buildBar(context),
       body: Container(
         child: Stack(
           children: <Widget>[
@@ -685,309 +826,329 @@ class _DetailProjectState extends State<DetailProject>
                         children: <Widget>[
                           isLoading == true
                               ? _loadingview()
-                              : Column(
-                                  children: <Widget>[
-                                    Container(
-                                      padding: EdgeInsets.all(15.0),
-                                      color: Colors.white,
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.start,
-                                        children: <Widget>[
-                                          Container(
-                                            margin:
-                                                EdgeInsets.only(bottom: 10.0),
-                                            child: Text(
-                                              'Tambah Member',
-                                              style: TextStyle(
-                                                  fontWeight: FontWeight.w500),
-                                            ),
-                                          ),
-                                          Divider(),
-                                          Container(
-                                              alignment: Alignment.center,
-                                              height: 40.0,
-                                              margin: EdgeInsets.only(
-                                                  bottom: 5.0, top: 5.0),
-                                              child: TextField(
-                                                textAlignVertical:
-                                                    TextAlignVertical.center,
-                                                autofocus: focus,
-                                                controller:
-                                                    _controllerAddpeserta,
-                                                decoration: InputDecoration(
-                                                    border:
-                                                        OutlineInputBorder(),
-                                                    hintText:
-                                                        'Masukkan Email Pengguna',
-                                                    hintStyle: TextStyle(
-                                                      fontSize: 12,
-                                                      color: Colors.black,
-                                                    )),
-                                              )),
-                                          Container(
-                                            height: 40.0,
-                                            alignment: Alignment.center,
-                                            margin: EdgeInsets.only(top: 5.0),
-                                            padding: EdgeInsets.all(5.0),
-                                            decoration: BoxDecoration(
-                                                border: Border.all(
-                                                    color: Colors.black45),
-                                                borderRadius: BorderRadius.all(
-                                                    Radius.circular(5.0))),
-                                            child: DropdownButtonHideUnderline(
-                                              child: DropdownButton<String>(
-                                                isExpanded: true,
-                                                items: [
-                                                  DropdownMenuItem<String>(
-                                                    child: Text(
-                                                      'Admin',
-                                                      style: TextStyle(
-                                                        fontSize: 12,
-                                                      ),
-                                                    ),
-                                                    value: '2',
-                                                  ),
-                                                  DropdownMenuItem<String>(
-                                                    child: Text(
-                                                      'Executor',
-                                                      style: TextStyle(
-                                                        fontSize: 12,
-                                                      ),
-                                                    ),
-                                                    value: '3',
-                                                  ),
-                                                  DropdownMenuItem<String>(
-                                                    child: Text(
-                                                      'Viewer',
-                                                      style: TextStyle(
-                                                        fontSize: 12,
-                                                      ),
-                                                    ),
-                                                    value: '4',
-                                                  ),
-                                                ],
-                                                value: _urutkanvalue == null
-                                                    ? null
-                                                    : _urutkanvalue,
-                                                onChanged: (String value) {
-                                                  setState(() {
-                                                    _urutkanvalue = value;
-                                                  });
-                                                },
-                                                hint: Text(
-                                                  'Pilih level Member',
+                              : isError == true
+                                  ? errorSystem(context)
+                                  : Column(
+                                      children: <Widget>[
+                                        Container(
+                                          padding: EdgeInsets.all(15.0),
+                                          color: Colors.white,
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.start,
+                                            children: <Widget>[
+                                              Container(
+                                                margin: EdgeInsets.only(
+                                                    bottom: 10.0),
+                                                child: Text(
+                                                  'Tambah Member',
                                                   style: TextStyle(
-                                                      fontSize: 12,
-                                                      color: Colors.black),
+                                                      fontWeight:
+                                                          FontWeight.w500),
                                                 ),
                                               ),
-                                            ),
-                                          ),
-                                          Center(
-                                              child: Container(
-                                                  margin: EdgeInsets.only(
-                                                      top: 10.0),
-                                                  width: double.infinity,
+                                              Divider(),
+                                              Container(
+                                                  alignment: Alignment.center,
                                                   height: 40.0,
-                                                  child: RaisedButton(
-                                                      onPressed: () async {
-                                                        String emailValid =
-                                                            _controllerAddpeserta
-                                                                .text;
-                                                        final bool isValid =
-                                                            EmailValidator
-                                                                .validate(
-                                                                    emailValid);
-                                                        print(
-                                                            'Email is valid? ' +
-                                                                (isValid
-                                                                    ? 'yes'
-                                                                    : 'no'));
-                                                        if (_controllerAddpeserta
-                                                                    .text ==
-                                                                null ||
-                                                            _controllerAddpeserta
-                                                                    .text ==
-                                                                '') {
-                                                          Fluttertoast.showToast(
-                                                              msg:
-                                                                  "Email Tidak Boleh Kosong");
-                                                        } else if (!isValid) {
-                                                          Fluttertoast.showToast(
-                                                              msg:
-                                                                  "Masukkan Email Yang Valid");
-                                                        } else if (_urutkanvalue ==
-                                                            null) {
-                                                          Fluttertoast.showToast(
-                                                              msg:
-                                                                  "Pilih Level Member");
-                                                        } else {
-                                                          _tambahmember();
-                                                        }
-                                                      },
-                                                      color: primaryAppBarColor,
-                                                      textColor: Colors.white,
-                                                      disabledColor:
-                                                          Color.fromRGBO(
-                                                              254, 86, 14, 0.7),
-                                                      disabledTextColor:
-                                                          Colors.white,
-                                                      splashColor:
-                                                          Colors.blueAccent,
-                                                      child: Text(
-                                                          "Tambahkan Member",
+                                                  margin: EdgeInsets.only(
+                                                      bottom: 5.0, top: 5.0),
+                                                  child: TextField(
+                                                    textAlignVertical:
+                                                        TextAlignVertical
+                                                            .center,
+                                                    autofocus: focus,
+                                                    controller:
+                                                        _controllerAddpeserta,
+                                                    decoration: InputDecoration(
+                                                        border:
+                                                            OutlineInputBorder(),
+                                                        hintText:
+                                                            'Masukkan Email Pengguna',
+                                                        hintStyle: TextStyle(
+                                                          fontSize: 12,
+                                                          color: Colors.black,
+                                                        )),
+                                                  )),
+                                              Container(
+                                                height: 40.0,
+                                                alignment: Alignment.center,
+                                                margin:
+                                                    EdgeInsets.only(top: 0.0),
+                                                padding: EdgeInsets.only(
+                                                    left: 10.0, right: 10.0),
+                                                decoration: BoxDecoration(
+                                                    border: Border.all(
+                                                        color: Colors.black45),
+                                                    borderRadius:
+                                                        BorderRadius.all(
+                                                            Radius.circular(
+                                                                5.0))),
+                                                child:
+                                                    DropdownButtonHideUnderline(
+                                                  child: DropdownButton<String>(
+                                                    isExpanded: true,
+                                                    items: [
+                                                      DropdownMenuItem<String>(
+                                                        child: Text(
+                                                          'Admin',
                                                           style: TextStyle(
-                                                              fontSize: 12,
-                                                              color: Colors
-                                                                  .white)))))
-                                        ],
-                                      ),
-                                    ),
-                                    Container(
-                                        color: Colors.white,
-                                        margin: EdgeInsets.only(
-                                          top: 10.0,
-                                        ),
-                                        child: SingleChildScrollView(
-                                          child: Container(
-                                            child: Column(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
-                                              children: listMemberProject
-                                                  .map((Member item) => Card(
-                                                      elevation: 0.6,
-                                                      child: ListTile(
-                                                        leading: Container(
-                                                          width: 40.0,
-                                                          height: 40.0,
-                                                          child: ClipOval(
-                                                            child: FadeInImage
-                                                                .assetNetwork(
-                                                              placeholder:
-                                                                  'images/loading.gif',
-                                                              image: item.image ==
-                                                                          null ||
-                                                                      item.image ==
-                                                                          '' ||
-                                                                      item.image ==
-                                                                          'null'
-                                                                  ? url(
-                                                                      'assets/images/imgavatar.png')
-                                                                  : url(
-                                                                      'storage/image/profile/${item.image}'),
-                                                              fit: BoxFit.cover,
-                                                            ),
-                                                          ),
-                                                          decoration:
-                                                              BoxDecoration(
-                                                            shape:
-                                                                BoxShape.circle,
+                                                            fontSize: 12,
                                                           ),
                                                         ),
-                                                        title: Text(
-                                                            item.name == '' ||
-                                                                    item.name ==
-                                                                        null
-                                                                ? 'Member Tidak Diketahui'
-                                                                : item.name,
-                                                            style: TextStyle(
-                                                                fontSize: 16,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w500)),
-                                                        subtitle: Padding(
-                                                          padding:
-                                                              const EdgeInsets
-                                                                      .only(
-                                                                  top: 15.0),
-                                                          child: Column(
-                                                            crossAxisAlignment:
-                                                                CrossAxisAlignment
-                                                                    .start,
-                                                            mainAxisAlignment:
-                                                                MainAxisAlignment
-                                                                    .start,
-                                                            children: <Widget>[
-                                                              Text(
-                                                                item.rolename ==
-                                                                            '' ||
-                                                                        item.rolename ==
-                                                                            null
-                                                                    ? 'Status tidak diketahui'
-                                                                    : item
-                                                                        .rolename,
-                                                                style: TextStyle(
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .w500,
-                                                                    color: Colors
-                                                                        .green),
-                                                              ),
-                                                            ],
+                                                        value: '2',
+                                                      ),
+                                                      DropdownMenuItem<String>(
+                                                        child: Text(
+                                                          'Executor',
+                                                          style: TextStyle(
+                                                            fontSize: 12,
                                                           ),
                                                         ),
-                                                        trailing: Row(
-                                                          mainAxisSize:
-                                                              MainAxisSize.min,
-                                                          children: <Widget>[
-                                                            PopupMenuButton<
-                                                                PageMember>(
-                                                              onSelected:
-                                                                  (PageMember
-                                                                      value) {
-                                                                switch (value) {
-                                                                  case PageMember
-                                                                      .hapusMember:
-                                                                    hapusMember(item
-                                                                        .iduser
-                                                                        .toString());
-                                                                    break;
-                                                                  case PageMember
-                                                                      .gantiStatusMember:
-                                                                    gantiStatusMember(
-                                                                        item.iduser
-                                                                            .toString(),
-                                                                        item.roleid);
-                                                                    break;
-                                                                  default:
-                                                                    break;
-                                                                }
-                                                              },
-                                                              icon: Icon(Icons
-                                                                  .more_vert),
-                                                              itemBuilder:
-                                                                  (context) => [
-                                                                PopupMenuItem(
-                                                                  value: PageMember
-                                                                      .gantiStatusMember,
-                                                                  child: Text(
-                                                                      "Ganti Status"),
-                                                                ),
-                                                                PopupMenuItem(
-                                                                  // value: PageEnum.deletePeserta,
-                                                                  child: Text(
-                                                                      "Atur TodoList"),
-                                                                ),
-                                                                PopupMenuItem(
-                                                                  value: PageMember
-                                                                      .hapusMember,
-                                                                  child: Text(
-                                                                      "Hapus Member"),
-                                                                ),
-                                                              ],
-                                                            ),
-                                                          ],
+                                                        value: '3',
+                                                      ),
+                                                      DropdownMenuItem<String>(
+                                                        child: Text(
+                                                          'Viewer',
+                                                          style: TextStyle(
+                                                            fontSize: 12,
+                                                          ),
                                                         ),
-                                                      )))
-                                                  .toList(),
-                                            ),
+                                                        value: '4',
+                                                      ),
+                                                    ],
+                                                    value: _urutkanvalue == null
+                                                        ? null
+                                                        : _urutkanvalue,
+                                                    onChanged: (String value) {
+                                                      setState(() {
+                                                        _urutkanvalue = value;
+                                                      });
+                                                    },
+                                                    hint: Text(
+                                                      'Pilih level Member',
+                                                      style: TextStyle(
+                                                          fontSize: 12,
+                                                          color: Colors.black),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                              Center(
+                                                  child: Container(
+                                                      margin: EdgeInsets.only(
+                                                          top: 10.0),
+                                                      width: double.infinity,
+                                                      height: 40.0,
+                                                      child: RaisedButton(
+                                                          onPressed: () async {
+                                                            String emailValid =
+                                                                _controllerAddpeserta
+                                                                    .text;
+                                                            final bool isValid =
+                                                                EmailValidator
+                                                                    .validate(
+                                                                        emailValid);
+                                                            print(
+                                                                'Email is valid? ' +
+                                                                    (isValid
+                                                                        ? 'yes'
+                                                                        : 'no'));
+                                                            if (_controllerAddpeserta
+                                                                        .text ==
+                                                                    null ||
+                                                                _controllerAddpeserta
+                                                                        .text ==
+                                                                    '') {
+                                                              Fluttertoast
+                                                                  .showToast(
+                                                                      msg:
+                                                                          "Email Tidak Boleh Kosong");
+                                                            } else if (!isValid) {
+                                                              Fluttertoast
+                                                                  .showToast(
+                                                                      msg:
+                                                                          "Masukkan Email Yang Valid");
+                                                            } else if (_urutkanvalue ==
+                                                                null) {
+                                                              Fluttertoast
+                                                                  .showToast(
+                                                                      msg:
+                                                                          "Pilih Level Member");
+                                                            } else {
+                                                              _tambahmember();
+                                                            }
+                                                          },
+                                                          color:
+                                                              primaryAppBarColor,
+                                                          textColor:
+                                                              Colors.white,
+                                                          disabledColor:
+                                                              Color.fromRGBO(
+                                                                  254,
+                                                                  86,
+                                                                  14,
+                                                                  0.7),
+                                                          disabledTextColor:
+                                                              Colors.white,
+                                                          splashColor:
+                                                              Colors.blueAccent,
+                                                          child: Text(
+                                                              "Tambahkan Member",
+                                                              style: TextStyle(
+                                                                  fontSize: 12,
+                                                                  color: Colors
+                                                                      .white)))))
+                                            ],
                                           ),
-                                        )),
-                                  ],
-                                ),
+                                        ),
+                                        Container(
+                                            color: Colors.white,
+                                            margin: EdgeInsets.only(
+                                              top: 10.0,
+                                            ),
+                                            child: SingleChildScrollView(
+                                              child: Container(
+                                                child: Column(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  children: listMemberProject
+                                                      .map(
+                                                          (Member item) => Card(
+                                                              elevation: 0.6,
+                                                              child: ListTile(
+                                                                leading:
+                                                                    Container(
+                                                                  width: 40.0,
+                                                                  height: 40.0,
+                                                                  child:
+                                                                      ClipOval(
+                                                                    child: FadeInImage
+                                                                        .assetNetwork(
+                                                                      placeholder:
+                                                                          'images/loading.gif',
+                                                                      image: item.image == null ||
+                                                                              item.image ==
+                                                                                  '' ||
+                                                                              item.image ==
+                                                                                  'null'
+                                                                          ? url(
+                                                                              'assets/images/imgavatar.png')
+                                                                          : url(
+                                                                              'storage/image/profile/${item.image}'),
+                                                                      fit: BoxFit
+                                                                          .cover,
+                                                                    ),
+                                                                  ),
+                                                                  decoration:
+                                                                      BoxDecoration(
+                                                                    shape: BoxShape
+                                                                        .circle,
+                                                                  ),
+                                                                ),
+                                                                title: Text(
+                                                                    item.name ==
+                                                                                '' ||
+                                                                            item.name ==
+                                                                                null
+                                                                        ? 'Member Tidak Diketahui'
+                                                                        : item
+                                                                            .name,
+                                                                    style: TextStyle(
+                                                                        fontSize:
+                                                                            16,
+                                                                        fontWeight:
+                                                                            FontWeight.w500)),
+                                                                subtitle:
+                                                                    Padding(
+                                                                  padding: const EdgeInsets
+                                                                          .only(
+                                                                      top:
+                                                                          15.0),
+                                                                  child: Column(
+                                                                    crossAxisAlignment:
+                                                                        CrossAxisAlignment
+                                                                            .start,
+                                                                    mainAxisAlignment:
+                                                                        MainAxisAlignment
+                                                                            .start,
+                                                                    children: <
+                                                                        Widget>[
+                                                                      Text(
+                                                                        item.rolename == '' ||
+                                                                                item.rolename == null
+                                                                            ? 'Status tidak diketahui'
+                                                                            : item.rolename,
+                                                                        style: TextStyle(
+                                                                            fontWeight:
+                                                                                FontWeight.w500,
+                                                                            color: Colors.green),
+                                                                      ),
+                                                                    ],
+                                                                  ),
+                                                                ),
+                                                                trailing: Row(
+                                                                  mainAxisSize:
+                                                                      MainAxisSize
+                                                                          .min,
+                                                                  children: <
+                                                                      Widget>[
+                                                                    PopupMenuButton<
+                                                                        PageMember>(
+                                                                      onSelected:
+                                                                          (PageMember
+                                                                              value) {
+                                                                        switch (
+                                                                            value) {
+                                                                          case PageMember
+                                                                              .hapusMember:
+                                                                            hapusMember(item.iduser.toString());
+                                                                            break;
+                                                                          case PageMember
+                                                                              .gantiStatusMember:
+                                                                            gantiStatusMember(item.iduser.toString(),
+                                                                                item.roleid);
+                                                                            break;
+                                                                          default:
+                                                                            break;
+                                                                        }
+                                                                      },
+                                                                      icon: Icon(
+                                                                          Icons
+                                                                              .more_vert),
+                                                                      itemBuilder:
+                                                                          (context) =>
+                                                                              [
+                                                                        PopupMenuItem(
+                                                                          value:
+                                                                              PageMember.gantiStatusMember,
+                                                                          child:
+                                                                              Text("Ganti Status"),
+                                                                        ),
+                                                                        PopupMenuItem(
+                                                                          // value: PageEnum.deletePeserta,
+                                                                          child:
+                                                                              Text("Atur TodoList"),
+                                                                        ),
+                                                                        PopupMenuItem(
+                                                                          value:
+                                                                              PageMember.hapusMember,
+                                                                          child:
+                                                                              Text("Hapus Member"),
+                                                                        ),
+                                                                      ],
+                                                                    ),
+                                                                  ],
+                                                                ),
+                                                              )))
+                                                      .toList(),
+                                                ),
+                                              ),
+                                            )),
+                                      ],
+                                    ),
                         ],
                       ),
                     ),
@@ -998,358 +1159,433 @@ class _DetailProjectState extends State<DetailProject>
                         children: <Widget>[
                           isLoading == true
                               ? _loadingview()
-                              : Column(
-                                  children: <Widget>[
-                                    Container(
-                                      padding: EdgeInsets.all(15.0),
-                                      color: Colors.white,
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.start,
-                                        children: <Widget>[
-                                          Container(
-                                            margin:
-                                                EdgeInsets.only(bottom: 10.0),
-                                            child: Text(
-                                              'Tambah To Do',
-                                              style: TextStyle(
-                                                  fontWeight: FontWeight.w500),
-                                            ),
-                                          ),
-                                          Divider(),
-                                          Container(
-                                              height: 40.0,
-                                              alignment: Alignment.center,
-                                              margin: EdgeInsets.only(
-                                                  bottom: 5.0, top: 5.0),
-                                              child: TextField(
-                                                textAlignVertical:
-                                                    TextAlignVertical.center,
-                                                autofocus: focus,
-                                                controller: _controllerNamaTodo,
-                                                decoration: InputDecoration(
+                              : isError == true
+                                  ? errorSystem(context)
+                                  : Column(
+                                      children: <Widget>[
+                                        Container(
+                                          padding: EdgeInsets.all(15.0),
+                                          color: Colors.white,
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.start,
+                                            children: <Widget>[
+                                              Container(
+                                                margin: EdgeInsets.only(
+                                                    bottom: 10.0),
+                                                child: Text(
+                                                  'Tambah To Do',
+                                                  style: TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.w500),
+                                                ),
+                                              ),
+                                              Divider(),
+                                              Container(
+                                                  height: 40.0,
+                                                  alignment: Alignment.center,
+                                                  margin: EdgeInsets.only(
+                                                      bottom: 5.0, top: 5.0),
+                                                  child: TextField(
+                                                    textAlignVertical:
+                                                        TextAlignVertical
+                                                            .center,
+                                                    autofocus: focus,
+                                                    controller:
+                                                        _controllerNamaTodo,
+                                                    decoration: InputDecoration(
+                                                        border:
+                                                            OutlineInputBorder(),
+                                                        hintText:
+                                                            'Masukkan Nama To Do',
+                                                        hintStyle: TextStyle(
+                                                          fontSize: 12,
+                                                          color: Colors.black,
+                                                        )),
+                                                  )),
+                                              Container(
+                                                height: 40.0,
+                                                alignment: Alignment.center,
+                                                margin: EdgeInsets.only(
+                                                    bottom: 5.0),
+                                                child: DateTimeField(
+                                                  controller:
+                                                      _tanggalawalTodoController,
+                                                  decoration: InputDecoration(
                                                     border:
                                                         OutlineInputBorder(),
+                                                    contentPadding:
+                                                        EdgeInsets.only(
+                                                            top: 2,
+                                                            bottom: 2,
+                                                            left: 10,
+                                                            right: 10),
                                                     hintText:
-                                                        'Masukkan Nama To Do',
+                                                        'Tanggal Dimulainya To Do',
                                                     hintStyle: TextStyle(
-                                                      fontSize: 12,
-                                                      color: Colors.black,
-                                                    )),
-                                              )),
-                                          Container(
-                                            height: 40.0,
-                                            alignment: Alignment.center,
-                                            margin:
-                                                EdgeInsets.only(bottom: 5.0),
-                                            child: DateTimeField(
-                                              controller:
-                                                  _tanggalawalTodoController,
-                                              decoration: InputDecoration(
-                                                border: OutlineInputBorder(),
-                                                contentPadding: EdgeInsets.only(
-                                                    top: 2,
-                                                    bottom: 2,
-                                                    left: 10,
-                                                    right: 10),
-                                                hintText:
-                                                    'Tanggal dimulaniya to do',
-                                                hintStyle: TextStyle(
-                                                    fontSize: 12,
-                                                    color: Colors.black),
+                                                        fontSize: 12,
+                                                        color: Colors.black),
+                                                  ),
+                                                  readOnly: true,
+                                                  format: format,
+                                                  focusNode:
+                                                      datepickerfirstTodo,
+                                                  onShowPicker: (context,
+                                                      currentValue) async {
+                                                    final date =
+                                                        await showDatePicker(
+                                                            context: context,
+                                                            firstDate:
+                                                                DateTime.now(),
+                                                            initialDate:
+                                                                DateTime.now(),
+                                                            lastDate:
+                                                                DateTime(2100));
+                                                    if (date != null) {
+                                                      final time =
+                                                          await showTimePicker(
+                                                        context: context,
+                                                        initialTime: TimeOfDay
+                                                            .fromDateTime(
+                                                                currentValue ??
+                                                                    timeReplacement),
+                                                      );
+                                                      return DateTimeField
+                                                          .combine(date, time);
+                                                    } else {
+                                                      return currentValue;
+                                                    }
+                                                  },
+                                                  onChanged: (ini) {
+                                                    setState(() {
+                                                      _tanggalakhirTodoController
+                                                          .text = '';
+                                                      _tanggalakhirTodo =
+                                                          'kosong';
+                                                      _tanggalawalTodo =
+                                                          ini == null
+                                                              ? 'kosong'
+                                                              : ini.toString();
+                                                    });
+                                                  },
+                                                ),
                                               ),
-                                              readOnly: true,
-                                              format: format,
-                                              focusNode: datepickerfirstTodo,
-                                              onShowPicker: (context,
-                                                  currentValue) async {
-                                                final date =
-                                                    await showDatePicker(
+                                              Container(
+                                                height: 40.0,
+                                                alignment: Alignment.center,
+                                                margin: EdgeInsets.only(
+                                                    bottom: 5.0),
+                                                child: DateTimeField(
+                                                  controller:
+                                                      _tanggalakhirTodoController,
+                                                  decoration: InputDecoration(
+                                                    border:
+                                                        OutlineInputBorder(),
+                                                    contentPadding:
+                                                        EdgeInsets.only(
+                                                            top: 2,
+                                                            bottom: 2,
+                                                            left: 10,
+                                                            right: 10),
+                                                    hintText:
+                                                        'Tanggal Berakhirnya To Do',
+                                                    hintStyle: TextStyle(
+                                                        fontSize: 12,
+                                                        color: Colors.black),
+                                                  ),
+                                                  readOnly: true,
+                                                  format: format,
+                                                  focusNode: datepickerlastTodo,
+                                                  onShowPicker: (context,
+                                                      currentValue) async {
+                                                    final date = await showDatePicker(
                                                         context: context,
                                                         firstDate:
-                                                            DateTime.now(),
+                                                            _tanggalawalTodo ==
+                                                                    'kosong'
+                                                                ? DateTime.now()
+                                                                : DateTime.parse(
+                                                                    _tanggalawalTodo),
                                                         initialDate:
-                                                            DateTime.now(),
+                                                            _tanggalawalTodo ==
+                                                                    'kosong'
+                                                                ? DateTime.now()
+                                                                : DateTime.parse(
+                                                                    _tanggalawalTodo),
                                                         lastDate:
                                                             DateTime(2100));
-                                                if (date != null) {
-                                                  final time =
-                                                      await showTimePicker(
-                                                    context: context,
-                                                    initialTime:
-                                                        TimeOfDay.fromDateTime(
-                                                            currentValue ??
-                                                                timeReplacement),
-                                                  );
-                                                  return DateTimeField.combine(
-                                                      date, time);
-                                                } else {
-                                                  return currentValue;
-                                                }
-                                              },
-                                              onChanged: (ini) {
-                                                setState(() {
-                                                  _tanggalakhirTodoController
-                                                      .text = '';
-                                                  _tanggalakhirTodo = 'kosong';
-                                                  _tanggalawalTodo = ini == null
-                                                      ? 'kosong'
-                                                      : ini.toString();
-                                                });
-                                              },
-                                            ),
-                                          ),
-                                          Container(
-                                            height: 40.0,
-                                            alignment: Alignment.center,
-                                            margin:
-                                                EdgeInsets.only(bottom: 10.0),
-                                            child: DateTimeField(
-                                              controller:
-                                                  _tanggalakhirTodoController,
-                                              decoration: InputDecoration(
-                                                border: OutlineInputBorder(),
-                                                contentPadding: EdgeInsets.only(
-                                                    top: 2,
-                                                    bottom: 2,
-                                                    left: 10,
-                                                    right: 10),
-                                                hintText:
-                                                    'Tanggal dimulaniya to do',
-                                                hintStyle: TextStyle(
-                                                    fontSize: 12,
-                                                    color: Colors.black),
+                                                    if (date != null) {
+                                                      final time =
+                                                          await showTimePicker(
+                                                        context: context,
+                                                        initialTime: TimeOfDay
+                                                            .fromDateTime(
+                                                                currentValue ??
+                                                                    timeReplacement),
+                                                      );
+                                                      return DateTimeField
+                                                          .combine(date, time);
+                                                    } else {
+                                                      return currentValue;
+                                                    }
+                                                  },
+                                                  onChanged: (ini) {
+                                                    setState(() {
+                                                      _tanggalakhirTodo =
+                                                          ini == null
+                                                              ? 'kosong'
+                                                              : ini.toString();
+                                                    });
+                                                  },
+                                                ),
                                               ),
-                                              readOnly: true,
-                                              format: format,
-                                              focusNode: datepickerlastTodo,
-                                              onShowPicker: (context,
-                                                  currentValue) async {
-                                                final date = await showDatePicker(
-                                                    context: context,
-                                                    firstDate: _tanggalawalTodo ==
-                                                            'kosong'
-                                                        ? DateTime.now()
-                                                        : DateTime.parse(
-                                                            _tanggalawalTodo),
-                                                    initialDate:
-                                                        _tanggalawalTodo ==
-                                                                'kosong'
-                                                            ? DateTime.now()
-                                                            : DateTime.parse(
-                                                                _tanggalawalTodo),
-                                                    lastDate: DateTime(2100));
-                                                if (date != null) {
-                                                  final time =
-                                                      await showTimePicker(
-                                                    context: context,
-                                                    initialTime:
-                                                        TimeOfDay.fromDateTime(
-                                                            currentValue ??
-                                                                timeReplacement),
-                                                  );
-                                                  return DateTimeField.combine(
-                                                      date, time);
-                                                } else {
-                                                  return currentValue;
-                                                }
-                                              },
-                                              onChanged: (ini) {
-                                                setState(() {
-                                                  _tanggalakhirTodo =
-                                                      ini == null
-                                                          ? 'kosong'
-                                                          : ini.toString();
-                                                });
-                                              },
-                                            ),
-                                          ),
-                                          Container(
-                                              height: 100.0,
-                                              margin:
-                                                  EdgeInsets.only(bottom: 5.0),
-                                              child: TextField(
-                                                maxLines: 5,
-                                                autofocus: focus,
-                                                controller:
-                                                    _controllerdeskripsiTodo,
-                                                decoration: InputDecoration(
-                                                    border:
-                                                        OutlineInputBorder(),
-                                                    hintText: 'Deskripsi To Do',
-                                                    hintStyle: TextStyle(
-                                                      fontSize: 12,
-                                                      color: Colors.black,
-                                                    )),
-                                              )),
-                                          Center(
-                                              child: Container(
+                                              Container(
+                                                  height: 100.0,
                                                   margin: EdgeInsets.only(
-                                                      top: 10.0),
-                                                  width: double.infinity,
-                                                  height: 40.0,
-                                                  child: RaisedButton(
-                                                      onPressed: () async {
-                                                        if (_controllerNamaTodo
-                                                                .text ==
-                                                            '') {
-                                                          Fluttertoast.showToast(
-                                                              msg:
-                                                                  'Masukkan nama to do');
-                                                        } else if (_tanggalawalTodoController
-                                                                .text ==
-                                                            '') {
-                                                          Fluttertoast.showToast(
-                                                              msg:
-                                                                  'Tanggal dimulainya to do tidak boleh kosong');
-                                                        } else if (_tanggalakhirTodoController
-                                                                .text ==
-                                                            '') {
-                                                          Fluttertoast.showToast(
-                                                              msg:
-                                                                  'Tanggal berakhirnya to do tidak boleh kosong');
-                                                        } else if (_controllerdeskripsiTodo
-                                                                .text ==
-                                                            '') {
-                                                          Fluttertoast.showToast(
-                                                              msg:
-                                                                  'deskripsi to do tidak boleh kosong');
-                                                        } else {
-                                                          _tambahtodo();
-                                                        }
-                                                      },
-                                                      color: primaryAppBarColor,
-                                                      textColor: Colors.white,
-                                                      disabledColor:
-                                                          Color.fromRGBO(
-                                                              254, 86, 14, 0.7),
-                                                      disabledTextColor:
-                                                          Colors.white,
-                                                      splashColor:
-                                                          Colors.blueAccent,
-                                                      child: Text(
-                                                          "Tambahkan To Do",
-                                                          style: TextStyle(
-                                                              fontSize: 12,
-                                                              color: Colors
-                                                                  .white)))))
-                                        ],
-                                      ),
-                                    ),
-                                    Container(
-                                        color: Colors.white,
-                                        margin: EdgeInsets.only(
-                                          top: 10.0,
+                                                      bottom: 5.0),
+                                                  child: TextField(
+                                                    maxLines: 5,
+                                                    autofocus: focus,
+                                                    controller:
+                                                        _controllerdeskripsiTodo,
+                                                    decoration: InputDecoration(
+                                                        border:
+                                                            OutlineInputBorder(),
+                                                        hintText:
+                                                            'Deskripsi To Do',
+                                                        hintStyle: TextStyle(
+                                                          fontSize: 12,
+                                                          color: Colors.black,
+                                                        )),
+                                                  )),
+                                              Center(
+                                                  child: Container(
+                                                      margin: EdgeInsets.only(
+                                                          top: 10.0),
+                                                      width: double.infinity,
+                                                      height: 40.0,
+                                                      child: RaisedButton(
+                                                          onPressed: () async {
+                                                            if (_controllerNamaTodo
+                                                                    .text ==
+                                                                '') {
+                                                              Fluttertoast
+                                                                  .showToast(
+                                                                      msg:
+                                                                          'Masukkan Nama To Do');
+                                                            } else if (_tanggalawalTodoController
+                                                                    .text ==
+                                                                '') {
+                                                              Fluttertoast
+                                                                  .showToast(
+                                                                      msg:
+                                                                          'Tanggal Dimulainya To Do Tidak Boleh Kosong');
+                                                            } else if (_tanggalakhirTodoController
+                                                                    .text ==
+                                                                '') {
+                                                              Fluttertoast
+                                                                  .showToast(
+                                                                      msg:
+                                                                          'Tanggal Berakhirnya To Do Tidak Boleh Kosong');
+                                                            } else if (_controllerdeskripsiTodo
+                                                                    .text ==
+                                                                '') {
+                                                              Fluttertoast
+                                                                  .showToast(
+                                                                      msg:
+                                                                          'Deskripsi To Do Tidak Boleh Kosong');
+                                                            } else {
+                                                              _tambahtodo();
+                                                            }
+                                                          },
+                                                          color:
+                                                              primaryAppBarColor,
+                                                          textColor:
+                                                              Colors.white,
+                                                          disabledColor:
+                                                              Color.fromRGBO(
+                                                                  254,
+                                                                  86,
+                                                                  14,
+                                                                  0.7),
+                                                          disabledTextColor:
+                                                              Colors.white,
+                                                          splashColor:
+                                                              Colors.blueAccent,
+                                                          child: Text(
+                                                              "Tambahkan To Do",
+                                                              style: TextStyle(
+                                                                  fontSize: 12,
+                                                                  color: Colors
+                                                                      .white)))))
+                                            ],
+                                          ),
                                         ),
-                                        child: SingleChildScrollView(
-                                          child: Container(
-                                            child: Column(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
-                                              children: listTodoProject
-                                                  .map((Todo item) => Card(
-                                                      elevation: 0.6,
-                                                      child: ListTile(
-                                                        title: Text(
-                                                            item.title == '' ||
-                                                                    item.title ==
-                                                                        null
-                                                                ? 'To DO tidak diketahui'
-                                                                : item.title,
-                                                            style: TextStyle(
-                                                                fontSize: 16,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w500)),
-                                                        subtitle: Padding(
-                                                          padding:
-                                                              const EdgeInsets
-                                                                      .only(
-                                                                  top: 15.0),
-                                                          child: Column(
-                                                            crossAxisAlignment:
-                                                                CrossAxisAlignment
-                                                                    .start,
-                                                            mainAxisAlignment:
-                                                                MainAxisAlignment
-                                                                    .start,
-                                                            children: <Widget>[
-                                                              Text(
-                                                                item.status ==
+                                        Container(
+                                            color: Colors.white,
+                                            margin: EdgeInsets.only(
+                                              top: 10.0,
+                                            ),
+                                            child: SingleChildScrollView(
+                                              child: Container(
+                                                child: Column(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  children: listTodoProject
+                                                      .map((Todo item) => Card(
+                                                          elevation: 0.6,
+                                                          child: ListTile(
+                                                            leading: Padding(
+                                                              padding:
+                                                                  const EdgeInsets
+                                                                      .all(0.0),
+                                                              child: ClipRRect(
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .circular(
+                                                                            100.0),
+                                                                child:
+                                                                    Container(
+                                                                  height: 40.0,
+                                                                  alignment:
+                                                                      Alignment
+                                                                          .center,
+                                                                  width: 40.0,
+                                                                  decoration:
+                                                                      BoxDecoration(
+                                                                    border: Border.all(
+                                                                        color: Colors
+                                                                            .white,
+                                                                        width:
+                                                                            2.0),
+                                                                    borderRadius:
+                                                                        BorderRadius.all(
+                                                                            Radius.circular(100.0) //                 <--- border radius here
+                                                                            ),
+                                                                    color:
+                                                                        primaryAppBarColor,
+                                                                  ),
+                                                                  child: Text(
+                                                                    '${item.title[0]}',
+                                                                    style:
+                                                                        TextStyle(
+                                                                      color: Colors
+                                                                          .white,
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                            ),
+                                                            title: Text(
+                                                                item.title ==
                                                                             '' ||
-                                                                        item.status ==
+                                                                        item.title ==
                                                                             null
-                                                                    ? 'Status tidak diketahui'
+                                                                    ? 'To Do Tidak Diketahui'
                                                                     : item
-                                                                        .status,
+                                                                        .title,
                                                                 style: TextStyle(
+                                                                    fontSize:
+                                                                        16,
                                                                     fontWeight:
                                                                         FontWeight
-                                                                            .w500,
-                                                                    color:
-                                                                        primaryAppBarColor),
+                                                                            .w500)),
+                                                            subtitle: Padding(
+                                                              padding:
+                                                                  const EdgeInsets
+                                                                          .only(
+                                                                      top:
+                                                                          15.0),
+                                                              child: Column(
+                                                                crossAxisAlignment:
+                                                                    CrossAxisAlignment
+                                                                        .start,
+                                                                mainAxisAlignment:
+                                                                    MainAxisAlignment
+                                                                        .start,
+                                                                children: <
+                                                                    Widget>[
+                                                                  Text(
+                                                                    item.status ==
+                                                                                '' ||
+                                                                            item.status ==
+                                                                                null
+                                                                        ? 'Status Tidak Diketahui'
+                                                                        : item
+                                                                            .status,
+                                                                    style: TextStyle(
+                                                                        fontWeight:
+                                                                            FontWeight
+                                                                                .w500,)
+                                                                  ),
+                                                                ],
                                                               ),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                        trailing: Row(
-                                                          mainAxisSize:
-                                                              MainAxisSize.min,
-                                                          children: <Widget>[
-                                                            PopupMenuButton<
-                                                                PageTodo>(
-                                                              onSelected:
-                                                                  (PageTodo
-                                                                      value) {
-                                                                switch (value) {
-                                                                  case PageTodo
-                                                                      .hapusTodo:
-                                                                    hapusTodo(item
-                                                                        .id
-                                                                        .toString());
-                                                                    break;
-                                                                  case PageTodo
-                                                                      .gantistatusTodo:
-                                                                    break;
+                                                            ),
+                                                            trailing: Row(
+                                                              mainAxisSize:
+                                                                  MainAxisSize
+                                                                      .min,
+                                                              children: <
+                                                                  Widget>[
+                                                                PopupMenuButton<
+                                                                    PageTodo>(
+                                                                  onSelected:
+                                                                      (PageTodo
+                                                                          value) {
+                                                                    switch (
+                                                                        value) {
+                                                                      case PageTodo
+                                                                          .hapusTodo:
+                                                                        hapusTodo(item
+                                                                            .id
+                                                                            .toString());
+                                                                        break;
+                                                                      case PageTodo
+                                                                          .gantistatusTodo:
+                                                                        gantiStatusTodo(
+                                                                            item.id,
+                                                                            item.status);
+                                                                        break;
 
-                                                                  default:
-                                                                    break;
-                                                                }
-                                                              },
-                                                              icon: Icon(Icons
-                                                                  .more_vert),
-                                                              itemBuilder:
-                                                                  (context) => [
-                                                                PopupMenuItem(
-                                                                  value: PageTodo
-                                                                      .gantistatusTodo,
-                                                                  child: Text(
-                                                                      "Ganti Status"),
-                                                                ),
-                                                                PopupMenuItem(
-                                                                  // value: PageEnum.deletePeserta,
-                                                                  child: Text(
-                                                                      "Atur Member Todo"),
-                                                                ),
-                                                                PopupMenuItem(
-                                                                  value: PageTodo
-                                                                      .hapusTodo,
-                                                                  child: Text(
-                                                                      "Hapus Todo"),
+                                                                      default:
+                                                                        break;
+                                                                    }
+                                                                  },
+                                                                  icon: Icon(Icons
+                                                                      .more_vert),
+                                                                  itemBuilder:
+                                                                      (context) =>
+                                                                          [
+                                                                    PopupMenuItem(
+                                                                      value: PageTodo
+                                                                          .gantistatusTodo,
+                                                                      child: Text(
+                                                                          "Ganti Status To Do"),
+                                                                    ),
+                                                                    PopupMenuItem(
+                                                                      // value: PageEnum.deletePeserta,
+                                                                      child: Text(
+                                                                          "Atur Member To Do"),
+                                                                    ),
+                                                                    PopupMenuItem(
+                                                                      value: PageTodo
+                                                                          .hapusTodo,
+                                                                      child: Text(
+                                                                          "Hapus To Do"),
+                                                                    ),
+                                                                  ],
                                                                 ),
                                                               ],
                                                             ),
-                                                          ],
-                                                        ),
-                                                      )))
-                                                  .toList(),
-                                            ),
-                                          ),
-                                        )),
-                                  ],
-                                ),
+                                                          )))
+                                                      .toList(),
+                                                ),
+                                              ),
+                                            )),
+                                      ],
+                                    ),
                         ],
                       ),
                     ),
@@ -1437,5 +1673,128 @@ class _DetailProjectState extends State<DetailProject>
             ),
           ),
         )));
+  }
+
+  Widget errorSystem(BuildContext context) {
+    return Container(
+      color: Colors.white,
+      margin: EdgeInsets.only(top: 0.0, left: 10.0, right: 10.0),
+      padding: const EdgeInsets.only(top: 10.0, bottom: 15.0),
+      child: RefreshIndicator(
+        onRefresh: () => getHeaderHTTP(),
+        child: Column(children: <Widget>[
+          new Container(
+            width: 100.0,
+            height: 100.0,
+            child: Image.asset("images/system-eror.png"),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(
+              top: 30.0,
+              left: 15.0,
+              right: 15.0,
+            ),
+            child: Center(
+              child: Text(
+                "Gagal memuat halaman, tekan tombol muat ulang halaman untuk refresh halaman",
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.black54,
+                  height: 1.5,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(
+                top: 15.0, left: 15.0, right: 15.0, bottom: 15.0),
+            child: SizedBox(
+              width: double.infinity,
+              child: RaisedButton(
+                color: Colors.white,
+                textColor: primaryAppBarColor,
+                disabledColor: Colors.grey,
+                disabledTextColor: Colors.black,
+                padding: EdgeInsets.all(15.0),
+                onPressed: () async {
+                  getHeaderHTTP();
+                },
+                child: Text(
+                  "Muat Ulang Halaman",
+                  style: TextStyle(fontSize: 14.0, fontWeight: FontWeight.w500),
+                ),
+              ),
+            ),
+          ),
+        ]),
+      ),
+    );
+  }
+
+  Widget buildBar(BuildContext context) {
+    return PreferredSize(
+        preferredSize: Size.fromHeight(50.0),
+        child: AppBar(
+          title: appBarTitle,
+          titleSpacing: 0.0,
+          backgroundColor: primaryAppBarColor,
+          automaticallyImplyLeading: actionBackAppBar,
+          actions: <Widget>[
+            Container(
+              color: iconButtonAppbarColor == true
+                  ? primaryAppBarColor
+                  : Colors.white,
+              child: IconButton(
+                icon: actionIcon,
+                onPressed: () {
+                  setState(() {
+                    if (this.actionIcon.icon == Icons.search) {
+                      actionBackAppBar = false;
+                      iconButtonAppbarColor = false;
+                      this.actionIcon = new Icon(
+                        Icons.close,
+                        color: Colors.black87,
+                      );
+                      this.appBarTitle = Container(
+                        height: 50.0,
+                        alignment: Alignment.center,
+                        padding: EdgeInsets.all(0),
+                        margin: EdgeInsets.all(0),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                        ),
+                        child: TextField(
+                          autofocus: true,
+                          controller: _searchQuery,
+                          onChanged: (string) {
+                            if (string != null || string != '') {}
+                          },
+                          style: TextStyle(
+                            color: Colors.black87,
+                            fontSize: 14,
+                          ),
+                          textAlignVertical: TextAlignVertical.center,
+                          decoration: InputDecoration(
+                            border: InputBorder.none,
+                            prefixIcon:
+                                new Icon(Icons.search, color: Colors.black87),
+                            hintText: "Cari...",
+                            hintStyle: TextStyle(
+                              color: Colors.black87,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ),
+                      );
+                    } else {
+                      _handleSearchEnd();
+                    }
+                  });
+                },
+              ),
+            ),
+          ],
+        ));
   }
 }

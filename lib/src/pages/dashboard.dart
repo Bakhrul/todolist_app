@@ -1,6 +1,6 @@
 import 'package:todolist_app/src/pages/dashboard/home.dart';
 import 'package:todolist_app/src/pages/manajamen_user/index.dart';
-import 'package:todolist_app/src/pages/todolist/index.dart';
+import 'package:todolist_app/src/pages/todolist/create_todo.dart';
 import 'package:todolist_app/src/routes/env.dart';
 import 'package:todolist_app/src/utils/utils.dart';
 import 'package:todolist_app/src/storage/storage.dart';
@@ -321,14 +321,14 @@ class _DashboardState extends State<Dashboard> {
         var addpesertaJson = json.decode(addadminevent.body);
         if (addpesertaJson['status'] == 'success') {
           progressApiAction.hide().then((isHidden) {
-            // print(isHidden);
+
           });
           Fluttertoast.showToast(msg: "Berhasil !");
         }
       } else {
         print(addadminevent.body);
         progressApiAction.hide().then((isHidden) {
-          // print(isHidden);
+
         });
         Fluttertoast.showToast(msg: "Gagal, Silahkan Coba Kembali");
       }
@@ -450,17 +450,17 @@ class _DashboardState extends State<Dashboard> {
                 },
               ),
               IconButton(
-                icon: Icon(Icons.favorite),
+                icon: Icon(Icons.star,color: Colors.grey,),
                 tooltip: "Favorite",
               ),
               Text(''),
               Text(''),
               IconButton(
-                icon: Icon(Icons.search),
+                icon: Icon(Icons.search,color: Colors.grey,),
                 tooltip: "Cari",
               ),
               IconButton(
-                icon: Icon(Icons.person),
+                icon: Icon(Icons.person,color: Colors.grey,),
                 tooltip: "Profile",
                 color: indexColor == 3 ? primaryAppBarColor : Colors.black,
                 onPressed: () {
