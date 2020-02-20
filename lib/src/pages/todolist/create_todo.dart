@@ -83,7 +83,7 @@ class _TodoListState extends State<TodoList> {
       if (participant.statusCode == 200) {
         var listParticipantToJson = json.decode(participant.body);
         var participants = listParticipantToJson;
-
+        print(participants);
         for (var i in participants) {
           Category participant = Category(
             id: i['id'],

@@ -15,24 +15,6 @@ import 'package:shimmer/shimmer.dart';
 import 'package:progress_dialog/progress_dialog.dart';
 import 'package:email_validator/email_validator.dart';
 
-String tokenType, accessToken;
-var datepickerfirst, datepickerlast;
-bool focus;
-TextEditingController _controllerAddpeserta = TextEditingController();
-List<Todo> listTodoProject = [];
-List<Member> listMemberProject = [];
-bool isLoading, isError;
-String _urutkanvalue;
-Map<String, String> requestHeaders = Map();
-var datepickerlastTodo, datepickerfirstTodo;
-String _tanggalawalTodo, _tanggalakhirTodo;
-bool actionBackAppBar, iconButtonAppbarColor, isSendingMessage;
-TextEditingController _searchQuery = TextEditingController();
-TextEditingController _controllerNamaTodo = TextEditingController();
-TextEditingController _controllerdeskripsiTodo = TextEditingController();
-TextEditingController _tanggalawalTodoController = TextEditingController();
-TextEditingController _tanggalakhirTodoController = TextEditingController();
-
 enum PageMember {
   hapusMember,
   gantiStatusMember,
@@ -55,6 +37,23 @@ class DetailProject extends StatefulWidget {
 
 class _DetailProjectState extends State<DetailProject>
     with SingleTickerProviderStateMixin {
+  String tokenType, accessToken;
+  var datepickerfirst, datepickerlast;
+  bool focus;
+  TextEditingController _controllerAddpeserta = TextEditingController();
+  List<Todo> listTodoProject = [];
+  List<Member> listMemberProject = [];
+  bool isLoading, isError;
+  String _urutkanvalue;
+  Map<String, String> requestHeaders = Map();
+  var datepickerlastTodo, datepickerfirstTodo;
+  String _tanggalawalTodo, _tanggalakhirTodo;
+  bool actionBackAppBar, iconButtonAppbarColor, isSendingMessage;
+  TextEditingController _searchQuery = TextEditingController();
+  TextEditingController _controllerNamaTodo = TextEditingController();
+  TextEditingController _controllerdeskripsiTodo = TextEditingController();
+  TextEditingController _tanggalawalTodoController = TextEditingController();
+  TextEditingController _tanggalakhirTodoController = TextEditingController();
   final format = DateFormat("yyyy-MM-dd HH:mm:ss");
   DateTime timeReplacement;
   ProgressDialog progressApiAction;
@@ -1508,18 +1507,17 @@ class _DetailProjectState extends State<DetailProject>
                                                                 children: <
                                                                     Widget>[
                                                                   Text(
-                                                                    item.status ==
-                                                                                '' ||
-                                                                            item.status ==
-                                                                                null
-                                                                        ? 'Status Tidak Diketahui'
-                                                                        : item
-                                                                            .status,
-                                                                    style: TextStyle(
+                                                                      item.status == '' ||
+                                                                              item.status ==
+                                                                                  null
+                                                                          ? 'Status Tidak Diketahui'
+                                                                          : item
+                                                                              .status,
+                                                                      style:
+                                                                          TextStyle(
                                                                         fontWeight:
-                                                                            FontWeight
-                                                                                .w500,)
-                                                                  ),
+                                                                            FontWeight.w500,
+                                                                      )),
                                                                 ],
                                                               ),
                                                             ),

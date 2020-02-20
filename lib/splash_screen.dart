@@ -48,7 +48,7 @@ class _SplashScreenState extends State<SplashScreen> {
               Padding(
                 padding: const EdgeInsets.only(top: 0.0),
                 child: Text(
-                  'Kelola Event Anda Sekarang Juga',
+                  'Kelola Aktifitas Anda',
                   style: TextStyle(
                     color: Colors.black54,
                     fontSize: 16,
@@ -68,7 +68,7 @@ class _SplashScreenState extends State<SplashScreen> {
               children: <Widget>[
                 Padding(
                   padding: const EdgeInsets.all(15.0),
-                  child: Text('Version : 1.0',style: TextStyle(color:Colors.black54),),
+                  child: Text('Version : 1.00',style: TextStyle(color:Colors.black54),),
                 ),
               ],
             )),

@@ -4,7 +4,7 @@ import 'package:todolist_app/src/routes/env.dart';
 import 'package:todolist_app/src/storage/storage.dart';
 import 'package:todolist_app/src/utils/utils.dart';
 import 'package:flutter/material.dart';
-
+import 'dart:async';
 import 'dart:io';
 
 File imageProfile;
@@ -165,11 +165,11 @@ class _ManajemenUser extends State<ManajemenUser> {
                                 style: TextStyle(color: Colors.cyan),
                               ),
                               onPressed: () {
-                                removeSharedPrefs();
-                                Navigator.pop(context);
-                                Navigator.pop(context);
-                                Navigator.pushReplacementNamed(
-                                    context, "/login");
+                              removeSharedPrefs();
+                               Navigator.popUntil(
+                                    context,
+                                    ModalRoute.withName('/login'),
+                                  );
                               },
                             )
                           ],

@@ -47,6 +47,7 @@ class _DashboardState extends State<Dashboard> {
     _tanggalawalProject = 'kosong';
     _tanggalakhirProject = 'kosong';
     datepickerfirst = FocusNode();
+    isLoading = true;
     getHeaderHTTP();
     _getStoreData();
     datepickerlast = FocusNode();
@@ -165,7 +166,7 @@ class _DashboardState extends State<Dashboard> {
                         disabledColor: Colors.white,
                         disabledTextColor: primaryAppBarColor,
                         splashColor: Colors.blueAccent,
-                        child: Text("Buat Todo",
+                        child: Text("Buat To Do",
                             style: TextStyle(color: primaryAppBarColor)))),
               ],
             ),
@@ -327,16 +328,12 @@ class _DashboardState extends State<Dashboard> {
       if (addadminevent.statusCode == 200) {
         var addpesertaJson = json.decode(addadminevent.body);
         if (addpesertaJson['status'] == 'success') {
-          progressApiAction.hide().then((isHidden) {
-
-          });
-          Fluttertoast.showToast(msg: "Berhasil !");
+          progressApiAction.hide().then((isHidden) {});
+          Fluttertoast.showToast(msg: "Berhasil, Silahkan refresh halaman ini");
         }
       } else {
         print(addadminevent.body);
-        progressApiAction.hide().then((isHidden) {
-
-        });
+        progressApiAction.hide().then((isHidden) {});
         Fluttertoast.showToast(msg: "Gagal, Silahkan Coba Kembali");
       }
     } on TimeoutException catch (_) {
@@ -384,11 +381,12 @@ class _DashboardState extends State<Dashboard> {
     return Scaffold(
         backgroundColor: Colors.white,
         // key: _scaffoldKeyDashboard,
-        appBar: new AppBar(
+         appBar: indexColor == 0 ? new AppBar(
           backgroundColor: primaryAppBarColor,
           iconTheme: IconThemeData(
             color: Colors.white,
           ),
+          centerTitle: true,
           title: new Text(
             "Dashboard",
             style: TextStyle(
@@ -396,7 +394,7 @@ class _DashboardState extends State<Dashboard> {
               fontSize: 14,
             ),
           ),
-        ),
+        ) : null,
         body: PageView(
           controller: _myPage,
           onPageChanged: (int) {
@@ -407,7 +405,7 @@ class _DashboardState extends State<Dashboard> {
           },
           children: <Widget>[
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: 8.0,vertical: 4.0),
+              padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
               child: Container(
                 child: Home(),
               ),
@@ -432,7 +430,7 @@ class _DashboardState extends State<Dashboard> {
               NeverScrollableScrollPhysics(), // Comment this if you need to use Swipe.
         ),
         floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-        floatingActionButton: FloatingActionButton(
+        floatingActionButton: indexColor != 0 ? null : FloatingActionButton(
             onPressed: () {
               _showmodalChooseTodo();
             },
@@ -447,7 +445,7 @@ class _DashboardState extends State<Dashboard> {
               IconButton(
                 icon: Icon(
                   Icons.home,
-                  color: indexColor == 0 ? primaryAppBarColor : Colors.black,
+                  color: indexColor == 0 ? primaryAppBarColor : Colors.grey,
                 ),
                 tooltip: "Beranda",
                 onPressed: () {
@@ -457,19 +455,28 @@ class _DashboardState extends State<Dashboard> {
                 },
               ),
               IconButton(
-                icon: Icon(Icons.star,color: Colors.grey,),
+                icon: Icon(
+                  Icons.star,
+                  color: Colors.grey,
+                ),
                 tooltip: "Favorite",
               ),
               Text(''),
               Text(''),
               IconButton(
-                icon: Icon(Icons.search,color: Colors.grey,),
+                icon: Icon(
+                  Icons.search,
+                  color: Colors.grey,
+                ),
                 tooltip: "Cari",
               ),
               IconButton(
-                icon: Icon(Icons.person,color: Colors.grey,),
+                icon: Icon(
+                  Icons.person,
+                  color: indexColor == 3 ? primaryAppBarColor : Colors.grey,
+                ),
                 tooltip: "Profile",
-                color: indexColor == 3 ? primaryAppBarColor : Colors.black,
+                color: indexColor == 3 ? primaryAppBarColor : Colors.grey,
                 onPressed: () {
                   setState(() {
                     _myPage.jumpToPage(3);
@@ -483,6 +490,4 @@ class _DashboardState extends State<Dashboard> {
         // ),
         );
   }
-
-  
 }
