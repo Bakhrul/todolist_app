@@ -8,7 +8,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
-import 'package:shimmer/shimmer.dart';
 import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:progress_dialog/progress_dialog.dart';
@@ -55,13 +54,6 @@ class _DashboardState extends State<Dashboard> {
   }
 
   PageController _myPage = PageController(initialPage: 0);
-  int _selectedIndex = 0;
-
-  _updateIndex(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
 
   _getStoreData() async {
     DataStore user = new DataStore();

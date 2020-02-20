@@ -8,6 +8,7 @@ import 'package:random_color/random_color.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:todolist_app/src/model/Todo.dart';
 import 'package:todolist_app/src/models/project.dart';
+import 'package:todolist_app/src/pages/manajemen_project/list_project.dart';
 import 'package:todolist_app/src/routes/env.dart';
 import 'package:todolist_app/src/storage/storage.dart';
 import 'package:http/http.dart' as http;
@@ -18,7 +19,6 @@ import 'package:todolist_app/src/utils/utils.dart';
 
 final List<Color> listColor = [Colors.grey, Colors.red, Colors.blue];
 RandomColor _randomColor = RandomColor();
-List<Project> listProject = [];
 
 final Widget placeholder = Container(color: Colors.grey);
 
@@ -47,8 +47,10 @@ class _HomeState extends State<Home> {
   String tokenType, accessToken;
   Map<String, String> requestHeaders = Map();
   List<Todo> listTodo = [];
+  List<Project> listProject = [];
   int _current = 0;
   String namaUser;
+  int currentFilter = 0;
 
   void getDataUser() async {
     DataStore user = new DataStore();
@@ -65,7 +67,6 @@ class _HomeState extends State<Home> {
     {'index': "4", 'name': "Bulan Ini"},
     {'index': "5", 'name': "Bulan Depan"}
   ];
-  int currentFilter = 0;
 
   @override
   void initState() {
@@ -227,7 +228,9 @@ class _HomeState extends State<Home> {
                 style: TextStyle(fontSize: 14, color: Colors.grey),
               ),
               InkWell(
-                  onTap: () {},
+                  onTap: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => ListProject()  ));
+                  },
                   child: Text("Lihat Semua",
                       style: TextStyle(color: Colors.grey))),
             ],
@@ -303,6 +306,7 @@ class _HomeState extends State<Home> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
+                    // for (var index; index < listProject.length; index++)
                     for (var index in listProject)
                       Container(
                         width: 8.0,
