@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 class Todo{
   int id;
   String title;
@@ -6,6 +8,7 @@ class Todo{
   String timeend;
   String status;
   String progress;
+  Color colored;
 
-  Todo({this.id,this.title, this.desc, this.timestart, this.timeend, this.status, this.progress});
+  Todo({this.id,this.title, this.desc, this.timestart, this.timeend, this.status, this.progress,this.colored});
 }

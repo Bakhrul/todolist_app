@@ -14,26 +14,28 @@ String categoriesID;
 String categoriesName;
 TextEditingController _dateStartController = TextEditingController();
 TextEditingController _dateEndController = TextEditingController();
-DateTime timestart = _dateStartController.text != '' ? DateTime.parse(_dateStartController.text) : DateTime.now();
+DateTime timestart = _dateStartController.text != ''
+    ? DateTime.parse(_dateStartController.text)
+    : DateTime.now();
 
-class TodoList extends StatefulWidget {
+class EditToDo extends StatefulWidget {
   @override
-  _TodoListState createState() => _TodoListState();
+  _EditToDoState createState() => _EditToDoState();
 }
 
-class _TodoListState extends State<TodoList> {
+class _EditToDoState extends State<EditToDo> {
   final _formKey = GlobalKey<FormState>();
   final format = DateFormat("yyyy-MM-dd HH:mm:ss");
-   DateTime timeReplacement;
+  DateTime timeReplacement;
   List<Category> listCategory = [];
 
   TextEditingController _titleController = TextEditingController();
-  
+
   TextEditingController _descController = TextEditingController();
   TextEditingController _categoryController = TextEditingController();
   Map<String, String> requestHeaders = Map();
-  
-    void timeSetToMinute() {
+
+  void timeSetToMinute() {
     var time = DateTime.now();
     var newHour = 0;
     var newMinute = 0;
@@ -42,7 +44,8 @@ class _TodoListState extends State<TodoList> {
     timeReplacement = new DateTime(time.year, time.month, time.day, newHour,
         newMinute, newSecond, time.millisecond, time.microsecond);
   }
-   Future<void> getHeaderHTTP() async {
+
+  Future<void> getHeaderHTTP() async {
     var storage = new DataStore();
 
     var tokenTypeStorage = await storage.getDataString('token_type');
@@ -54,9 +57,9 @@ class _TodoListState extends State<TodoList> {
     requestHeaders['Accept'] = 'application/json';
     requestHeaders['Authorization'] = '$tokenType $accessToken';
     return requestHeaders;
-   }
+  }
 
- Future<List<List>> getDataCategory() async {
+  Future<List<List>> getDataCategory() async {
     var storage = new DataStore();
     var tokenTypeStorage = await storage.getDataString('token_type');
     var accessTokenStorage = await storage.getDataString('access_token');
@@ -122,33 +125,29 @@ class _TodoListState extends State<TodoList> {
 
   Future<void> saveTodo() async {
     //  _isLoading = true;
-     Fluttertoast.showToast(msg: "Tunggu Sebentar...");
-     if(_titleController.text == ''){
-     return Fluttertoast.showToast(msg: "Judul Tidak Boleh Kosong");
-     }else if(categoriesID.toString() == ''){
-     return Fluttertoast.showToast(msg: "Kategori Tidak Boleh Kosong");
-     }
+    Fluttertoast.showToast(msg: "Tunggu Sebentar...");
+    if (_titleController.text == '') {
+      return Fluttertoast.showToast(msg: "Judul Tidak Boleh Kosong");
+    } else if (categoriesID.toString() == '') {
+      return Fluttertoast.showToast(msg: "Kategori Tidak Boleh Kosong");
+    }
 
     try {
-    dynamic body = {
-      "title": _titleController.text.toString(),
-      "planstart": _dateStartController.text.toString(),
-      "planend": _dateEndController.text.toString(),
-      "desc": _descController.text.toString(),
-      "category": categoriesID.toString(),
-    };
+      dynamic body = {
+        "title": _titleController.text.toString(),
+        "planstart": _dateStartController.text.toString(),
+        "planend": _dateEndController.text.toString(),
+        "desc": _descController.text.toString(),
+        "category": categoriesID.toString(),
+      };
 
-   final addadminevent = await http
-          .post(url('api/todo/create'), headers: requestHeaders, body: 
-            body
-      );
-     if (addadminevent.statusCode == 200) {
+      final addadminevent = await http.post(url('api/todo/create'),
+          headers: requestHeaders, body: body);
+      if (addadminevent.statusCode == 200) {
         var addpesertaJson = json.decode(addadminevent.body);
         if (addpesertaJson['status'] == 'success') {
-
           Fluttertoast.showToast(msg: "Berhasil !");
-        Navigator.pushReplacementNamed(context, '/dashboard');
-
+          Navigator.pushReplacementNamed(context, '/dashboard');
         }
       } else {
         print(addadminevent.body);
@@ -169,17 +168,17 @@ class _TodoListState extends State<TodoList> {
       Fluttertoast.showToast(msg: "Gagal, Silahkan Coba Kembali");
       print(e);
     }
-
   }
 
-void dispose() {
-  _titleController.dispose();
-  _descController.dispose();
-  // _dateStartController.dispose();
-  // _dateEndController.dispose();
-  _categoryController.dispose();
+  void dispose() {
+    _titleController.dispose();
+    _descController.dispose();
+    // _dateStartController.dispose();
+    // _dateEndController.dispose();
+    _categoryController.dispose();
     super.dispose();
   }
+
   @override
   void initState() {
     getHeaderHTTP();
@@ -187,6 +186,7 @@ void dispose() {
     timeSetToMinute();
     super.initState();
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -194,7 +194,7 @@ void dispose() {
         title: Text("Membuat To Do"),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: (){
+        onPressed: () {
           saveTodo();
         },
         child: Icon(Icons.navigate_next),
@@ -222,9 +222,8 @@ void dispose() {
                         Container(
                             margin: EdgeInsets.only(bottom: 20.0),
                             child: TextFormField(
-                                controller: _titleController,
-                                )),
-
+                              controller: _titleController,
+                            )),
                         Container(
                           margin: EdgeInsets.only(bottom: 5.0),
                           child: Text('Tanggal Mulai',
@@ -239,8 +238,8 @@ void dispose() {
                               decoration: InputDecoration(
                                 // border: InputBorder.none,
                                 hintText: '',
-                                hintStyle:
-                                    TextStyle(fontSize: 13, color: Colors.black),
+                                hintStyle: TextStyle(
+                                    fontSize: 13, color: Colors.black),
                               ),
                               onShowPicker: (context, currentValue) async {
                                 final date = await showDatePicker(
@@ -260,7 +259,7 @@ void dispose() {
                                 }
                               },
                             )),
-                             Container(
+                        Container(
                           margin: EdgeInsets.only(bottom: 5.0),
                           child: Text('Tanggal Selesai',
                               style: TextStyle(color: Colors.grey)),
@@ -274,8 +273,8 @@ void dispose() {
                               decoration: InputDecoration(
                                 // border: InputBorder.none,
                                 hintText: '',
-                                hintStyle:
-                                    TextStyle(fontSize: 13, color: Colors.black),
+                                hintStyle: TextStyle(
+                                    fontSize: 13, color: Colors.black),
                               ),
                               onShowPicker: (context, currentValue) async {
                                 final date = await showDatePicker(
@@ -295,36 +294,38 @@ void dispose() {
                                 }
                               },
                             )),
-                             Container(
+                        Container(
                           margin: EdgeInsets.only(bottom: 5.0),
                           child: Text('Kategori',
                               style: TextStyle(color: Colors.grey)),
                         ),
-                         Container(
-                            child: categoriesID == null ? FlatButton(
-                              child: Text("Pilih Kategori"),
-                              onPressed: (){
-                                showCategory();
-                              },
-                              
-                            ) : InkWell(
-                              onTap: (){showCategory();},
-                              child: Text("$categoriesName")),
-                                ),
-                                Divider(
-                                  color: Colors.black,
-                                ),
-                                  Container(
+                        Container(
+                          child: categoriesID == null
+                              ? FlatButton(
+                                  child: Text("Pilih Kategori"),
+                                  onPressed: () {
+                                    showCategory();
+                                  },
+                                )
+                              : InkWell(
+                                  onTap: () {
+                                    showCategory();
+                                  },
+                                  child: Text("$categoriesName")),
+                        ),
+                        Divider(
+                          color: Colors.black,
+                        ),
+                        Container(
                           margin: EdgeInsets.only(bottom: 5.0),
                           child: Text('Deskripsi',
                               style: TextStyle(color: Colors.grey)),
                         ),
-                         Container(
+                        Container(
                             child: TextField(
-                              maxLength: 200,
-                                controller: _descController,
-                                )),
-                     
+                          maxLength: 200,
+                          controller: _descController,
+                        )),
                       ],
                     )),
               ],
@@ -334,39 +335,36 @@ void dispose() {
       ),
     );
   }
-  Widget showCategory(){
-       showModalBottomSheet(
+
+  void showCategory() {
+    showModalBottomSheet(
         isScrollControlled: true,
         context: context,
         builder: (builder) {
           return Container(
-            // height: 200.0 + MediaQuery.of(context).viewInsets.bottom,
-            padding: EdgeInsets.only(
-                bottom: MediaQuery.of(context).viewInsets.bottom,
-                right: 15.0,
-                left: 15.0,
-                top: 15.0),
-            child: ListView.builder(
-              itemCount: listCategory.length,
-              itemBuilder: (BuildContext context, int index) {
-               return Center(
-                 child: ListTile(
-                   title: Text("${listCategory[index].name}"),
-                   onTap: (){
-                     setState(() {
-                       categoriesID = listCategory[index].id.toString();
-                       categoriesName = listCategory[index].name.toString();
-                     });
-                     Navigator.pop(context);
-                   },
-
-                 ),
-               );
-               },
-
-            )
-            
-          );
+              // height: 200.0 + MediaQuery.of(context).viewInsets.bottom,
+              padding: EdgeInsets.only(
+                  bottom: MediaQuery.of(context).viewInsets.bottom,
+                  right: 15.0,
+                  left: 15.0,
+                  top: 15.0),
+              child: ListView.builder(
+                itemCount: listCategory.length,
+                itemBuilder: (BuildContext context, int index) {
+                  return Center(
+                    child: ListTile(
+                      title: Text("${listCategory[index].name}"),
+                      onTap: () {
+                        setState(() {
+                          categoriesID = listCategory[index].id.toString();
+                          categoriesName = listCategory[index].name.toString();
+                        });
+                        Navigator.pop(context);
+                      },
+                    ),
+                  );
+                },
+              ));
         });
   }
 }

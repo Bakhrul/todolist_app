@@ -4,6 +4,8 @@
 
 import 'dart:convert';
 
+import 'dart:ui';
+
 List<Project> projectFromJson(String str) => List<Project>.from(json.decode(str).map((x) => Project.fromJson(x)));
 
 String projectToJson(List<Project> data) => json.encode(List<dynamic>.from(data.map((x) => x.toJson())));
@@ -13,12 +15,14 @@ class Project {
     String title;
     String start;
     String end;
+    Color colored;
 
     Project({
         this.id,
         this.title,
         this.start,
         this.end,
+        this.colored
     });
 
     factory Project.fromJson(Map<String, dynamic> json) => Project(
