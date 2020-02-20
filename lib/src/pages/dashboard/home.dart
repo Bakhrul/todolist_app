@@ -94,7 +94,6 @@ class _HomeState extends State<Home> {
   Widget build(BuildContext context) {
     print(listProject);
     return ListView.builder(
-      
       itemCount: listProject.length,
       itemBuilder: (BuildContext context, int index) {
         return Dismissible(
@@ -102,8 +101,11 @@ class _HomeState extends State<Home> {
           background: stackBehindDismiss(),
           child: InkWell(
             onTap: () async {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => DetailProject(idproject : listProject[index].id)));
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          DetailProject(idproject: listProject[index].id)));
             },
             child: Container(
               height: 100,
@@ -120,8 +122,14 @@ class _HomeState extends State<Home> {
                                     topRight: const Radius.circular(40.0))),
                             child: Image.network(
                                 "http://www.kaosfutsal.com/wp-content/uploads/2019/12/placeholder.png"))),
-                    title: Text("${listProject[index].title}"),
-                    subtitle: Text("${listProject[index].title}"),
+                    title: Text(
+                      "${listProject[index].title}",
+                      style: TextStyle(
+                          color: Colors.black54,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500),
+                    ),
+                    subtitle: Text("Deskripsi Project"),
                   )),
             ),
           ),
@@ -129,7 +137,8 @@ class _HomeState extends State<Home> {
       },
     );
   }
-    Widget stackBehindDismiss() {
+
+  Widget stackBehindDismiss() {
     return Container(
       alignment: Alignment.centerRight,
       padding: EdgeInsets.only(right: 20.0),
