@@ -18,7 +18,6 @@ import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 import 'dart:core';
 import 'dart:io';
 
-
 String tokenType, accessToken;
 String usernameprofile, emailprofile, imageprofile;
 String emailStore, imageStore, namaStore, phoneStore, locationStore;
@@ -42,6 +41,7 @@ class Dashboard extends StatefulWidget {
 
 class _DashboardState extends State<Dashboard> {
   ProgressDialog progressApiAction;
+  var indexColor = 0;
   @override
   void initState() {
     _tanggalawalProject = 'kosong';
@@ -52,7 +52,17 @@ class _DashboardState extends State<Dashboard> {
     datepickerlast = FocusNode();
     super.initState();
   }
- _getStoreData() async {
+
+  PageController _myPage = PageController(initialPage: 0);
+  int _selectedIndex = 0;
+
+  _updateIndex(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
+
+  _getStoreData() async {
     DataStore user = new DataStore();
     String namaRawUser = await user.getDataString('name');
     String emailRawUser = await user.getDataString('email');
@@ -69,6 +79,7 @@ class _DashboardState extends State<Dashboard> {
       locationStore = locationRawUser;
     });
   }
+
   void dispose() {
     super.dispose();
   }
@@ -143,7 +154,10 @@ class _DashboardState extends State<Dashboard> {
                     height: 50.0,
                     child: RaisedButton(
                         onPressed: () async {
-                          Navigator.push(context, MaterialPageRoute(builder: (context) =>  TodoList() ) );
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => TodoList()));
                         },
                         color: Colors.white,
                         elevation: 0,
@@ -383,8 +397,39 @@ class _DashboardState extends State<Dashboard> {
             ),
           ),
         ),
-        body: Center(
-          child: Home(),
+        body: PageView(
+          controller: _myPage,
+          onPageChanged: (int) {
+            print('Page Changes to index $int');
+            setState(() {
+              indexColor = int;
+            });
+          },
+          children: <Widget>[
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 8.0,vertical: 4.0),
+              child: Container(
+                child: Home(),
+              ),
+            ),
+            Center(
+              child: Container(
+                child: Text('Empty Body 1'),
+              ),
+            ),
+            Center(
+              child: Container(
+                child: Text('Empty Body 2'),
+              ),
+            ),
+            Center(
+              child: Container(
+                child: ManajemenUser(),
+              ),
+            )
+          ],
+          physics:
+              NeverScrollableScrollPhysics(), // Comment this if you need to use Swipe.
         ),
         floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
         floatingActionButton: FloatingActionButton(
@@ -402,9 +447,14 @@ class _DashboardState extends State<Dashboard> {
               IconButton(
                 icon: Icon(
                   Icons.home,
-                  color: primaryAppBarColor,
+                  color: indexColor == 0 ? primaryAppBarColor : Colors.black,
                 ),
                 tooltip: "Beranda",
+                onPressed: () {
+                  setState(() {
+                    _myPage.jumpToPage(0);
+                  });
+                },
               ),
               IconButton(
                 icon: Icon(Icons.star,color: Colors.grey,),
@@ -419,9 +469,11 @@ class _DashboardState extends State<Dashboard> {
               IconButton(
                 icon: Icon(Icons.person,color: Colors.grey,),
                 tooltip: "Profile",
-                onPressed: (){
-                  Navigator.push(context,
-                    MaterialPageRoute(builder:(context) => ManajemenUser() ));
+                color: indexColor == 3 ? primaryAppBarColor : Colors.black,
+                onPressed: () {
+                  setState(() {
+                    _myPage.jumpToPage(3);
+                  });
                 },
               )
             ],
@@ -431,4 +483,6 @@ class _DashboardState extends State<Dashboard> {
         // ),
         );
   }
+
+  
 }

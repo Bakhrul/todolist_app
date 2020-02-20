@@ -182,6 +182,7 @@ class _ManajemenUser extends State<ManajemenUser> {
               ],
             ))
           ],
-        )));
+        ))
+        );
   }
 }
