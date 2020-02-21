@@ -44,11 +44,12 @@ class _DetailProjectState extends State<DetailProject>
   List<Todo> listTodoProject = [];
   List<Member> listMemberProject = [];
   bool isLoading, isError;
+  bool isFilterMember, isErrorFilterMember, isFilterTodo, isErrorFilterTodo;
   String _urutkanvalue;
   Map<String, String> requestHeaders = Map();
   var datepickerlastTodo, datepickerfirstTodo;
   String _tanggalawalTodo, _tanggalakhirTodo;
-  bool actionBackAppBar, iconButtonAppbarColor, isSendingMessage;
+  bool actionBackAppBar, iconButtonAppbarColor;
   TextEditingController _searchQuery = TextEditingController();
   TextEditingController _controllerNamaTodo = TextEditingController();
   TextEditingController _controllerdeskripsiTodo = TextEditingController();
@@ -85,6 +86,14 @@ class _DetailProjectState extends State<DetailProject>
   }
 
   void _handleSearchEnd() {
+    setState(() {
+      _searchQuery.text = '';
+    });
+    if (_tabController.index == 0) {
+      filterMemberproject();
+    } else {
+      filterTodoProject();
+    }
     setState(() {
       // ignore: new_with_non_type
       actionBackAppBar = true;
@@ -141,6 +150,145 @@ class _DetailProjectState extends State<DetailProject>
     requestHeaders['Accept'] = 'application/json';
     requestHeaders['Authorization'] = '$tokenType $accessToken';
     return getDataTodo();
+  }
+
+  Future<List<List>> filterMemberproject() async {
+    setState(() {
+      isFilterMember = true;
+    });
+    try {
+      final getDetailProject = await http.post(url('api/filter_detail_project'),
+          headers: requestHeaders,
+          body: {
+            'project': widget.idproject.toString(),
+            'categoryfilter': 'project',
+            'filter': _searchQuery.text,
+          });
+
+      if (getDetailProject.statusCode == 200) {
+        setState(() {
+          listMemberProject.clear();
+          listMemberProject = [];
+        });
+        var getDetailProjectJson = json.decode(getDetailProject.body);
+        print(getDetailProjectJson);
+        var members = getDetailProjectJson['member'];
+        for (var i in members) {
+          Member member = Member(
+            iduser: i['mp_user'],
+            name: i['us_name'],
+            email: i['us_email'],
+            roleid: i['mp_role'].toString(),
+            rolename: i['r_name'],
+            image: i['us_image'],
+          );
+          listMemberProject.add(member);
+        }
+
+        setState(() {
+          isFilterMember = false;
+          isErrorFilterMember = false;
+        });
+      } else if (getDetailProject.statusCode == 401) {
+        Fluttertoast.showToast(
+            msg: "Token Telah Kadaluwarsa, Silahkan Login Kembali");
+        setState(() {
+          isFilterMember = false;
+          isErrorFilterMember = true;
+        });
+      } else {
+        setState(() {
+          isFilterMember = false;
+          isErrorFilterMember = true;
+        });
+        print(getDetailProject.body);
+        return null;
+      }
+    } on TimeoutException catch (_) {
+      setState(() {
+        isFilterMember = false;
+        isErrorFilterMember = true;
+      });
+      Fluttertoast.showToast(msg: "Timed out, Try again");
+    } catch (e) {
+      setState(() {
+        isFilterMember = false;
+        isErrorFilterMember = true;
+      });
+      Fluttertoast.showToast(msg: "error");
+      debugPrint('$e');
+    }
+    return null;
+  }
+
+  Future<List<List>> filterTodoProject() async {
+    setState(() {
+      isFilterTodo = true;
+    });
+    try {
+      final getDetailProject = await http.post(url('api/filter_detail_project'),
+          headers: requestHeaders,
+          body: {
+            'project': widget.idproject.toString(),
+            'categoryfilter': 'todo',
+            'filter': _searchQuery.text,
+          });
+
+      if (getDetailProject.statusCode == 200) {
+        setState(() {
+          listTodoProject.clear();
+          listTodoProject = [];
+        });
+        var getDetailProjectJson = json.decode(getDetailProject.body);
+        print(getDetailProjectJson);
+        var todos = getDetailProjectJson['todo'];
+        for (var i in todos) {
+          Todo todo = Todo(
+            id: i['tl_id'],
+            title: i['tl_title'],
+            desc: i['tl_desc'],
+            timestart: i['tl_timestart'],
+            timeend: i['tl_timeend'],
+            progress: i['tl_progress'],
+            status: i['tl_status'],
+          );
+          listTodoProject.add(todo);
+        }
+
+        setState(() {
+          isFilterTodo = false;
+          isErrorFilterTodo = false;
+        });
+      } else if (getDetailProject.statusCode == 401) {
+        Fluttertoast.showToast(
+            msg: "Token Telah Kadaluwarsa, Silahkan Login Kembali");
+        setState(() {
+          isFilterTodo = false;
+          isErrorFilterTodo = true;
+        });
+      } else {
+        setState(() {
+          isFilterTodo = false;
+          isErrorFilterTodo = true;
+        });
+        print(getDetailProject.body);
+        return null;
+      }
+    } on TimeoutException catch (_) {
+      setState(() {
+        isFilterTodo = false;
+        isErrorFilterTodo = true;
+      });
+      Fluttertoast.showToast(msg: "Timed out, Try again");
+    } catch (e) {
+      setState(() {
+        isFilterTodo = false;
+        isErrorFilterTodo = true;
+      });
+      Fluttertoast.showToast(msg: "error");
+      debugPrint('$e');
+    }
+    return null;
   }
 
   Future<List<List>> getDataTodo() async {
@@ -228,7 +376,28 @@ class _DetailProjectState extends State<DetailProject>
   }
 
   void _handleTabIndex() {
-    setState(() {});
+    setState(() {
+      _searchQuery.text = '';
+      if (_tabController.index == 0) {
+        filterMemberproject();
+      } else {
+        filterTodoProject();
+      }
+      // ignore: new_with_non_type
+      actionBackAppBar = true;
+      iconButtonAppbarColor = true;
+      this.actionIcon = new Icon(
+        Icons.search,
+        color: Colors.white,
+      );
+      this.appBarTitle = new Text(
+        "Manajemen Project",
+        style: TextStyle(
+          color: Colors.white,
+          fontSize: 14,
+        ),
+      );
+    });
   }
 
   void _tambahmember() async {
@@ -1003,149 +1172,155 @@ class _DetailProjectState extends State<DetailProject>
                                             ],
                                           ),
                                         ),
-                                        Container(
-                                            color: Colors.white,
-                                            margin: EdgeInsets.only(
-                                              top: 10.0,
-                                            ),
-                                            child: SingleChildScrollView(
-                                              child: Container(
-                                                child: Column(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.center,
-                                                  children: listMemberProject
-                                                      .map(
-                                                          (Member item) => Card(
-                                                              elevation: 0.6,
-                                                              child: ListTile(
-                                                                leading:
-                                                                    Container(
-                                                                  width: 40.0,
-                                                                  height: 40.0,
-                                                                  child:
-                                                                      ClipOval(
-                                                                    child: FadeInImage
-                                                                        .assetNetwork(
-                                                                      placeholder:
-                                                                          'images/loading.gif',
-                                                                      image: item.image == null ||
-                                                                              item.image ==
-                                                                                  '' ||
-                                                                              item.image ==
-                                                                                  'null'
-                                                                          ? url(
-                                                                              'assets/images/imgavatar.png')
-                                                                          : url(
-                                                                              'storage/image/profile/${item.image}'),
-                                                                      fit: BoxFit
-                                                                          .cover,
+                                        isFilterMember == true
+                                            ? _loadingview()
+                                            : isErrorFilterMember == true
+                                                ? _errorFilter(context)
+                                                : Container(
+                                                    color: Colors.white,
+                                                    margin: EdgeInsets.only(
+                                                      top: 10.0,
+                                                    ),
+                                                    child: listMemberProject
+                                                                .length ==
+                                                            0
+                                                        ? Padding(
+                                                            padding:
+                                                                const EdgeInsets
+                                                                        .only(
+                                                                    top: 20.0),
+                                                            child: Column(
+                                                                children: <
+                                                                    Widget>[
+                                                                  new Container(
+                                                                    width:
+                                                                        100.0,
+                                                                    height:
+                                                                        100.0,
+                                                                    child: Image
+                                                                        .asset(
+                                                                            "images/empty-white-box.png"),
+                                                                  ),
+                                                                  Padding(
+                                                                    padding:
+                                                                        const EdgeInsets
+                                                                            .only(
+                                                                      top: 20.0,
+                                                                      left:
+                                                                          15.0,
+                                                                      right:
+                                                                          15.0,
                                                                     ),
-                                                                  ),
-                                                                  decoration:
-                                                                      BoxDecoration(
-                                                                    shape: BoxShape
-                                                                        .circle,
-                                                                  ),
-                                                                ),
-                                                                title: Text(
-                                                                    item.name ==
-                                                                                '' ||
-                                                                            item.name ==
-                                                                                null
-                                                                        ? 'Member Tidak Diketahui'
-                                                                        : item
-                                                                            .name,
-                                                                    style: TextStyle(
-                                                                        fontSize:
-                                                                            16,
-                                                                        fontWeight:
-                                                                            FontWeight.w500)),
-                                                                subtitle:
-                                                                    Padding(
-                                                                  padding: const EdgeInsets
-                                                                          .only(
-                                                                      top:
-                                                                          15.0),
-                                                                  child: Column(
-                                                                    crossAxisAlignment:
-                                                                        CrossAxisAlignment
-                                                                            .start,
-                                                                    mainAxisAlignment:
-                                                                        MainAxisAlignment
-                                                                            .start,
-                                                                    children: <
-                                                                        Widget>[
-                                                                      Text(
-                                                                        item.rolename == '' ||
-                                                                                item.rolename == null
-                                                                            ? 'Status tidak diketahui'
-                                                                            : item.rolename,
-                                                                        style: TextStyle(
-                                                                            fontWeight:
-                                                                                FontWeight.w500,
-                                                                            color: Colors.green),
+                                                                    child:
+                                                                        Center(
+                                                                      child:
+                                                                          Text(
+                                                                        "Member Yang Anda Cari Tidak Ditemukan",
+                                                                        style:
+                                                                            TextStyle(
+                                                                          fontSize:
+                                                                              16,
+                                                                          color:
+                                                                              Colors.black45,
+                                                                          height:
+                                                                              1.5,
+                                                                        ),
+                                                                        textAlign:
+                                                                            TextAlign.center,
                                                                       ),
-                                                                    ],
-                                                                  ),
-                                                                ),
-                                                                trailing: Row(
-                                                                  mainAxisSize:
-                                                                      MainAxisSize
-                                                                          .min,
-                                                                  children: <
-                                                                      Widget>[
-                                                                    PopupMenuButton<
-                                                                        PageMember>(
-                                                                      onSelected:
-                                                                          (PageMember
-                                                                              value) {
-                                                                        switch (
-                                                                            value) {
-                                                                          case PageMember
-                                                                              .hapusMember:
-                                                                            hapusMember(item.iduser.toString());
-                                                                            break;
-                                                                          case PageMember
-                                                                              .gantiStatusMember:
-                                                                            gantiStatusMember(item.iduser.toString(),
-                                                                                item.roleid);
-                                                                            break;
-                                                                          default:
-                                                                            break;
-                                                                        }
-                                                                      },
-                                                                      icon: Icon(
-                                                                          Icons
-                                                                              .more_vert),
-                                                                      itemBuilder:
-                                                                          (context) =>
-                                                                              [
-                                                                        PopupMenuItem(
-                                                                          value:
-                                                                              PageMember.gantiStatusMember,
-                                                                          child:
-                                                                              Text("Ganti Status"),
-                                                                        ),
-                                                                        PopupMenuItem(
-                                                                          // value: PageEnum.deletePeserta,
-                                                                          child:
-                                                                              Text("Atur TodoList"),
-                                                                        ),
-                                                                        PopupMenuItem(
-                                                                          value:
-                                                                              PageMember.hapusMember,
-                                                                          child:
-                                                                              Text("Hapus Member"),
-                                                                        ),
-                                                                      ],
                                                                     ),
-                                                                  ],
-                                                                ),
-                                                              )))
-                                                      .toList(),
-                                                ),
-                                              ),
-                                            )),
+                                                                  ),
+                                                                ]),
+                                                          )
+                                                        : SingleChildScrollView(
+                                                            child: Container(
+                                                              child: Column(
+                                                                mainAxisAlignment:
+                                                                    MainAxisAlignment
+                                                                        .center,
+                                                                children: listMemberProject
+                                                                    .map((Member item) => Card(
+                                                                        elevation: 0.6,
+                                                                        child: ListTile(
+                                                                          leading:
+                                                                              Container(
+                                                                            width:
+                                                                                40.0,
+                                                                            height:
+                                                                                40.0,
+                                                                            child:
+                                                                                ClipOval(
+                                                                              child: FadeInImage.assetNetwork(
+                                                                                placeholder: 'images/loading.gif',
+                                                                                image: item.image == null || item.image == '' || item.image == 'null' ? url('assets/images/imgavatar.png') : url('storage/image/profile/${item.image}'),
+                                                                                fit: BoxFit.cover,
+                                                                              ),
+                                                                            ),
+                                                                            decoration:
+                                                                                BoxDecoration(
+                                                                              shape: BoxShape.circle,
+                                                                            ),
+                                                                          ),
+                                                                          title: Text(
+                                                                              item.name == '' || item.name == null ? 'Member Tidak Diketahui' : item.name,
+                                                                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
+                                                                          subtitle:
+                                                                              Padding(
+                                                                            padding:
+                                                                                const EdgeInsets.only(top: 15.0),
+                                                                            child:
+                                                                                Column(
+                                                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                                                              mainAxisAlignment: MainAxisAlignment.start,
+                                                                              children: <Widget>[
+                                                                                Text(
+                                                                                  item.rolename == '' || item.rolename == null ? 'Status tidak diketahui' : item.rolename,
+                                                                                  style: TextStyle(fontWeight: FontWeight.w500, color: Colors.green),
+                                                                                ),
+                                                                              ],
+                                                                            ),
+                                                                          ),
+                                                                          trailing:
+                                                                              Row(
+                                                                            mainAxisSize:
+                                                                                MainAxisSize.min,
+                                                                            children: <Widget>[
+                                                                              PopupMenuButton<PageMember>(
+                                                                                onSelected: (PageMember value) {
+                                                                                  switch (value) {
+                                                                                    case PageMember.hapusMember:
+                                                                                      hapusMember(item.iduser.toString());
+                                                                                      break;
+                                                                                    case PageMember.gantiStatusMember:
+                                                                                      gantiStatusMember(item.iduser.toString(), item.roleid);
+                                                                                      break;
+                                                                                    default:
+                                                                                      break;
+                                                                                  }
+                                                                                },
+                                                                                icon: Icon(Icons.more_vert),
+                                                                                itemBuilder: (context) => [
+                                                                                  PopupMenuItem(
+                                                                                    value: PageMember.gantiStatusMember,
+                                                                                    child: Text("Ganti Status"),
+                                                                                  ),
+                                                                                  PopupMenuItem(
+                                                                                    // value: PageEnum.deletePeserta,
+                                                                                    child: Text("Atur TodoList"),
+                                                                                  ),
+                                                                                  PopupMenuItem(
+                                                                                    value: PageMember.hapusMember,
+                                                                                    child: Text("Hapus Member"),
+                                                                                  ),
+                                                                                ],
+                                                                              ),
+                                                                            ],
+                                                                          ),
+                                                                        )))
+                                                                    .toList(),
+                                                              ),
+                                                            ),
+                                                          )),
                                       ],
                                     ),
                         ],
@@ -1422,166 +1597,163 @@ class _DetailProjectState extends State<DetailProject>
                                             ],
                                           ),
                                         ),
-                                        Container(
-                                            color: Colors.white,
-                                            margin: EdgeInsets.only(
-                                              top: 10.0,
-                                            ),
-                                            child: SingleChildScrollView(
-                                              child: Container(
-                                                child: Column(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.center,
-                                                  children: listTodoProject
-                                                      .map((Todo item) => Card(
-                                                          elevation: 0.6,
-                                                          child: ListTile(
-                                                            leading: Padding(
-                                                              padding:
-                                                                  const EdgeInsets
-                                                                      .all(0.0),
-                                                              child: ClipRRect(
-                                                                borderRadius:
-                                                                    BorderRadius
-                                                                        .circular(
-                                                                            100.0),
-                                                                child:
-                                                                    Container(
-                                                                  height: 40.0,
-                                                                  alignment:
-                                                                      Alignment
-                                                                          .center,
-                                                                  width: 40.0,
-                                                                  decoration:
-                                                                      BoxDecoration(
-                                                                    border: Border.all(
-                                                                        color: Colors
-                                                                            .white,
-                                                                        width:
-                                                                            2.0),
-                                                                    borderRadius:
-                                                                        BorderRadius.all(
-                                                                            Radius.circular(100.0) //                 <--- border radius here
-                                                                            ),
-                                                                    color:
-                                                                        primaryAppBarColor,
-                                                                  ),
-                                                                  child: Text(
-                                                                    '${item.title[0]}',
-                                                                    style:
-                                                                        TextStyle(
-                                                                      color: Colors
-                                                                          .white,
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                            ),
-                                                            title: Text(
-                                                                item.title ==
-                                                                            '' ||
-                                                                        item.title ==
-                                                                            null
-                                                                    ? 'To Do Tidak Diketahui'
-                                                                    : item
-                                                                        .title,
-                                                                style: TextStyle(
-                                                                    fontSize:
-                                                                        16,
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .w500)),
-                                                            subtitle: Padding(
-                                                              padding:
-                                                                  const EdgeInsets
-                                                                          .only(
-                                                                      top:
-                                                                          15.0),
-                                                              child: Column(
-                                                                crossAxisAlignment:
-                                                                    CrossAxisAlignment
-                                                                        .start,
-                                                                mainAxisAlignment:
-                                                                    MainAxisAlignment
-                                                                        .start,
+                                        isFilterTodo == true
+                                            ? _loadingview()
+                                            : isErrorFilterTodo == true
+                                                ? _errorFilter(context)
+                                                : Container(
+                                                    color: Colors.white,
+                                                    margin: EdgeInsets.only(
+                                                      top: 10.0,
+                                                    ),
+                                                    child: listTodoProject
+                                                                .length ==
+                                                            0
+                                                        ? Padding(
+                                                            padding:
+                                                                const EdgeInsets
+                                                                        .only(
+                                                                    top: 20.0),
+                                                            child: Column(
                                                                 children: <
                                                                     Widget>[
-                                                                  Text(
-                                                                      item.status == '' ||
-                                                                              item.status ==
-                                                                                  null
-                                                                          ? 'Status Tidak Diketahui'
-                                                                          : item
-                                                                              .status,
-                                                                      style:
-                                                                          TextStyle(
-                                                                        fontWeight:
-                                                                            FontWeight.w500,
-                                                                      )),
-                                                                ],
+                                                                  new Container(
+                                                                    width:
+                                                                        100.0,
+                                                                    height:
+                                                                        100.0,
+                                                                    child: Image
+                                                                        .asset(
+                                                                            "images/empty-white-box.png"),
+                                                                  ),
+                                                                  Padding(
+                                                                    padding:
+                                                                        const EdgeInsets
+                                                                            .only(
+                                                                      top: 20.0,
+                                                                      left:
+                                                                          15.0,
+                                                                      right:
+                                                                          15.0,
+                                                                    ),
+                                                                    child:
+                                                                        Center(
+                                                                      child:
+                                                                          Text(
+                                                                        "To Do yang Anda Cari Tidak Ditemukan",
+                                                                        style:
+                                                                            TextStyle(
+                                                                          fontSize:
+                                                                              16,
+                                                                          color:
+                                                                              Colors.black45,
+                                                                          height:
+                                                                              1.5,
+                                                                        ),
+                                                                        textAlign:
+                                                                            TextAlign.center,
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                ]),
+                                                          )
+                                                        : SingleChildScrollView(
+                                                            child: Container(
+                                                              child: Column(
+                                                                mainAxisAlignment:
+                                                                    MainAxisAlignment
+                                                                        .center,
+                                                                children: listTodoProject
+                                                                    .map((Todo item) => Card(
+                                                                        elevation: 0.6,
+                                                                        child: ListTile(
+                                                                          leading:
+                                                                              Padding(
+                                                                            padding:
+                                                                                const EdgeInsets.all(0.0),
+                                                                            child:
+                                                                                ClipRRect(
+                                                                              borderRadius: BorderRadius.circular(100.0),
+                                                                              child: Container(
+                                                                                height: 40.0,
+                                                                                alignment: Alignment.center,
+                                                                                width: 40.0,
+                                                                                decoration: BoxDecoration(
+                                                                                  border: Border.all(color: Colors.white, width: 2.0),
+                                                                                  borderRadius: BorderRadius.all(Radius.circular(100.0) //                 <--- border radius here
+                                                                                      ),
+                                                                                  color: primaryAppBarColor,
+                                                                                ),
+                                                                                child: Text(
+                                                                                  '${item.title[0]}',
+                                                                                  style: TextStyle(
+                                                                                    color: Colors.white,
+                                                                                  ),
+                                                                                ),
+                                                                              ),
+                                                                            ),
+                                                                          ),
+                                                                          title: Text(
+                                                                              item.title == '' || item.title == null ? 'To Do Tidak Diketahui' : item.title,
+                                                                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
+                                                                          subtitle:
+                                                                              Padding(
+                                                                            padding:
+                                                                                const EdgeInsets.only(top: 15.0),
+                                                                            child:
+                                                                                Column(
+                                                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                                                              mainAxisAlignment: MainAxisAlignment.start,
+                                                                              children: <Widget>[
+                                                                                Text(item.status == '' || item.status == null ? 'Status Tidak Diketahui' : item.status,
+                                                                                    style: TextStyle(
+                                                                                      fontWeight: FontWeight.w500,
+                                                                                    )),
+                                                                              ],
+                                                                            ),
+                                                                          ),
+                                                                          trailing:
+                                                                              Row(
+                                                                            mainAxisSize:
+                                                                                MainAxisSize.min,
+                                                                            children: <Widget>[
+                                                                              PopupMenuButton<PageTodo>(
+                                                                                onSelected: (PageTodo value) {
+                                                                                  switch (value) {
+                                                                                    case PageTodo.hapusTodo:
+                                                                                      hapusTodo(item.id.toString());
+                                                                                      break;
+                                                                                    case PageTodo.gantistatusTodo:
+                                                                                      gantiStatusTodo(item.id, item.status);
+                                                                                      break;
+
+                                                                                    default:
+                                                                                      break;
+                                                                                  }
+                                                                                },
+                                                                                icon: Icon(Icons.more_vert),
+                                                                                itemBuilder: (context) => [
+                                                                                  PopupMenuItem(
+                                                                                    value: PageTodo.gantistatusTodo,
+                                                                                    child: Text("Ganti Status To Do"),
+                                                                                  ),
+                                                                                  PopupMenuItem(
+                                                                                    // value: PageEnum.deletePeserta,
+                                                                                    child: Text("Atur Member To Do"),
+                                                                                  ),
+                                                                                  PopupMenuItem(
+                                                                                    value: PageTodo.hapusTodo,
+                                                                                    child: Text("Hapus To Do"),
+                                                                                  ),
+                                                                                ],
+                                                                              ),
+                                                                            ],
+                                                                          ),
+                                                                        )))
+                                                                    .toList(),
                                                               ),
                                                             ),
-                                                            trailing: Row(
-                                                              mainAxisSize:
-                                                                  MainAxisSize
-                                                                      .min,
-                                                              children: <
-                                                                  Widget>[
-                                                                PopupMenuButton<
-                                                                    PageTodo>(
-                                                                  onSelected:
-                                                                      (PageTodo
-                                                                          value) {
-                                                                    switch (
-                                                                        value) {
-                                                                      case PageTodo
-                                                                          .hapusTodo:
-                                                                        hapusTodo(item
-                                                                            .id
-                                                                            .toString());
-                                                                        break;
-                                                                      case PageTodo
-                                                                          .gantistatusTodo:
-                                                                        gantiStatusTodo(
-                                                                            item.id,
-                                                                            item.status);
-                                                                        break;
-
-                                                                      default:
-                                                                        break;
-                                                                    }
-                                                                  },
-                                                                  icon: Icon(Icons
-                                                                      .more_vert),
-                                                                  itemBuilder:
-                                                                      (context) =>
-                                                                          [
-                                                                    PopupMenuItem(
-                                                                      value: PageTodo
-                                                                          .gantistatusTodo,
-                                                                      child: Text(
-                                                                          "Ganti Status To Do"),
-                                                                    ),
-                                                                    PopupMenuItem(
-                                                                      // value: PageEnum.deletePeserta,
-                                                                      child: Text(
-                                                                          "Atur Member To Do"),
-                                                                    ),
-                                                                    PopupMenuItem(
-                                                                      value: PageTodo
-                                                                          .hapusTodo,
-                                                                      child: Text(
-                                                                          "Hapus To Do"),
-                                                                    ),
-                                                                  ],
-                                                                ),
-                                                              ],
-                                                            ),
-                                                          )))
-                                                      .toList(),
-                                                ),
-                                              ),
-                                            )),
+                                                          )),
                                       ],
                                     ),
                         ],
@@ -1730,6 +1902,69 @@ class _DetailProjectState extends State<DetailProject>
     );
   }
 
+  Widget _errorFilter(BuildContext context) {
+    return Container(
+      color: Colors.white,
+      margin: EdgeInsets.only(
+        top: 15.0,
+      ),
+      padding: const EdgeInsets.only(top: 10.0, bottom: 15.0),
+      child: RefreshIndicator(
+        onRefresh: () => filterMemberproject(),
+        child: Column(children: <Widget>[
+          new Container(
+            width: 80.0,
+            height: 80.0,
+            child: Image.asset("images/system-eror.png"),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(
+              top: 10.0,
+              left: 15.0,
+              right: 15.0,
+            ),
+            child: Center(
+              child: Text(
+                "Gagal Memuat Data, Tekan Tombol Muat Ulang Data Untuk Merefresh Data",
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.black54,
+                  height: 1.5,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(
+                top: 15.0, left: 15.0, right: 15.0, bottom: 15.0),
+            child: SizedBox(
+              width: double.infinity,
+              child: RaisedButton(
+                color: Colors.white,
+                textColor: primaryAppBarColor,
+                disabledColor: Colors.grey,
+                disabledTextColor: Colors.black,
+                padding: EdgeInsets.all(15.0),
+                onPressed: () async {
+                  if (_tabController.index == 0) {
+                    filterMemberproject();
+                  } else {
+                    filterTodoProject();
+                  }
+                },
+                child: Text(
+                  "Muat Ulang Data",
+                  style: TextStyle(fontSize: 14.0, fontWeight: FontWeight.w500),
+                ),
+              ),
+            ),
+          ),
+        ]),
+      ),
+    );
+  }
+
   Widget buildBar(BuildContext context) {
     return PreferredSize(
         preferredSize: Size.fromHeight(50.0),
@@ -1745,51 +1980,60 @@ class _DetailProjectState extends State<DetailProject>
                   : Colors.white,
               child: IconButton(
                 icon: actionIcon,
-                onPressed: () {
-                  setState(() {
-                    if (this.actionIcon.icon == Icons.search) {
-                      actionBackAppBar = false;
-                      iconButtonAppbarColor = false;
-                      this.actionIcon = new Icon(
-                        Icons.close,
-                        color: Colors.black87,
-                      );
-                      this.appBarTitle = Container(
-                        height: 50.0,
-                        alignment: Alignment.center,
-                        padding: EdgeInsets.all(0),
-                        margin: EdgeInsets.all(0),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                        ),
-                        child: TextField(
-                          autofocus: true,
-                          controller: _searchQuery,
-                          onChanged: (string) {
-                            if (string != null || string != '') {}
-                          },
-                          style: TextStyle(
-                            color: Colors.black87,
-                            fontSize: 14,
-                          ),
-                          textAlignVertical: TextAlignVertical.center,
-                          decoration: InputDecoration(
-                            border: InputBorder.none,
-                            prefixIcon:
-                                new Icon(Icons.search, color: Colors.black87),
-                            hintText: "Cari...",
-                            hintStyle: TextStyle(
+                onPressed: isLoading == true || isError == true
+                    ? null
+                    : () {
+                        setState(() {
+                          if (this.actionIcon.icon == Icons.search) {
+                            actionBackAppBar = false;
+                            iconButtonAppbarColor = false;
+                            this.actionIcon = new Icon(
+                              Icons.close,
                               color: Colors.black87,
-                              fontSize: 14,
-                            ),
-                          ),
-                        ),
-                      );
-                    } else {
-                      _handleSearchEnd();
-                    }
-                  });
-                },
+                            );
+                            this.appBarTitle = Container(
+                              height: 50.0,
+                              alignment: Alignment.center,
+                              padding: EdgeInsets.all(0),
+                              margin: EdgeInsets.all(0),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                              ),
+                              child: TextField(
+                                autofocus: true,
+                                textInputAction: TextInputAction.search,
+                                controller: _searchQuery,
+                                onSubmitted: (string) {
+                                  if (string != null || string != '') {
+                                    if (_tabController.index == 0) {
+                                      filterMemberproject();
+                                    } else {
+                                      filterTodoProject();
+                                    }
+                                  }
+                                },
+                                style: TextStyle(
+                                  color: Colors.black87,
+                                  fontSize: 14,
+                                ),
+                                textAlignVertical: TextAlignVertical.center,
+                                decoration: InputDecoration(
+                                  border: InputBorder.none,
+                                  prefixIcon: new Icon(Icons.search,
+                                      color: Colors.black87),
+                                  hintText: "Cari...",
+                                  hintStyle: TextStyle(
+                                    color: Colors.black87,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ),
+                            );
+                          } else {
+                            _handleSearchEnd();
+                          }
+                        });
+                      },
               ),
             ),
           ],

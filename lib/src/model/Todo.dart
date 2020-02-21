@@ -9,6 +9,7 @@ class Todo{
   String status;
   String progress;
   Color colored;
+  String statuspinned;
 
-  Todo({this.id,this.title, this.desc, this.timestart, this.timeend, this.status, this.progress,this.colored});
+  Todo({this.id,this.title, this.desc, this.timestart, this.timeend, this.status, this.progress,this.colored,this.statuspinned});
 }

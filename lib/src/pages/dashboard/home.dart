@@ -105,11 +105,15 @@ class _HomeState extends State<Home> {
         setState(() {
           isLoading = false;
           isError = true;
+          isFilter = false;
+          isErrorFilter = false;
         });
       } else {
         setState(() {
           isLoading = false;
           isError = true;
+          isFilter = false;
+          isErrorFilter = false;
         });
         print(participant.body);
         return null;
@@ -118,12 +122,16 @@ class _HomeState extends State<Home> {
       setState(() {
         isLoading = false;
         isError = true;
+        isFilter = false;
+        isErrorFilter = false;
       });
       Fluttertoast.showToast(msg: "Timed out, Try again");
     } catch (e) {
       setState(() {
         isLoading = false;
         isError = true;
+        isFilter = false;
+        isErrorFilter = false;
       });
       debugPrint('$e');
     }
@@ -142,6 +150,7 @@ class _HomeState extends State<Home> {
 
     setState(() {
       listTodo.clear();
+      listTodo = [];
       isLoading = true;
     });
     try {
@@ -157,6 +166,7 @@ class _HomeState extends State<Home> {
               title: i['title'].toString(),
               timeend: i['end'].toString(),
               timestart: i['start'].toString(),
+              statuspinned: i['statuspinned'].toString(),
               colored: _randomColor.randomColor());
 
           listTodo.add(todo);
@@ -165,6 +175,8 @@ class _HomeState extends State<Home> {
         setState(() {
           isLoading = false;
           isError = false;
+          isFilter = false;
+          isErrorFilter = false;
         });
       } else if (participant.statusCode == 401) {
         Fluttertoast.showToast(
@@ -172,11 +184,15 @@ class _HomeState extends State<Home> {
         setState(() {
           isLoading = false;
           isError = true;
+          isFilter = false;
+          isErrorFilter = false;
         });
       } else {
         setState(() {
           isLoading = false;
           isError = true;
+          isFilter = false;
+          isErrorFilter = false;
         });
         print(participant.body);
         return null;
@@ -185,6 +201,8 @@ class _HomeState extends State<Home> {
       setState(() {
         isLoading = false;
         isError = true;
+        isFilter = false;
+        isErrorFilter = false;
       });
       Fluttertoast.showToast(msg: "Timed out, Try again");
     } catch (e) {
@@ -192,6 +210,8 @@ class _HomeState extends State<Home> {
       setState(() {
         isLoading = false;
         isError = true;
+        isFilter = false;
+        isErrorFilter = false;
       });
     }
     return null;
@@ -209,6 +229,7 @@ class _HomeState extends State<Home> {
 
     setState(() {
       listTodo.clear();
+      listTodo = [];
       isFilter = true;
     });
     try {
@@ -225,12 +246,15 @@ class _HomeState extends State<Home> {
               title: i['title'].toString(),
               timeend: i['end'].toString(),
               timestart: i['start'].toString(),
+              statuspinned: i['statuspinned'].toString(),
               colored: _randomColor.randomColor());
 
           listTodo.add(todo);
         }
 
         setState(() {
+          isFilter = false;
+          isErrorFilter = false;
           isFilter = false;
           isErrorFilter = false;
         });
@@ -240,11 +264,15 @@ class _HomeState extends State<Home> {
         setState(() {
           isFilter = false;
           isErrorFilter = true;
+          isFilter = false;
+          isErrorFilter = false;
         });
       } else {
         setState(() {
           isFilter = false;
           isErrorFilter = true;
+          isFilter = false;
+          isErrorFilter = false;
         });
         print(participant.body);
       }
@@ -252,12 +280,16 @@ class _HomeState extends State<Home> {
       setState(() {
         isLoading = false;
         isErrorFilter = true;
+        isFilter = false;
+        isErrorFilter = false;
       });
       Fluttertoast.showToast(msg: "Timed out, Try again");
     } catch (e) {
       setState(() {
         isLoading = false;
         isErrorFilter = true;
+        isFilter = false;
+        isErrorFilter = false;
       });
       debugPrint('$e');
     }
@@ -440,7 +472,11 @@ class _HomeState extends State<Home> {
                                       onPressed: () {
                                         setState(() {
                                           currentFilter = int.parse(x['index']);
-                                          filterDataTodo(int.parse(x['index']));
+                                          if (isFilter == true) {
+                                          } else {
+                                            filterDataTodo(
+                                                int.parse(x['index']));
+                                          }
                                         });
                                       },
                                       child: Text(
@@ -564,6 +600,75 @@ class _HomeState extends State<Home> {
                                                                     .bold),
                                                       )),
                                                 ),
+                                              ),
+                                              trailing: Row(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: <Widget>[
+                                                  ButtonTheme(
+                                                    minWidth: 0.0,
+                                                    child: FlatButton(
+                                                        onPressed: () async {
+                                                          try {
+                                                            final actionPinnedTodo =
+                                                                await http.post(
+                                                                    url(
+                                                                        'api/actionpinned_todo'),
+                                                                    headers:
+                                                                        requestHeaders,
+                                                                    body: {
+                                                                  'todolist': x
+                                                                      .id
+                                                                      .toString(),
+                                                                });
+
+                                                            if (actionPinnedTodo
+                                                                    .statusCode ==
+                                                                200) {
+                                                              var actionPinnedTodoJson =
+                                                                  json.decode(
+                                                                      actionPinnedTodo
+                                                                          .body);
+                                                              if (actionPinnedTodoJson[
+                                                                      'status'] ==
+                                                                  'tambah') {
+                                                                setState(() {
+                                                                  x.statuspinned = x
+                                                                      .id
+                                                                      .toString();
+                                                                });
+                                                              } else if (actionPinnedTodoJson[
+                                                                      'status'] ==
+                                                                  'hapus') {
+                                                                setState(() {
+                                                                  x.statuspinned =
+                                                                      null;
+                                                                });
+                                                              }
+                                                            } else {
+                                                              print(
+                                                                  actionPinnedTodo
+                                                                      .body);
+                                                            }
+                                                          } on TimeoutException catch (_) {
+                                                            Fluttertoast.showToast(
+                                                                msg:
+                                                                    "Timed out, Try again");
+                                                          } catch (e) {
+                                                            print(e);
+                                                          }
+                                                        },
+                                                        color: Colors.white,
+                                                        child: Icon(
+                                                          Icons.star_border,
+                                                          color: x.statuspinned ==
+                                                                      null ||
+                                                                  x.statuspinned ==
+                                                                      'null'
+                                                              ? Colors.grey
+                                                              : Colors.orange,
+                                                        )),
+                                                  ),
+                                                ],
                                               ),
                                               title: Text(
                                                   x.title == '' ||

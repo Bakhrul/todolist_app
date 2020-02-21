@@ -148,6 +148,9 @@ class _TodoListState extends State<TodoList> {
           Fluttertoast.showToast(msg: "Berhasil !");
           progressApiAction.hide().then((isHidden) {});
           Navigator.pushReplacementNamed(context, '/dashboard');
+          setState(() {
+            
+          });
         }
       } else {
         print(addadminevent.body);
