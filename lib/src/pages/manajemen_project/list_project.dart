@@ -7,10 +7,12 @@ import 'package:intl/intl.dart';
 import 'package:random_color/random_color.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:todolist_app/src/model/Project.dart';
+import 'package:todolist_app/src/pages/manajemen_project/detail_project.dart';
 import 'package:todolist_app/src/routes/env.dart';
 import 'dart:async';
 
 import 'package:todolist_app/src/storage/storage.dart';
+import 'package:todolist_app/src/utils/utils.dart';
 
 class ListProject extends StatefulWidget {
   @override
@@ -22,14 +24,28 @@ class _ListProjectState extends State<ListProject> {
   Map<String, String> requestHeaders = Map();
   List<Project> listProject = [];
   bool isLoading = true;
+  bool isError = true;
   RandomColor _randomColor = RandomColor();
 
   @override
   void initState() {
     super.initState();
-    getDataProject();
+    getHeaderHTTP();
   }
 
+ Future<void> getHeaderHTTP() async {
+    var storage = new DataStore();
+
+    var tokenTypeStorage = await storage.getDataString('token_type');
+    var accessTokenStorage = await storage.getDataString('access_token');
+
+    tokenType = tokenTypeStorage;
+    accessToken = accessTokenStorage;
+
+    requestHeaders['Accept'] = 'application/json';
+    requestHeaders['Authorization'] = '$tokenType $accessToken';
+    return getDataProject();
+  }
   Future<List<List>> getDataProject() async {
     var storage = new DataStore();
     var tokenTypeStorage = await storage.getDataString('token_type');
@@ -63,19 +79,19 @@ class _ListProjectState extends State<ListProject> {
 
         setState(() {
           isLoading = false;
-          // isError = false;
+          isError = false;
         });
       } else if (participant.statusCode == 401) {
         Fluttertoast.showToast(
             msg: "Token Telah Kadaluwarsa, Silahkan Login Kembali");
         setState(() {
           isLoading = false;
-          // isError = true;
+          isError = true;
         });
       } else {
         setState(() {
           isLoading = false;
-          // isError = true;
+          isError = true;
         });
         print(participant.body);
         return null;
@@ -83,7 +99,7 @@ class _ListProjectState extends State<ListProject> {
     } on TimeoutException catch (_) {
       setState(() {
         isLoading = false;
-        // isError = true;
+        isError = true;
       });
       Fluttertoast.showToast(msg: "Timed out, Try again");
     } catch (e) {
@@ -97,15 +113,19 @@ class _ListProjectState extends State<ListProject> {
     return Scaffold(
       appBar: AppBar(
         title: Text("Semua Project"),
+        backgroundColor: primaryAppBarColor,
       ),
-      body: Container(
+      body: isLoading != false
+              ? listLoadingTodo(): isError == true
+                                  ? errorSystem(context):
+                                  Container(
         child: Padding(
             padding: const EdgeInsets.all(8.0),
             child: ListView.builder(
               itemCount: listProject.length,
               itemBuilder: (BuildContext context, int index) {
-                return isLoading != true
-              ? listLoadingTodo():Card(
+                return 
+              Card(
                   child: ListTile(
                     // leading: Text(""),
                     title: Text("${listProject[index].title}",
@@ -125,6 +145,9 @@ class _ListProjectState extends State<ListProject> {
                                     .toString(),
                         overflow: TextOverflow.ellipsis,
                         maxLines: 1),
+                        onTap: (){
+                          Navigator.push(context, MaterialPageRoute(builder:(context) => DetailProject(idproject:listProject[index].id ,) ));
+                        },
                   ),
                 );
               },
@@ -210,5 +233,61 @@ class _ListProjectState extends State<ListProject> {
             ),
           ),
         )));
+  }
+  Widget errorSystem(BuildContext context) {
+    return Container(
+      color: Colors.white,
+      margin: EdgeInsets.only(top: 0.0, left: 10.0, right: 10.0),
+      padding: const EdgeInsets.only(top: 10.0, bottom: 15.0),
+      child: RefreshIndicator(
+        onRefresh: () => getHeaderHTTP(),
+        child: Column(children: <Widget>[
+          new Container(
+            width: 100.0,
+            height: 100.0,
+            child: Image.asset("images/system-eror.png"),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(
+              top: 30.0,
+              left: 15.0,
+              right: 15.0,
+            ),
+            child: Center(
+              child: Text(
+                "Gagal memuat halaman, tekan tombol muat ulang halaman untuk refresh halaman",
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.black54,
+                  height: 1.5,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(
+                top: 15.0, left: 15.0, right: 15.0, bottom: 15.0),
+            child: SizedBox(
+              width: double.infinity,
+              child: RaisedButton(
+                color: Colors.white,
+                textColor: primaryAppBarColor,
+                disabledColor: Colors.grey,
+                disabledTextColor: Colors.black,
+                padding: EdgeInsets.all(15.0),
+                onPressed: () async {
+                  getHeaderHTTP();
+                },
+                child: Text(
+                  "Muat Ulang Halaman",
+                  style: TextStyle(fontSize: 14.0, fontWeight: FontWeight.w500),
+                ),
+              ),
+            ),
+          ),
+        ]),
+      ),
+    );
   }
 }
