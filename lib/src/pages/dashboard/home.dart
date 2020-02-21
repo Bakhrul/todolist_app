@@ -8,7 +8,6 @@ import 'package:random_color/random_color.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:todolist_app/src/model/Todo.dart';
 import 'package:todolist_app/src/models/project.dart';
-import 'package:todolist_app/src/pages/manajemen_project/list_project.dart';
 import 'package:todolist_app/src/pages/todolist/edit.dart';
 import 'package:todolist_app/src/routes/env.dart';
 import 'package:todolist_app/src/storage/storage.dart';
@@ -527,7 +526,11 @@ class _HomeState extends State<Home> {
                                 children: <Widget>[
                                   for (var x in listTodo)
                                     InkWell(
-                                      onTap: () async {},
+                                      onTap: () async {
+                                        Navigator.push(context, MaterialPageRoute(
+                                          builder: (context) => EditTodo(idTodo: x.id,)
+                                        ));
+                                      },
                                       child: Container(
                                         height: 65,
                                         child: Card(

@@ -148,6 +148,7 @@ class _DashboardState extends State<Dashboard> {
                     height: 50.0,
                     child: RaisedButton(
                         onPressed: () async {
+                          Navigator.pop(context);
                           Navigator.push(
                               context,
                               MaterialPageRoute(
@@ -375,6 +376,7 @@ class _DashboardState extends State<Dashboard> {
         backgroundColor: Colors.white,
         // key: _scaffoldKeyDashboard,
          appBar: indexColor == 0 ? new AppBar(
+           automaticallyImplyLeading: false,
           backgroundColor: primaryAppBarColor,
           iconTheme: IconThemeData(
             color: Colors.white,

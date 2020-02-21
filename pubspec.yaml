@@ -36,6 +36,7 @@ dependencies:
   datetime_picker_formfield: ^0.4.3
   carousel_slider: ^1.4.1
   random_color: ^1.0.3
+  expandable: ^4.1.2
 
 dev_dependencies:
   flutter_test:

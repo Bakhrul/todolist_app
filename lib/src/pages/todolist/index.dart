@@ -334,7 +334,7 @@ void dispose() {
       ),
     );
   }
-  Widget showCategory(){
+  void showCategory(){
        showModalBottomSheet(
         isScrollControlled: true,
         context: context,
