@@ -1,3 +1,4 @@
+import 'package:todolist_app/src/pages/auth/login.dart';
 import 'package:todolist_app/src/pages/dashboard.dart';
 import 'package:todolist_app/src/pages/manajamen_user/edit.dart';
 import 'package:todolist_app/src/routes/env.dart';
@@ -59,30 +60,26 @@ class _ManajemenUser extends State<ManajemenUser> {
             Container(
                 child: Column(
               children: <Widget>[
-                imageStore == '-' ?
-                Container(
-                      margin: EdgeInsets.only(top:20),
-                      height: 90,
-                      width: 90,
-                      child : ClipOval(
-                        child: Image.asset('images/imgavatar.png',fit:BoxFit.fill)
-                      )
-                    ):
-                Container(
-                  margin: EdgeInsets.only(top: 20),
-                  height: 90,
-                  width: 90,
-                  child : ClipOval(
-                    child: imageProfile == null ?
-                    FadeInImage.assetNetwork(
-                      fit: BoxFit.cover,
-                      placeholder : 'images/imgavatar.png',
-                      image:url('storage/image/profile/$imageStore')
-                    ):
-                    Image.file(imageProfile)
-                  )
-                ),
-
+                imageStore == '-'
+                    ? Container(
+                        margin: EdgeInsets.only(top: 20),
+                        height: 90,
+                        width: 90,
+                        child: ClipOval(
+                            child: Image.asset('images/imgavatar.png',
+                                fit: BoxFit.fill)))
+                    : Container(
+                        margin: EdgeInsets.only(top: 20),
+                        height: 90,
+                        width: 90,
+                        child: ClipOval(
+                            child: imageProfile == null
+                                ? FadeInImage.assetNetwork(
+                                    fit: BoxFit.cover,
+                                    placeholder: 'images/imgavatar.png',
+                                    image: url(
+                                        'storage/image/profile/$imageStore'))
+                                : Image.file(imageProfile))),
                 Container(
                   margin: EdgeInsets.only(bottom: 5.0, top: 10.0),
                   child: Text(namaStore == null ? 'memuat..' : namaStore,
@@ -91,7 +88,6 @@ class _ManajemenUser extends State<ManajemenUser> {
                         color: Colors.white,
                       )),
                 ),
-
                 Container(
                     width: double.infinity,
                     padding: EdgeInsets.only(
@@ -165,11 +161,13 @@ class _ManajemenUser extends State<ManajemenUser> {
                                 style: TextStyle(color: Colors.cyan),
                               ),
                               onPressed: () {
-                              removeSharedPrefs();
-                               Navigator.popUntil(
+                                removeSharedPrefs();
+                                Navigator.pop(context);
+                                Navigator.pushReplacement(
                                     context,
-                                    ModalRoute.withName('/login'),
-                                  );
+                                    MaterialPageRoute(
+                                        builder: (BuildContext context) =>
+                                            LoginPage()));
                               },
                             )
                           ],
@@ -182,7 +180,6 @@ class _ManajemenUser extends State<ManajemenUser> {
               ],
             ))
           ],
-        ))
-        );
+        )));
   }
 }

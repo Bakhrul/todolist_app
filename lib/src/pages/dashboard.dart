@@ -57,13 +57,6 @@ class _DashboardState extends State<Dashboard> {
   }
 
   PageController _myPage = PageController(initialPage: 0);
-  int _selectedIndex = 0;
-
-  _updateIndex(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
 
   _getStoreData() async {
     DataStore user = new DataStore();
