@@ -17,6 +17,8 @@ import 'dart:convert';
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 import 'dart:core';
 import 'dart:io';
+import 'manajemen_important/index.dart';
+import 'manajemen_searching/index.dart';
 
 String tokenType, accessToken;
 String usernameprofile, emailprofile, imageprofile;
@@ -375,21 +377,22 @@ class _DashboardState extends State<Dashboard> {
     return Scaffold(
         backgroundColor: Colors.white,
         // key: _scaffoldKeyDashboard,
-         appBar: indexColor == 0 ? new AppBar(
-           automaticallyImplyLeading: false,
-          backgroundColor: primaryAppBarColor,
-          iconTheme: IconThemeData(
-            color: Colors.white,
-          ),
-          centerTitle: true,
-          title: new Text(
-            "Dashboard",
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 14,
-            ),
-          ),
-        ) : null,
+        appBar: indexColor == 0
+            ? new AppBar(
+                backgroundColor: primaryAppBarColor,
+                iconTheme: IconThemeData(
+                  color: Colors.white,
+                ),
+                title: new Text(
+                  "Dashboard",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                  ),
+                ),
+                automaticallyImplyLeading: false,
+              )
+            : null,
         body: PageView(
           controller: _myPage,
           onPageChanged: (int) {
@@ -407,12 +410,12 @@ class _DashboardState extends State<Dashboard> {
             ),
             Center(
               child: Container(
-                child: Text('Empty Body 1'),
+                child: ManajemenTodoImportant(),
               ),
             ),
             Center(
               child: Container(
-                child: Text('Empty Body 2'),
+                child: ManajemenSerachTodo(),
               ),
             ),
             Center(
@@ -425,58 +428,82 @@ class _DashboardState extends State<Dashboard> {
               NeverScrollableScrollPhysics(), // Comment this if you need to use Swipe.
         ),
         floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-        floatingActionButton: indexColor != 0 ? null : FloatingActionButton(
-            onPressed: () {
-              _showmodalChooseTodo();
-            },
-            child: Icon(Icons.add),
-            backgroundColor: primaryAppBarColor),
+        floatingActionButton: indexColor != 0
+            ? null
+            : FloatingActionButton(
+                onPressed: () {
+                  _showmodalChooseTodo();
+                },
+                child: Icon(Icons.add),
+                backgroundColor: primaryAppBarColor),
         bottomNavigationBar: BottomAppBar(
           color: Colors.white,
           child: Row(
             mainAxisSize: MainAxisSize.max,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
-              IconButton(
-                icon: Icon(
-                  Icons.home,
-                  color: indexColor == 0 ? primaryAppBarColor : Colors.grey,
+              Container(
+                child: IconButton(
+                  icon: Icon(
+                    Icons.home,
+                    color: indexColor == 0 ? primaryAppBarColor : Colors.grey,
+                  ),
+                  tooltip: "Beranda",
+                  onPressed: () {
+                    setState(() {
+                      _myPage.jumpToPage(0);
+                    });
+                  },
                 ),
-                tooltip: "Beranda",
-                onPressed: () {
-                  setState(() {
-                    _myPage.jumpToPage(0);
-                  });
-                },
               ),
-              IconButton(
-                icon: Icon(
-                  Icons.star,
-                  color: Colors.grey,
+              Container(
+                margin: indexColor != 0
+                    ? EdgeInsets.all(0)
+                    : EdgeInsets.only(right: 30.0),
+                child: IconButton(
+                  icon: Icon(
+                    Icons.star_border,
+                    color: indexColor == 1 ? primaryAppBarColor : Colors.grey,
+                  ),
+                  tooltip: "Favorite",
+                  onPressed: () {
+                    setState(() {
+                      _myPage.jumpToPage(1);
+                    });
+                  },
                 ),
-                tooltip: "Favorite",
               ),
-              Text(''),
-              Text(''),
-              IconButton(
-                icon: Icon(
-                  Icons.search,
-                  color: Colors.grey,
+              Container(
+                margin: indexColor != 0
+                    ? EdgeInsets.all(0)
+                    : EdgeInsets.only(left: 30.0),
+                child: IconButton(
+                  icon: Icon(
+                    Icons.search,
+                    color: indexColor == 2 ? primaryAppBarColor : Colors.grey,
+                  ),
+                  tooltip: "Cari",
+                  onPressed: () {
+                    setState(() {
+                      _myPage.jumpToPage(2);
+                    });
+                  },
                 ),
-                tooltip: "Cari",
               ),
-              IconButton(
-                icon: Icon(
-                  Icons.person,
+              Container(
+                child: IconButton(
+                  icon: Icon(
+                    Icons.person_outline,
+                    color: indexColor == 3 ? primaryAppBarColor : Colors.grey,
+                  ),
+                  tooltip: "Profile",
                   color: indexColor == 3 ? primaryAppBarColor : Colors.grey,
+                  onPressed: () {
+                    setState(() {
+                      _myPage.jumpToPage(3);
+                    });
+                  },
                 ),
-                tooltip: "Profile",
-                color: indexColor == 3 ? primaryAppBarColor : Colors.grey,
-                onPressed: () {
-                  setState(() {
-                    _myPage.jumpToPage(3);
-                  });
-                },
               )
             ],
           ),

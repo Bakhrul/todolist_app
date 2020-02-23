@@ -147,7 +147,10 @@ class _TodoListState extends State<TodoList> {
         if (addpesertaJson['status'] == 'success') {
           Fluttertoast.showToast(msg: "Berhasil !");
           progressApiAction.hide().then((isHidden) {});
-          Navigator.popUntil(context, ModalRoute.withName('/dashboard'));
+          Navigator.pushReplacementNamed(context, '/dashboard');
+          setState(() {
+            
+          });
         }
       } else {
         print(addadminevent.body);

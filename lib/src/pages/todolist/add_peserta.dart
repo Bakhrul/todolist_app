@@ -711,28 +711,28 @@ class RadioGroupWidget extends State {
   ];
 
   Widget build(BuildContext context) {
-    return Column(
-      children: <Widget>[
-       
-        Expanded(
-            child: Container(
-          child: Column(
-            children: fList
-                .map((data) => RadioListTile(
-                      title: Text("${data.name}"),
-                      groupValue: id,
-                      value: data.index,
-                      onChanged: (val) {
-                        setState(() {
-                          radioItem = data.name;
-                          id = data.index;
-                        });
-                      },
-                    ))
-                .toList(),
+   
+       return SingleChildScrollView(
+         child: Container(
+            height: MediaQuery.of(context).size.height/2,
+            child: Column(
+              
+              children: fList
+                  .map((data) => RadioListTile(
+                        title: Text("${data.name}"),
+                        groupValue: id,
+                        value: data.index,
+                        onChanged: (val) {
+                          setState(() {
+                            radioItem = data.name;
+                            id = data.index;
+                          });
+                        },
+                      ))
+                  .toList(),
+            ),
           ),
-        )),
-      ],
-    );
+       );
+      
   }
 }
