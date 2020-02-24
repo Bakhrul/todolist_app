@@ -974,8 +974,7 @@ class _AddPesertaState extends State<AddPeserta> {
     );
   }
 
-
-    Widget _loadingview() {
+  Widget _loadingview() {
     return Container(
         color: Colors.white,
         margin: EdgeInsets.only(
@@ -1114,5 +1113,4 @@ class RadioGroupWidget extends State {
       ),
     );
   }
-  
 }

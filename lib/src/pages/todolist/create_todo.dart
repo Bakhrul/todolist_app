@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'dart:async';
+import 'dart:io';
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
@@ -12,6 +14,7 @@ import 'package:shimmer/shimmer.dart';
 import 'choose_project.dart';
 import 'package:todolist_app/src/storage/storage.dart';
 import 'package:progress_dialog/progress_dialog.dart';
+import 'package:flutter/services.dart';
 
 String tokenType, accessToken;
 String categoriesID;
@@ -31,6 +34,17 @@ class _TodoListState extends State<TodoList> {
   final format = DateFormat("yyyy-MM-dd HH:mm:ss");
   DateTime timeReplacement;
   List<Category> listCategory = [];
+
+  String _dfileName;
+  String _path;
+  String fileImage;
+  Map<String, String> _paths;
+  String _extension;
+  bool _loadingPath = false;
+  bool _multiPick = false;
+  bool _hasValidMime = false;
+  FileType _pickingType;
+  TextEditingController _controller = new TextEditingController();
 
   TextEditingController _titleController = TextEditingController();
   TextEditingController _dateStartController = TextEditingController();
@@ -137,8 +151,10 @@ class _TodoListState extends State<TodoList> {
         "desc": _descController.text.toString(),
         "category": categoriesID.toString(),
         'project': idProjectChoose.toString(),
+        'fileextension' : _dfileName,
+        'attachment': fileImage,
       };
-
+print(_dfileName);
       final addadminevent = await http.post(url('api/todo/create'),
           headers: requestHeaders, body: body);
       print(addadminevent.statusCode);
@@ -148,9 +164,7 @@ class _TodoListState extends State<TodoList> {
           Fluttertoast.showToast(msg: "Berhasil !");
           progressApiAction.hide().then((isHidden) {});
           Navigator.pushReplacementNamed(context, '/dashboard');
-          setState(() {
-            
-          });
+          setState(() {});
         }
       } else {
         print(addadminevent.body);
@@ -515,6 +529,44 @@ class _TodoListState extends State<TodoList> {
                                               fontSize: 12,
                                               color: Colors.black)),
                                     )),
+                                Container(
+                                    margin: EdgeInsets.only(
+                                        bottom: 10.0, top: 10.0),
+                                    child: Text("Tambah Attachment",
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold))),
+                                Container(
+                                    width: double.infinity,
+                                    margin: EdgeInsets.only(
+                                      bottom: 10.0,
+                                    ),
+                                    child: FlatButton(
+                                      onPressed: () => _openFileExplorer(),
+                                      child: SizedBox(
+                                        width: double.infinity,
+                                        child: Text(
+                                          'Pilih File',
+                                          textAlign: TextAlign.left,
+                                        ),
+                                      ),
+                                    )),
+                                         new Builder(
+                  builder: (BuildContext context) => 
+                  // _loadingPath
+                  //     ? Padding(
+                  //         padding: const EdgeInsets.only(bottom: 10.0),
+                  //         child: const CircularProgressIndicator())
+                  //     : 
+                  _dfileName != null 
+                          ?
+                           new Container(
+                              // padding: const EdgeInsets.only(bottom: 10.0),
+                              // height: MediaQuery.of(context).size.height / 4,
+                              child: Text(_dfileName != null ? _dfileName : '..'),
+                            )
+                          : new Container(),
+                                         ),
+
                                 Center(
                                     child: Container(
                                         margin: EdgeInsets.only(top: 10.0),
@@ -702,5 +754,40 @@ class _TodoListState extends State<TodoList> {
             ),
           ),
         )));
+  }
+    void _openFileExplorer() async {
+    if (_pickingType != FileType.CUSTOM || _hasValidMime) {
+      setState(() => _loadingPath = true);
+      try {
+        if (_multiPick) {
+          _path = null;
+          _paths = await FilePicker.getMultiFilePath(
+              type: _pickingType, fileExtension: _extension);
+        } else {
+          _paths = null;
+          
+          //  _path = await FilePicker. getFilePath(
+          //     type: _pickingType, fileExtension: _extension,);
+              File file = await FilePicker.getFile(type: FileType.ANY);
+              setState(() {
+              _dfileName = file.toString();
+             fileImage = base64Encode(file.readAsBytesSync());
+             _loadingPath = false;
+                
+              });
+              // print("Extensi");
+              // print(file.toString().split('/').last);
+        }
+      } on PlatformException catch (e) {
+        print("Unsupported operation" + e.toString());
+      }
+      if (!mounted) return;
+      // setState(() {
+      //   _loadingPath = false;
+      //   _fileName = _path != null
+      //       ? _path.split('/').last
+      //       : _paths != null ? _paths.keys.toString() : '...';
+      // });
+    }
   }
 }
