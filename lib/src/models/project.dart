@@ -16,13 +16,19 @@ class Project {
     String start;
     String end;
     Color colored;
+    String status;
+    String progress;
+    bool isProject;
 
     Project({
         this.id,
         this.title,
         this.start,
         this.end,
-        this.colored
+        this.colored,
+        this.status,
+        this.progress,
+        this.isProject
     });
 
     factory Project.fromJson(Map<String, dynamic> json) => Project(

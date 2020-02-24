@@ -12,11 +12,17 @@ class User {
     int id;
     String name;
     String email;
+    String access;
+    int todo;
+    int owner;
 
     User({
         this.id,
         this.name,
         this.email,
+        this.access,
+        this.todo,
+        this.owner
     });
 
     factory User.fromJson(Map<String, dynamic> json) => User(

@@ -15,6 +15,7 @@ class Todo {
     String end;
     dynamic status;
     int category;
+    int progress;
 
     Todo({
         this.id,
@@ -23,6 +24,7 @@ class Todo {
         this.end,
         this.status,
         this.category,
+        this.progress
     });
 
     factory Todo.fromJson(Map<String, dynamic> json) => Todo(

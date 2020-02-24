@@ -207,7 +207,7 @@ class _EditTodoState extends State<EditTodo> {
         'project': idProjectChoose.toString(),
       };
 
-      final addadminevent = await http.post(url('api/todo/create'),
+      final addadminevent = await http.patch(url('api/todo/update/${widget.idTodo}'),
           headers: requestHeaders, body: body);
       print(addadminevent.statusCode);
       if (addadminevent.statusCode == 200) {
@@ -691,7 +691,7 @@ class _EditTodoState extends State<EditTodo> {
                                                 254, 86, 14, 0.7),
                                             disabledTextColor: Colors.white,
                                             splashColor: Colors.blueAccent,
-                                            child: Text("Tambahkan To Do",
+                                            child: Text("SImpan To Do",
                                                 style: TextStyle(
                                                     fontSize: 12,
                                                     color: Colors.white)))))
