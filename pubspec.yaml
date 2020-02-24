@@ -36,6 +36,7 @@ dependencies:
   datetime_picker_formfield: ^0.4.3
   carousel_slider: ^1.4.1
   random_color: ^1.0.3
+  percent_indicator: "^2.1.1"
 
 dev_dependencies:
   flutter_test:
@@ -93,6 +94,7 @@ flutter:
       - images/loading-event.png
       - images/have_account.png
       - images/not_have_account.png
+      - images/manajemen_project.png
   
   # fonts:
   #   - family: Schyler

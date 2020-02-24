@@ -426,14 +426,11 @@ class _ManajemenTodoImportantState extends State<ManajemenTodoImportant>
                                                                             () async {},
                                                                         child:
                                                                             Container(
-                                                                          height:
-                                                                              65,
                                                                           child: Card(
-                                                                              elevation: 2.0,
+                                                                              elevation: 0.5,
+                                                                            margin: EdgeInsets.only(top:5.0,bottom:5.0,left:0.0,right:0.0),
                                                                               child: ListTile(
-                                                                                leading: Padding(
-                                                                                  padding: const EdgeInsets.all(0.0),
-                                                                                  child: ClipRRect(
+                                                                                leading: ClipRRect(
                                                                                     borderRadius: BorderRadius.circular(100.0),
                                                                                     child: Container(
                                                                                         height: 40.0,
@@ -450,7 +447,7 @@ class _ManajemenTodoImportantState extends State<ManajemenTodoImportant>
                                                                                           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                                                                                         )),
                                                                                   ),
-                                                                                ),
+                                                                                
                                                                                 trailing: Row(
                                                                                   mainAxisSize: MainAxisSize.min,
                                                                                   children: <Widget>[
@@ -491,10 +488,19 @@ class _ManajemenTodoImportantState extends State<ManajemenTodoImportant>
                                                                                     ),
                                                                                   ],
                                                                                 ),
-                                                                                title: Text(item.title == '' || item.title == null ? 'To Do Tidak Diketahui' : item.title, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
-                                                                                subtitle: Padding(
-                                                                                  padding: const EdgeInsets.only(top: 5.0, bottom: 15.0),
-                                                                                  child: Text(DateFormat('d/M/y HH:mm:ss').format(DateTime.parse("${item.timestart}")).toString() + ' - ' + DateFormat('d/M/y H:mm:ss').format(DateTime.parse("${item.timeend}")).toString(), overflow: TextOverflow.ellipsis, maxLines: 1),
+                                                                                title: Text(
+                                                                                  item.title == '' || item.title == null ? 'To Do Tidak Diketahui' : item.title,
+                                                                                  overflow: TextOverflow.ellipsis,
+                                                                                  softWrap: true,
+                                                                                  maxLines: 1,
+                                                                                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                                                                                ),
+                                                                                subtitle: Text(
+                                                                                  DateFormat('d/M/y HH:mm:ss').format(DateTime.parse("${item.timestart}")).toString() + ' - ' + DateFormat('d/M/y H:mm:ss').format(DateTime.parse("${item.timeend}")).toString(),
+                                                                                  overflow: TextOverflow.ellipsis,
+                                                                                  maxLines: 1,
+                                                                                  softWrap: true,
+                                                                                  style: TextStyle(fontSize: 12),
                                                                                 ),
                                                                               )),
                                                                         ),

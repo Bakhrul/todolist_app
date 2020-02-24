@@ -12,6 +12,8 @@ import 'package:todolist_app/src/utils/utils.dart';
 import 'package:todolist_app/src/model/Todo.dart';
 import 'package:todolist_app/src/model/Project.dart';
 import 'package:shimmer/shimmer.dart';
+import '../manajemen_project/detail_project.dart';
+import '../todolist/detail_todo.dart';
 
 String tokenType, accessToken;
 Map<String, String> requestHeaders = Map();
@@ -416,7 +418,7 @@ class _ManajemenSerachTodoState extends State<ManajemenSerachTodo>
                                                       '$jumlahTodosearch To Do',
                                                       style: TextStyle(
                                                           color: Colors.black,
-                                                          fontSize: 16,
+                                                          fontSize: 14,
                                                           fontWeight:
                                                               FontWeight.w500),
                                                     ),
@@ -440,13 +442,18 @@ class _ManajemenSerachTodoState extends State<ManajemenSerachTodo>
                                                                 (Todo item) =>
                                                                     InkWell(
                                                                       onTap:
-                                                                          () async {},
+                                                                          () async {
+                                                                      //         Navigator.push(
+                                                                      // context,
+                                                                      // MaterialPageRoute(
+                                                                      //     builder: (context) =>
+                                                                      //         ManajemenDetailTodo(idproject: 2,namaproject: 'Bisnis Kita', idtodo:item.id, namatodo: item.title,)));
+                                                                          },
                                                                       child:
                                                                           Container(
-                                                                        height:
-                                                                            65,
                                                                         child: Card(
-                                                                            elevation: 2.0,
+                                                                            elevation: 0.5,
+                                                                            margin: EdgeInsets.only(top: 5.0, bottom: 5.0, left: 0.0, right: 0.0),
                                                                             child: ListTile(
                                                                               leading: Padding(
                                                                                 padding: const EdgeInsets.all(0.0),
@@ -508,11 +515,14 @@ class _ManajemenSerachTodoState extends State<ManajemenSerachTodo>
                                                                                   ),
                                                                                 ],
                                                                               ),
-                                                                              title: Text(item.title == '' || item.title == null ? 'To Do Tidak Diketahui' : item.title, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
-                                                                              subtitle: Padding(
-                                                                                padding: const EdgeInsets.only(top: 5.0, bottom: 15.0),
-                                                                                child: Text(DateFormat('d/M/y HH:mm:ss').format(DateTime.parse("${item.timestart}")).toString() + ' - ' + DateFormat('d/M/y H:mm:ss').format(DateTime.parse("${item.timeend}")).toString(), overflow: TextOverflow.ellipsis, maxLines: 1),
+                                                                              title: Text(
+                                                                                item.title == '' || item.title == null ? 'To Do Tidak Diketahui' : item.title,
+                                                                                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                                                                                overflow: TextOverflow.ellipsis,
+                                                                                softWrap: true,
+                                                                                maxLines: 1,
                                                                               ),
+                                                                              subtitle: Text(DateFormat('d/M/y HH:mm:ss').format(DateTime.parse("${item.timestart}")).toString() + ' - ' + DateFormat('d/M/y H:mm:ss').format(DateTime.parse("${item.timeend}")).toString(), overflow: TextOverflow.ellipsis, maxLines: 1),
                                                                             )),
                                                                       ),
                                                                     ))
@@ -568,7 +578,8 @@ class _ManajemenSerachTodoState extends State<ManajemenSerachTodo>
                                           ]),
                                         )
                                       : Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
                                           children: <Widget>[
                                             Container(
                                               margin: EdgeInsets.only(
@@ -597,53 +608,69 @@ class _ManajemenSerachTodoState extends State<ManajemenSerachTodo>
                                                             .center,
                                                     children: listProjectSearch
                                                         .map((Project item) =>
-                                                            Card(
-                                                                elevation: 0.6,
-                                                                child: ListTile(
-                                                                  leading:
-                                                                      Padding(
-                                                                    padding:
-                                                                        const EdgeInsets.all(
-                                                                            0.0),
+                                                            InkWell(
+                                                                onTap:
+                                                                    () async {
+                                                                  Navigator.push(
+                                                                      context,
+                                                                      MaterialPageRoute(
+                                                                          builder: (context) =>
+                                                                              ManajemenDetailProjectAll(idproject: item.id,namaproject: item.title)));
+                                                                },
+                                                                child: Card(
+                                                                    elevation:
+                                                                        0.5,
+                                                                    margin: EdgeInsets.only(
+                                                                        top:
+                                                                            5.0,
+                                                                        bottom:
+                                                                            5.0,
+                                                                        left:
+                                                                            5.0,
+                                                                        right:
+                                                                            5.0),
                                                                     child:
-                                                                        ClipRRect(
-                                                                      borderRadius:
-                                                                          BorderRadius.circular(
-                                                                              0.0),
-                                                                      child: Container(
-                                                                          height: 40.0,
-                                                                          alignment: Alignment.center,
-                                                                          width: 40.0,
-                                                                          decoration: BoxDecoration(
-                                                                            border:
-                                                                                Border.all(color: Colors.white, width: 2.0),
-                                                                            color:
-                                                                                primaryAppBarColor,
-                                                                          ),
-                                                                          child: Text(
-                                                                            '${item.title[0].toUpperCase()}',
-                                                                            style: TextStyle(
-                                                                                color: Colors.white,
-                                                                                fontSize: 18,
-                                                                                fontWeight: FontWeight.bold),
-                                                                          )),
-                                                                    ),
-                                                                  ),
-                                                                  title: Text(
-                                                                      item.title == '' ||
-                                                                              item.title ==
-                                                                                  null
-                                                                          ? 'Nama Project Tidak Diketahui'
-                                                                          : item
-                                                                              .title,
-                                                                      style: TextStyle(
-                                                                          fontSize:
-                                                                              16,
-                                                                          fontWeight:
-                                                                              FontWeight.w500)),
-                                                                  subtitle: Text(
-                                                                      '${item.start} - ${item.end}'),
-                                                                )))
+                                                                        ListTile(
+                                                                      leading:
+                                                                          Padding(
+                                                                        padding:
+                                                                            const EdgeInsets.all(0.0),
+                                                                        child:
+                                                                            ClipRRect(
+                                                                          borderRadius:
+                                                                              BorderRadius.circular(0.0),
+                                                                          child: Container(
+                                                                              height: 40.0,
+                                                                              alignment: Alignment.center,
+                                                                              width: 40.0,
+                                                                              decoration: BoxDecoration(
+                                                                                border: Border.all(color: Colors.white, width: 2.0),
+                                                                                color: primaryAppBarColor,
+                                                                              ),
+                                                                              child: Text(
+                                                                                '${item.title[0].toUpperCase()}',
+                                                                                style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                                                                              )),
+                                                                        ),
+                                                                      ),
+                                                                      title: Text(
+                                                                          item.title == '' || item.title == null
+                                                                              ? 'Nama Project Tidak Diketahui'
+                                                                              : item
+                                                                                  .title,
+                                                                          overflow: TextOverflow
+                                                                              .ellipsis,
+                                                                          softWrap:
+                                                                              true,
+                                                                          maxLines:
+                                                                              1,
+                                                                          style: TextStyle(
+                                                                              fontSize: 14,
+                                                                              fontWeight: FontWeight.w500)),
+                                                                      subtitle:
+                                                                          Text(
+                                                                              '${item.start} - ${item.end}'),
+                                                                    ))))
                                                         .toList(),
                                                   ),
                                                 ),

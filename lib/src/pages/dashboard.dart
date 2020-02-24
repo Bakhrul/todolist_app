@@ -150,6 +150,7 @@ class _DashboardState extends State<Dashboard> {
                     height: 50.0,
                     child: RaisedButton(
                         onPressed: () async {
+                          Navigator.pop(context);
                           Navigator.push(
                               context,
                               MaterialPageRoute(

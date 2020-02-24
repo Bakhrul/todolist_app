@@ -14,8 +14,8 @@ import 'package:todolist_app/src/routes/env.dart';
 import 'package:todolist_app/src/storage/storage.dart';
 import 'package:http/http.dart' as http;
 import 'dart:async';
-
-import 'package:todolist_app/src/pages/manajemen_project/detail_project.dart';
+import '../manajemen_project/detail_project.dart';
+import 'package:todolist_app/src/pages/manajemen_project/edit_project.dart';
 import 'package:todolist_app/src/utils/utils.dart';
 
 final Widget placeholder = Container(color: Colors.grey);
@@ -313,7 +313,7 @@ class _HomeState extends State<Home> {
                 : listProject.length == 0
                     ? Container()
                     : Container(
-                        margin: EdgeInsets.only(bottom: 10.0, top: 15.0),
+                        margin: EdgeInsets.only(bottom: 0.0, top: 15.0),
                         width: double.infinity,
                         child: Padding(
                           padding: const EdgeInsets.only(
@@ -344,8 +344,10 @@ class _HomeState extends State<Home> {
                                           context,
                                           MaterialPageRoute(
                                               builder: (context) =>
-                                                  DetailProject(
-                                                      idproject: index.id)));
+                                                  ManajemenDetailProjectAll(
+                                                      idproject: index.id,
+                                                      namaproject:
+                                                          index.title)));
                                     },
                                     child: Container(
                                       margin: EdgeInsets.all(5.0),
@@ -377,9 +379,12 @@ class _HomeState extends State<Home> {
                                                   horizontal: 20.0),
                                               child: Text(
                                                 '${index.title}',
+                                                overflow: TextOverflow.ellipsis,
+                                                softWrap: true,
+                                                maxLines: 1,
                                                 style: TextStyle(
                                                   color: Colors.white,
-                                                  fontSize: 20.0,
+                                                  fontSize: 16.0,
                                                   fontWeight: FontWeight.bold,
                                                 ),
                                               ),
@@ -392,32 +397,19 @@ class _HomeState extends State<Home> {
                               .toList(),
                           autoPlay: true,
                           enlargeCenterPage: true,
-                          aspectRatio: 4.0,
+                          aspectRatio: 3.0,
                           onPageChanged: (index) {
                             setState(() {
                               _current = index;
                             });
                           },
                         ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: <Widget>[
-                            for (var index in listProject)
-                              Container(
-                                width: 8.0,
-                                height: 8.0,
-                                margin: EdgeInsets.symmetric(
-                                    vertical: 10.0, horizontal: 2.0),
-                                decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: _current == index
-                                        ? Color.fromRGBO(0, 0, 0, 0.9)
-                                        : Color.fromRGBO(0, 0, 0, 0.4)),
-                              )
-                          ],
-                        ),
                       ])),
-            Divider(),
+            Container(
+                margin: EdgeInsets.only(top: 15.0, bottom: 10.0),
+                child: Divider(
+                  color: Colors.grey[300],
+                )),
             isLoading == true
                 ? Container(
                     child: SingleChildScrollView(
@@ -425,7 +417,7 @@ class _HomeState extends State<Home> {
                         child: Container(
                           margin: EdgeInsets.only(top: 15.0),
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 16.0, vertical: 16.0),
+                              horizontal: 16.0, vertical: 0.0),
                           child: Shimmer.fromColors(
                             baseColor: Colors.grey[300],
                             highlightColor: Colors.grey[100],
@@ -508,7 +500,7 @@ class _HomeState extends State<Home> {
                     width: double.infinity,
                     child: Padding(
                       padding: const EdgeInsets.only(
-                          left: 10.0, right: 10.0, top: 5.0, bottom: 5.0),
+                          left: 10.0, right: 10.0, top: 5.0, bottom: 0.0),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: <Widget>[
@@ -565,9 +557,13 @@ class _HomeState extends State<Home> {
                                     InkWell(
                                       onTap: () async {},
                                       child: Container(
-                                        height: 65,
                                         child: Card(
-                                            elevation: 2.0,
+                                            elevation: 0.5,
+                                            margin: EdgeInsets.only(
+                                                top: 5.0,
+                                                bottom: 5.0,
+                                                left: 0.0,
+                                                right: 0.0),
                                             child: ListTile(
                                               leading: Padding(
                                                 padding:
@@ -677,29 +673,28 @@ class _HomeState extends State<Home> {
                                                           x.title == null
                                                       ? 'To Do Tidak Diketahui'
                                                       : x.title,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                  softWrap: true,
+                                                  maxLines: 1,
                                                   style: TextStyle(
-                                                      fontSize: 16,
+                                                      fontSize: 14,
                                                       fontWeight:
                                                           FontWeight.w500)),
-                                              subtitle: Padding(
-                                                padding: const EdgeInsets.only(
-                                                    top: 5.0, bottom: 15.0),
-                                                child: Text(
-                                                    DateFormat('d/M/y HH:mm:ss')
-                                                            .format(DateTime.parse(
-                                                                "${x.timestart}"))
-                                                            .toString() +
-                                                        ' - ' +
-                                                        DateFormat(
-                                                                'd/M/y H:mm:ss')
-                                                            .format(
-                                                                DateTime.parse(
-                                                                    "${x.timeend}"))
-                                                            .toString(),
-                                                    overflow:
-                                                        TextOverflow.ellipsis,
-                                                    maxLines: 1),
-                                              ),
+                                              subtitle: Text(
+                                                  DateFormat('d/M/y HH:mm:ss')
+                                                          .format(DateTime.parse(
+                                                              "${x.timestart}"))
+                                                          .toString() +
+                                                      ' - ' +
+                                                      DateFormat('d/M/y H:mm:ss')
+                                                          .format(DateTime.parse(
+                                                              "${x.timeend}"))
+                                                          .toString(),
+                                                  softWrap: true,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                  maxLines: 1),
                                             )),
                                       ),
                                     ),
@@ -731,6 +726,7 @@ class _HomeState extends State<Home> {
         child: SingleChildScrollView(
             child: Container(
           width: double.infinity,
+          padding: EdgeInsets.all(0),
           child: Shimmer.fromColors(
             baseColor: Colors.grey[300],
             highlightColor: Colors.grey[100],
@@ -740,7 +736,7 @@ class _HomeState extends State<Home> {
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.all(Radius.circular(5.0)),
                         ),
-                        padding: const EdgeInsets.only(bottom: 25.0),
+                        padding: const EdgeInsets.only(bottom: 0.0),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: <Widget>[

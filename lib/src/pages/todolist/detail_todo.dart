@@ -10,31 +10,35 @@ import 'package:todolist_app/src/model/Member.dart';
 import 'dart:async';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'dart:convert';
-import 'edit_project.dart';
 import 'package:progress_dialog/progress_dialog.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:todolist_app/src/model/TodoMember.dart';
+import 'package:todolist_app/src/model/TodoActivity.dart';
 
 String tokenType, accessToken;
+String textValue;
 Map<String, String> requestHeaders = Map();
 
-class ManajemenDetailProjectAll extends StatefulWidget {
-  ManajemenDetailProjectAll({Key key, this.idproject, this.namaproject})
+class ManajemenDetailTodo extends StatefulWidget {
+  ManajemenDetailTodo(
+      {Key key, this.idtodo, this.namatodo, this.idproject, this.namaproject})
       : super(key: key);
-  final int idproject;
-  final String namaproject;
+  final int idtodo, idproject;
+  final String namatodo, namaproject;
   @override
   State<StatefulWidget> createState() {
-    return _ManajemenDetailProjectAllState();
+    return _ManajemenDetailTodoState();
   }
 }
 
-class _ManajemenDetailProjectAllState extends State<ManajemenDetailProjectAll> {
-  List<Member> projectMemberdetail = [];
-  List<Todo> projectTododetail = [];
+class _ManajemenDetailTodoState extends State<ManajemenDetailTodo> {
+  int _value = 6;
+  List<MemberTodo> todoMemberDetail = [];
+  List<TodoActivity> todoActivityDetail = [];
   bool isLoading, isError;
   ProgressDialog progressApiAction;
   String projectPercent;
-  Map dataProject;
+  Map dataTodo;
   Future<Null> removeSharedPrefs() async {
     DataStore dataStore = new DataStore();
     dataStore.clearData();
@@ -67,54 +71,49 @@ class _ManajemenDetailProjectAllState extends State<ManajemenDetailProjectAll> {
     });
     try {
       final getDetailProject = await http
-          .post(url('api/detail_project_all'), headers: requestHeaders, body: {
-        'project': widget.idproject.toString(),
+          .post(url('api/detail_todo'), headers: requestHeaders, body: {
+        'todolist': widget.idtodo.toString(),
       });
 
       if (getDetailProject.statusCode == 200) {
         setState(() {
-          projectMemberdetail.clear();
-          projectMemberdetail = [];
-          projectTododetail.clear();
-          projectTododetail = [];
+          todoMemberDetail.clear();
+          todoMemberDetail = [];
+          todoActivityDetail.clear();
+          todoActivityDetail = [];
         });
         var getDetailProjectJson = json.decode(getDetailProject.body);
-        print(getDetailProjectJson['progressproject']);
-        var members = getDetailProjectJson['member'];
-        var todos = getDetailProjectJson['todo'];
-        Map rawProject = getDetailProjectJson['project'];
+        var members = getDetailProjectJson['todo_member'];
+        var activitys = getDetailProjectJson['todo_activity'];
+        Map rawTodo = getDetailProjectJson['todo'];
         if (mounted) {
           setState(() {
-            dataProject = rawProject;
-            projectPercent = getDetailProjectJson['progressproject'].toString();
+            dataTodo = rawTodo;
           });
         }
 
         for (var i in members) {
-          Member member = Member(
+          MemberTodo member = MemberTodo(
             iduser: i['mp_user'],
             name: i['us_name'],
             email: i['us_email'],
             roleid: i['mp_role'].toString(),
-            rolename: i['r_name'],
             image: i['us_image'],
           );
-          projectMemberdetail.add(member);
+          todoMemberDetail.add(member);
         }
 
-        for (var i in todos) {
-          Todo todo = Todo(
-              id: i['tl_id'],
-              title: i['tl_title'],
-              desc: i['tl_desc'],
-              timestart: DateFormat("dd MMMM yyyy HH:mm")
-                  .format(DateTime.parse(i['tl_planstart'])),
-              timeend: DateFormat("dd MMMM yyyy HH:mm")
-                  .format(DateTime.parse(i['tl_planend'])),
-              progress: i['tl_progress'],
-              status: i['tl_status'],
-              statuspinned: i['tli_todolist'].toString());
-          projectTododetail.add(todo);
+        for (var t in activitys) {
+          TodoActivity todo = TodoActivity(
+            id: t['tll_id'],
+            name: t['us_name'],
+            email: t['us_email'],
+            image: t['us_image'],
+            activity: t['tlt_activity'],
+            progress: t['tlt_progress'],
+            note: t['tlt_note'],
+          );
+          todoActivityDetail.add(todo);
         }
         setState(() {
           isLoading = false;
@@ -369,12 +368,12 @@ class _ManajemenDetailProjectAllState extends State<ManajemenDetailProjectAll> {
                     ),
                     tooltip: 'Edit Data Project',
                     onPressed: () async {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => DetailProject(
-                                  idproject: widget.idproject,
-                                  namaproject: widget.namaproject)));
+                      // Navigator.push(
+                      //     context,
+                      //     MaterialPageRoute(
+                      //         builder: (context) => DetailProject(
+                      //             idproject: widget.idproject,
+                      //             namaproject: widget.namaproject)));
                     },
                   ),
                 ],
@@ -390,7 +389,7 @@ class _ManajemenDetailProjectAllState extends State<ManajemenDetailProjectAll> {
                           EdgeInsets.only(left: 50.0, right: 50.0, bottom: 0.0),
                       padding: EdgeInsets.only(
                           left: 15.0, bottom: 5.0, top: 5.0, right: 15.0),
-                      child: Text("${widget.namaproject}",
+                      child: Text("${widget.namatodo}",
                           overflow: TextOverflow.ellipsis,
                           softWrap: true,
                           maxLines: 1,
@@ -417,84 +416,65 @@ class _ManajemenDetailProjectAllState extends State<ManajemenDetailProjectAll> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
                           Text(
-                            dataProject == null
-                                ? 'Belum ada deskripsi project'
-                                : dataProject['p_desc'] == null ||
-                                        dataProject['p_desc'] == '' ||
-                                        dataProject['p_desc'] == 'null'
-                                    ? 'Belum ada deskripsi project'
-                                    : dataProject['p_desc'],
+                            dataTodo == null
+                                ? 'Belum ada deskripsi Todo'
+                                : dataTodo['tl_desc'] == null ||
+                                        dataTodo['tl_desc'] == '' ||
+                                        dataTodo['tl_desc'] == 'null'
+                                    ? 'Belum ada deskripsi Todo'
+                                    : dataTodo['tl_desc'],
                             style: TextStyle(height: 2),
                           ),
                           Container(
-                            margin: EdgeInsets.only(top: 25.0, bottom: 15.0),
-                            child: Row(
+                              margin: EdgeInsets.only(top: 20.0),
+                              child: Padding(
+                                padding: const EdgeInsets.only(top: 20.0),
+                                child: Text(
+                                  'File Todo',
+                                  style: TextStyle(
+                                      color: Colors.black87,
+                                      fontWeight: FontWeight.w500),
+                                ),
+                              )),
+                          Container(
+                            margin: EdgeInsets.only(top: 0.0, bottom: 15.0),
+                            child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: <Widget>[
-                                Container(
-                                  margin: EdgeInsets.only(right: 3),
-                                  padding: EdgeInsets.only(
-                                      top: 10.0,
-                                      left: 5,
-                                      bottom: 10.0,
-                                      right: 5),
-                                  decoration: BoxDecoration(
-                                    border: Border.all(
-                                        color: Colors.grey[300], width: 1.0),
-                                    borderRadius: BorderRadius.circular(10.0),
-                                  ),
-                                  child: Row(
-                                    children: <Widget>[
-                                      Icon(
-                                        Icons.insert_drive_file,
-                                        size: 13,
-                                        color: Colors.red,
-                                      ),
-                                      Padding(
-                                        padding:
-                                            const EdgeInsets.only(left: 5.0),
-                                        child: Text(
-                                          'Proposal Project',
-                                          style: TextStyle(
-                                              color: Colors.black,
-                                              fontSize: 12),
+                                for (int i = 0; i < 5; i++)
+                                  Container(
+                                    width: double.infinity,
+                                    margin: EdgeInsets.only(top: 10.0),
+                                    padding: EdgeInsets.only(
+                                        top: 10.0,
+                                        left: 5,
+                                        bottom: 10.0,
+                                        right: 5),
+                                    decoration: BoxDecoration(
+                                      border: Border.all(
+                                          color: Colors.grey[300], width: 1.0),
+                                      borderRadius: BorderRadius.circular(5.0),
+                                    ),
+                                    child: Row(
+                                      children: <Widget>[
+                                        Icon(
+                                          Icons.insert_drive_file,
+                                          size: 13,
+                                          color: Colors.red,
                                         ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                Container(
-                                  margin: EdgeInsets.only(left: 3),
-                                  padding: EdgeInsets.only(
-                                      top: 10.0,
-                                      left: 5,
-                                      bottom: 10.0,
-                                      right: 5),
-                                  decoration: BoxDecoration(
-                                    border: Border.all(
-                                        color: Colors.grey[300], width: 1.0),
-                                    borderRadius: BorderRadius.circular(10.0),
-                                  ),
-                                  child: Row(
-                                    children: <Widget>[
-                                      Icon(
-                                        Icons.insert_drive_file,
-                                        size: 13,
-                                        color: Colors.red,
-                                      ),
-                                      Padding(
-                                        padding:
-                                            const EdgeInsets.only(left: 5.0),
-                                        child: Text(
-                                          'Ruang Lingkup',
-                                          style: TextStyle(
-                                              color: Colors.black,
-                                              fontSize: 12),
+                                        Padding(
+                                          padding:
+                                              const EdgeInsets.only(left: 5.0),
+                                          child: Text(
+                                            'Nama File',
+                                            style: TextStyle(
+                                                color: Colors.black,
+                                                fontSize: 12),
+                                          ),
                                         ),
-                                      ),
-                                    ],
+                                      ],
+                                    ),
                                   ),
-                                ),
                               ],
                             ),
                           ),
@@ -503,7 +483,7 @@ class _ManajemenDetailProjectAllState extends State<ManajemenDetailProjectAll> {
                               child: Padding(
                                 padding: const EdgeInsets.only(top: 20.0),
                                 child: Text(
-                                  'Project Progress',
+                                  'Todo Progress',
                                   style: TextStyle(
                                       color: Colors.black87,
                                       fontWeight: FontWeight.w500),
@@ -517,9 +497,9 @@ class _ManajemenDetailProjectAllState extends State<ManajemenDetailProjectAll> {
                                   radius: 80.0,
                                   lineWidth: 5.0,
                                   animation: true,
-                                  percent: double.parse(projectPercent) / 100,
+                                  percent: 0.7,
                                   center: new Text(
-                                    "$projectPercent%",
+                                    "70%",
                                     style: new TextStyle(
                                         fontWeight: FontWeight.bold,
                                         fontSize: 12.0),
@@ -636,254 +616,200 @@ class _ManajemenDetailProjectAllState extends State<ManajemenDetailProjectAll> {
                               top: 0.0,
                             ),
                             child: SingleChildScrollView(
+                              scrollDirection: Axis.horizontal,
                               child: Container(
                                 child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  children: projectMemberdetail
-                                      .map((Member item) => InkWell(
-                                            onTap: () async {
-                                              _showdetailMemberProject(
-                                                  item.iduser);
-                                            },
-                                            child: Container(
-                                              width: 40.0,
-                                              height: 40.0,
-                                              margin:
-                                                  EdgeInsets.only(right: 15.0),
-                                              child: ClipOval(
-                                                child: FadeInImage.assetNetwork(
-                                                  placeholder:
-                                                      'images/loading.gif',
-                                                  image: item.image == null ||
-                                                          item.image == '' ||
-                                                          item.image == 'null'
-                                                      ? url(
-                                                          'assets/images/imgavatar.png')
-                                                      : url(
-                                                          'storage/image/profile/${item.image}'),
-                                                  fit: BoxFit.cover,
-                                                ),
-                                              ),
-                                              decoration: BoxDecoration(
-                                                shape: BoxShape.circle,
-                                              ),
+                                  children: <Widget>[
+                                    for (int i = 0; i < 7; i++)
+                                      InkWell(
+                                        onTap: () async {},
+                                        child: Container(
+                                          width: 40.0,
+                                          height: 40.0,
+                                          margin: EdgeInsets.only(right: 15.0),
+                                          child: ClipOval(
+                                            child: FadeInImage.assetNetwork(
+                                              placeholder: 'images/loading.gif',
+                                              image: url(
+                                                  'assets/images/imgavatar.png'),
+                                              fit: BoxFit.cover,
                                             ),
-                                          ))
-                                      .toList(),
+                                          ),
+                                          decoration: BoxDecoration(
+                                            shape: BoxShape.circle,
+                                          ),
+                                        ),
+                                      )
+                                  ],
                                 ),
                               ),
                             ),
                           ),
                           Container(
-                              margin: EdgeInsets.only(bottom: 10.0, top: 15.0),
+                              margin: EdgeInsets.only(bottom: 20.0, top: 15.0),
                               child: Padding(
                                 padding: const EdgeInsets.only(top: 20.0),
                                 child: Text(
-                                  'To Do',
+                                  'To Do Activity',
                                   style: TextStyle(
                                       color: Colors.black87,
                                       fontWeight: FontWeight.w500),
                                 ),
                               )),
-                          projectTododetail.length == 0
-                              ? Padding(
-                                  padding: const EdgeInsets.only(top: 20.0),
-                                  child: Column(children: <Widget>[
-                                    new Container(
-                                      width: 100.0,
-                                      height: 100.0,
-                                      child: Image.asset(
-                                          "images/empty-white-box.png"),
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.only(
-                                        top: 20.0,
-                                        left: 15.0,
-                                        right: 15.0,
-                                      ),
-                                      child: Center(
-                                        child: Text(
-                                          "${widget.namaproject} Belum Memiliki To Do Sama Sekali",
-                                          style: TextStyle(
-                                            fontSize: 16,
-                                            color: Colors.black45,
-                                            height: 1.5,
+                          Container(
+                              child: Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: <Widget>[
+                              Container(
+                                margin: EdgeInsets.only(right: 15.0),
+                                child: Container(
+                                  width: 40.0,
+                                  height: 40.0,
+                                  child: ClipOval(
+                                    child: Image.asset('images/imgavatar.png'),
+                                  ),
+                                ),
+                              ),
+                              Expanded(
+                                flex: 10,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children: <Widget>[
+                                    Slider(
+                                        value: _value.toDouble(),
+                                        min: 1,
+                                        max: 100,
+                                        divisions: 100,
+                                        activeColor: primaryAppBarColor,
+                                        inactiveColor: Colors.grey[400],
+                                        label: 'Set a value',
+                                        onChanged: (double newValue) {
+                                          setState(() {
+                                            _value = newValue.round();
+                                            textValue =
+                                                newValue.toStringAsFixed(0);
+                                          });
+                                        },
+                                        semanticFormatterCallback:
+                                            (double newValue) {
+                                          return '${newValue.round()} dollars';
+                                        }),
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.end,
+                                      children: <Widget>[
+                                        Padding(
+                                          padding: const EdgeInsets.only(bottom:10.0),
+                                          child: Text(
+                                            textValue == '' || textValue == null
+                                                ? ''
+                                                :'Realisasi: $textValue %',
+                                            style: TextStyle(
+                                              color: Colors.black,
+                                              fontSize: 12,
+                                            ),
+                                            textAlign: TextAlign.end,
                                           ),
-                                          textAlign: TextAlign.center,
+                                        ),
+                                      ],
+                                    ),
+                                    TextField(
+                                      // controller: _deskripsieventController,
+                                      maxLines: 3,
+                                      decoration: InputDecoration(
+                                          border: OutlineInputBorder(),
+                                          hintText: 'Catatan',
+                                          hintStyle: TextStyle(
+                                              fontSize: 13,
+                                              color: Colors.black)),
+                                    ),
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.end,
+                                      children: <Widget>[
+                                        ButtonTheme(
+                                          child: FlatButton(
+                                              onPressed: null,
+                                              color: Colors.red,
+                                              textColor: Colors.red,
+                                              child: Text('Simpan')),
+                                        )
+                                      ],
+                                    ),
+                                    Divider(),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          )),
+                          for (int i = 0; i < 5; i++)
+                            Column(
+                              children: <Widget>[
+                                Container(
+                                    child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: <Widget>[
+                                    Container(
+                                      margin: EdgeInsets.only(right: 15.0),
+                                      child: Container(
+                                        width: 40.0,
+                                        height: 40.0,
+                                        child: ClipOval(
+                                          child: Image.asset(
+                                              'images/imgavatar.png'),
                                         ),
                                       ),
                                     ),
-                                  ]),
-                                )
-                              : Container(
-                                  color: Colors.white,
-                                  margin: EdgeInsets.only(
-                                    top: 0.0,
-                                  ),
-                                  child: SingleChildScrollView(
-                                    child: Container(
+                                    Expanded(
+                                      flex: 10,
                                       child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: projectTododetail
-                                            .map((Todo item) => InkWell(
-                                                onTap: () async {},
-                                                child: Card(
-                                                    elevation: 0.5,
-                                                    margin: EdgeInsets.only(
-                                                        top: 5.0,
-                                                        bottom: 5.0,
-                                                        left: 5.0,
-                                                        right: 5.0),
-                                                    child: ListTile(
-                                                      title: Row(
-                                                        children: <Widget>[
-                                                          Expanded(
-                                                            child: Text(
-                                                                item.title ==
-                                                                            '' ||
-                                                                        item.title ==
-                                                                            null
-                                                                    ? 'Nama To Do Tidak Diketahui'
-                                                                    : item
-                                                                        .title,
-                                                                overflow:
-                                                                    TextOverflow
-                                                                        .ellipsis,
-                                                                softWrap: true,
-                                                                maxLines: 1,
-                                                                style: TextStyle(
-                                                                    fontSize:
-                                                                        14,
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .w500)),
-                                                          ),
-                                                          ButtonTheme(
-                                                            minWidth: 0.0,
-                                                            height: 0,
-                                                            child: FlatButton(
-                                                                onPressed:
-                                                                    () async {
-                                                                  try {
-                                                                    final actionPinnedTodo = await http.post(
-                                                                        url(
-                                                                            'api/actionpinned_todo'),
-                                                                        headers:
-                                                                            requestHeaders,
-                                                                        body: {
-                                                                          'todolist': item
-                                                                              .id
-                                                                              .toString(),
-                                                                        });
-
-                                                                    if (actionPinnedTodo
-                                                                            .statusCode ==
-                                                                        200) {
-                                                                      var actionPinnedTodoJson =
-                                                                          json.decode(
-                                                                              actionPinnedTodo.body);
-                                                                      if (actionPinnedTodoJson[
-                                                                              'status'] ==
-                                                                          'tambah') {
-                                                                        setState(
-                                                                            () {
-                                                                          item.statuspinned = item
-                                                                              .id
-                                                                              .toString();
-                                                                        });
-                                                                      } else if (actionPinnedTodoJson[
-                                                                              'status'] ==
-                                                                          'hapus') {
-                                                                        setState(
-                                                                            () {
-                                                                          item.statuspinned =
-                                                                              null;
-                                                                        });
-                                                                      }
-                                                                    } else {
-                                                                      print(actionPinnedTodo
-                                                                          .body);
-                                                                    }
-                                                                  } on TimeoutException catch (_) {
-                                                                    Fluttertoast
-                                                                        .showToast(
-                                                                            msg:
-                                                                                "Timed out, Try again");
-                                                                  } catch (e) {
-                                                                    print(e);
-                                                                  }
-                                                                },
-                                                                color: Colors
-                                                                    .white,
-                                                                padding:
-                                                                    EdgeInsets
-                                                                        .all(0),
-                                                                child: Icon(
-                                                                  Icons
-                                                                      .star_border,
-                                                                  color: item.statuspinned == null ||
-                                                                          item.statuspinned ==
-                                                                              'null' ||
-                                                                          item.statuspinned ==
-                                                                              ''
-                                                                      ? Colors
-                                                                          .grey
-                                                                      : Colors
-                                                                          .orange,
-                                                                )),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                      subtitle: Column(
-                                                        crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .start,
-                                                        mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .start,
-                                                        children: <Widget>[
-                                                          Padding(
-                                                            padding:
-                                                                const EdgeInsets
-                                                                        .only(
-                                                                    top: 0,
-                                                                    bottom:
-                                                                        10.0),
-                                                            child: Text(
-                                                                '${item.timestart}'),
-                                                          ),
-                                                          Container(
-                                                            padding: EdgeInsets.only(bottom:10.0),
-                                                            child:
-                                                                LinearPercentIndicator(
-                                                                    lineHeight:
-                                                                        8.0,
-                                                                    percent:
-                                                                        double.parse(item.progress) /
-                                                                            100,
-                                                                    trailing:
-                                                                        new Text(
-                                                                      "${item.progress}%",
-                                                                      style: TextStyle(
-                                                                          color: Colors
-                                                                              .black,
-                                                                          fontWeight:
-                                                                              FontWeight.w500),
-                                                                    ),
-                                                                    progressColor:
-                                                                        Colors
-                                                                            .green),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    ))))
-                                            .toList(),
+                                            MainAxisAlignment.start,
+                                        children: <Widget>[
+                                          Row(
+                                            children: <Widget>[
+                                              Expanded(
+                                                  child: Text(
+                                                'Muhammad Bakhrul',
+                                                overflow: TextOverflow.ellipsis,
+                                                softWrap: true,
+                                                maxLines: 1,
+                                                style: TextStyle(
+                                                    fontWeight: FontWeight.w500,
+                                                    fontSize: 14),
+                                              )),
+                                              Text(
+                                                'update 80%',
+                                                style: TextStyle(
+                                                    color: primaryAppBarColor,
+                                                    fontSize: 12,
+                                                    fontWeight:
+                                                        FontWeight.w500),
+                                              ),
+                                            ],
+                                          ),
+                                          Padding(
+                                              padding: const EdgeInsets.only(
+                                                  top: 5.0, bottom: 10.0),
+                                              child: Text(
+                                                'Muhammad Bakhrul ddmdmdm dmdmdmdmd dmdmd',
+                                                style: TextStyle(
+                                                  color: Colors.black87,
+                                                  fontSize: 12,
+                                                  height: 1.5,
+                                                ),
+                                              )),
+                                          Divider(),
+                                        ],
                                       ),
                                     ),
-                                  ),
-                                ),
+                                  ],
+                                )),
+                              ],
+                            )
                         ],
                       ),
                     ),

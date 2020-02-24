@@ -227,8 +227,7 @@ class _ChooseProjectAvailableState extends State<ChooseProjectAvailable>
         messageTextStyle: TextStyle(
             color: Colors.black, fontSize: 12.0, fontWeight: FontWeight.w600));
     return Scaffold(
-      backgroundColor:
-           Color.fromRGBO(242, 242, 242, 1),
+      backgroundColor: Color.fromRGBO(242, 242, 242, 1),
       appBar: AppBar(
         backgroundColor: primaryAppBarColor,
         title: Text('Pilih Project', style: TextStyle(fontSize: 14)),
@@ -293,7 +292,10 @@ class _ChooseProjectAvailableState extends State<ChooseProjectAvailable>
                                     isError == true
                                         ? Container(
                                             color: Colors.white,
-                                            margin: EdgeInsets.only(top: 0.0,left: 10.0,right: 10.0),
+                                            margin: EdgeInsets.only(
+                                                top: 0.0,
+                                                left: 10.0,
+                                                right: 10.0),
                                             padding: const EdgeInsets.only(
                                                 top: 10.0, bottom: 15.0),
                                             child: RefreshIndicator(
@@ -331,7 +333,7 @@ class _ChooseProjectAvailableState extends State<ChooseProjectAvailable>
                                                           top: 15.0,
                                                           left: 15.0,
                                                           right: 15.0,
-                                                          bottom:15.0),
+                                                          bottom: 15.0),
                                                   child: SizedBox(
                                                     width: double.infinity,
                                                     child: RaisedButton(
@@ -384,9 +386,16 @@ class _ChooseProjectAvailableState extends State<ChooseProjectAvailable>
                                                                             ? 'Nama Project Tidak Diketahui'
                                                                             : item
                                                                                 .title,
+                                                                        overflow:
+                                                                            TextOverflow
+                                                                                .ellipsis,
+                                                                        softWrap:
+                                                                            true,
+                                                                        maxLines:
+                                                                            1,
                                                                         style: TextStyle(
                                                                             fontSize:
-                                                                                16,
+                                                                                14,
                                                                             fontWeight:
                                                                                 FontWeight.w500)),
                                                                     trailing:
@@ -410,11 +419,21 @@ class _ChooseProjectAvailableState extends State<ChooseProjectAvailable>
                                                                           child: Text(
                                                                             'Pilih Project',
                                                                             style:
-                                                                                TextStyle(fontSize: 14, color: primaryAppBarColor),
+                                                                                TextStyle(fontSize: 12, color: primaryAppBarColor),
                                                                           )),
                                                                     ),
-                                                                    subtitle: Text(
-                                                                        '${item.start} - ${item.end}'),
+                                                                    subtitle:
+                                                                        Text(
+                                                                      '${item.start} - ${item.end}',
+                                                                      style: TextStyle(fontSize:12),
+                                                                      overflow:
+                                                                          TextOverflow
+                                                                              .ellipsis,
+                                                                      softWrap:
+                                                                          true,
+                                                                      maxLines:
+                                                                          1,
+                                                                    ),
                                                                   )))
                                                       .toList(),
                                                 ),
