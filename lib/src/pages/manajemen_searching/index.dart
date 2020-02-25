@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:todolist_app/src/pages/todolist/choose_project.dart';
 import 'package:todolist_app/src/routes/env.dart';
 import 'package:todolist_app/src/storage/storage.dart';
 import 'package:http/http.dart' as http;
@@ -13,7 +12,6 @@ import 'package:todolist_app/src/model/Todo.dart';
 import 'package:todolist_app/src/model/Project.dart';
 import 'package:shimmer/shimmer.dart';
 import '../manajemen_project/detail_project.dart';
-import '../todolist/detail_todo.dart';
 
 String tokenType, accessToken;
 Map<String, String> requestHeaders = Map();

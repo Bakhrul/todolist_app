@@ -8,14 +8,13 @@ import 'package:random_color/random_color.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:todolist_app/src/model/Todo.dart';
 import 'package:todolist_app/src/models/project.dart';
-import 'package:todolist_app/src/pages/manajemen_project/list_project.dart';
+import 'package:todolist_app/src/pages/todolist/detail_todo.dart';
 import 'package:todolist_app/src/pages/todolist/edit.dart';
 import 'package:todolist_app/src/routes/env.dart';
 import 'package:todolist_app/src/storage/storage.dart';
 import 'package:http/http.dart' as http;
 import 'dart:async';
 import '../manajemen_project/detail_project.dart';
-import 'package:todolist_app/src/pages/manajemen_project/edit_project.dart';
 import 'package:todolist_app/src/utils/utils.dart';
 
 final Widget placeholder = Container(color: Colors.grey);
@@ -555,7 +554,14 @@ class _HomeState extends State<Home> {
                                 children: <Widget>[
                                   for (var x in listTodo)
                                     InkWell(
-                                      onTap: () async {},
+                                      onTap: () async {
+                                        Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) => ManajemenDetailTodo(
+                                                      
+                                                    )));
+                                      },
                                       child: Container(
                                         child: Card(
                                             elevation: 0.5,
