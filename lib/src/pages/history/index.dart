@@ -8,7 +8,7 @@ import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:random_color/random_color.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:todolist_app/src/models/project.dart';
-import 'package:todolist_app/src/pages/manajemen_project/detail_project.dart';
+import 'package:todolist_app/src/pages/manajemen_project/edit_project.dart';
 import 'package:todolist_app/src/routes/env.dart';
 import 'dart:async';
 

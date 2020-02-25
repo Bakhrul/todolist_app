@@ -96,6 +96,7 @@ flutter:
       - images/loading-event.png
       - images/have_account.png
       - images/not_have_account.png
+      - images/manajemen_project.png
   
   # fonts:
   #   - family: Schyler

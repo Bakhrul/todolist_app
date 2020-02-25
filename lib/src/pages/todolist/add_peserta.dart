@@ -6,7 +6,6 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:progress_dialog/progress_dialog.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:todolist_app/src/models/user.dart';
-import 'package:todolist_app/src/pages/auth/register.dart';
 import 'package:todolist_app/src/routes/env.dart';
 import 'package:todolist_app/src/storage/storage.dart';
 import 'package:todolist_app/src/utils/utils.dart';

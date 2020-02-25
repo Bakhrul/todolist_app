@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:todolist_app/src/utils/utils.dart';
 
 class About extends StatelessWidget {
   @override

@@ -36,15 +36,10 @@ class _TodoListState extends State<TodoList> {
   List<Category> listCategory = [];
 
   String _dfileName;
-  String _path;
   String fileImage;
-  Map<String, String> _paths;
-  String _extension;
   bool _loadingPath = false;
-  bool _multiPick = false;
   bool _hasValidMime = false;
   FileType _pickingType;
-  TextEditingController _controller = new TextEditingController();
 
   TextEditingController _titleController = TextEditingController();
   TextEditingController _dateStartController = TextEditingController();
@@ -759,12 +754,6 @@ print(_dfileName);
     if (_pickingType != FileType.CUSTOM || _hasValidMime) {
       setState(() => _loadingPath = true);
       try {
-        if (_multiPick) {
-          _path = null;
-          _paths = await FilePicker.getMultiFilePath(
-              type: _pickingType, fileExtension: _extension);
-        } else {
-          _paths = null;
           
           //  _path = await FilePicker. getFilePath(
           //     type: _pickingType, fileExtension: _extension,);
@@ -777,7 +766,7 @@ print(_dfileName);
               });
               // print("Extensi");
               // print(file.toString().split('/').last);
-        }
+        
       } on PlatformException catch (e) {
         print("Unsupported operation" + e.toString());
       }
