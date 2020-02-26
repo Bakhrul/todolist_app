@@ -13,6 +13,7 @@ import 'dart:convert';
 import 'edit_project.dart';
 import 'package:progress_dialog/progress_dialog.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:todolist_app/src/pages/todolist/detail_todo.dart';
 
 String tokenType, accessToken;
 Map<String, String> requestHeaders = Map();
@@ -111,7 +112,7 @@ class _ManajemenDetailProjectAllState extends State<ManajemenDetailProjectAll> {
                   .format(DateTime.parse(i['tl_planstart'])),
               timeend: DateFormat("dd MMMM yyyy HH:mm")
                   .format(DateTime.parse(i['tl_planend'])),
-              progress: i['tl_progress'],
+              progress: i['tl_progress'].toString(),
               status: i['tl_status'],
               statuspinned: i['tli_todolist'].toString());
           projectTododetail.add(todo);
@@ -408,488 +409,579 @@ class _ManajemenDetailProjectAllState extends State<ManajemenDetailProjectAll> {
           },
           body: isLoading == true
               ? loadingPage(context)
-              : RefreshIndicator(
-                  onRefresh: getHeaderHTTP,
-                  child: SingleChildScrollView(
-                    child: Container(
-                      padding: EdgeInsets.all(15),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Text(
-                            dataProject == null
-                                ? 'Belum ada deskripsi project'
-                                : dataProject['p_desc'] == null ||
-                                        dataProject['p_desc'] == '' ||
-                                        dataProject['p_desc'] == 'null'
+              : isError == true
+                  ? errorSystem(context)
+                  : RefreshIndicator(
+                      onRefresh: getHeaderHTTP,
+                      child: SingleChildScrollView(
+                        child: Container(
+                          padding: EdgeInsets.all(15),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: <Widget>[
+                              Text(
+                                dataProject == null
                                     ? 'Belum ada deskripsi project'
-                                    : dataProject['p_desc'],
-                            style: TextStyle(height: 2),
-                          ),
-                          Container(
-                            margin: EdgeInsets.only(top: 25.0, bottom: 15.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: <Widget>[
-                                Container(
-                                  margin: EdgeInsets.only(right: 3),
-                                  padding: EdgeInsets.only(
-                                      top: 10.0,
-                                      left: 5,
-                                      bottom: 10.0,
-                                      right: 5),
-                                  decoration: BoxDecoration(
-                                    border: Border.all(
-                                        color: Colors.grey[300], width: 1.0),
-                                    borderRadius: BorderRadius.circular(10.0),
-                                  ),
-                                  child: Row(
-                                    children: <Widget>[
-                                      Icon(
-                                        Icons.insert_drive_file,
-                                        size: 13,
-                                        color: Colors.red,
-                                      ),
-                                      Padding(
-                                        padding:
-                                            const EdgeInsets.only(left: 5.0),
-                                        child: Text(
-                                          'Proposal Project',
-                                          style: TextStyle(
-                                              color: Colors.black,
-                                              fontSize: 12),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                Container(
-                                  margin: EdgeInsets.only(left: 3),
-                                  padding: EdgeInsets.only(
-                                      top: 10.0,
-                                      left: 5,
-                                      bottom: 10.0,
-                                      right: 5),
-                                  decoration: BoxDecoration(
-                                    border: Border.all(
-                                        color: Colors.grey[300], width: 1.0),
-                                    borderRadius: BorderRadius.circular(10.0),
-                                  ),
-                                  child: Row(
-                                    children: <Widget>[
-                                      Icon(
-                                        Icons.insert_drive_file,
-                                        size: 13,
-                                        color: Colors.red,
-                                      ),
-                                      Padding(
-                                        padding:
-                                            const EdgeInsets.only(left: 5.0),
-                                        child: Text(
-                                          'Ruang Lingkup',
-                                          style: TextStyle(
-                                              color: Colors.black,
-                                              fontSize: 12),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Container(
-                              margin: EdgeInsets.only(bottom: 15.0),
-                              child: Padding(
-                                padding: const EdgeInsets.only(top: 20.0),
-                                child: Text(
-                                  'Project Progress',
-                                  style: TextStyle(
-                                      color: Colors.black87,
-                                      fontWeight: FontWeight.w500),
-                                ),
-                              )),
-                          Container(
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: <Widget>[
-                                CircularPercentIndicator(
-                                  radius: 80.0,
-                                  lineWidth: 5.0,
-                                  animation: true,
-                                  percent: double.parse(projectPercent) / 100,
-                                  center: new Text(
-                                    "$projectPercent%",
-                                    style: new TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 12.0),
-                                  ),
-                                  circularStrokeCap: CircularStrokeCap.round,
-                                  progressColor: Colors.green,
-                                ),
-                                Container(
-                                  margin: EdgeInsets.only(left: 15.0),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    children: <Widget>[
-                                      Padding(
-                                          padding: EdgeInsets.only(top: 15.0),
-                                          child: Row(
-                                            children: <Widget>[
-                                              ClipRRect(
-                                                borderRadius:
-                                                    BorderRadius.circular(
-                                                        100.0),
-                                                child: Container(
-                                                  margin: EdgeInsets.only(
-                                                      right: 3.0),
-                                                  height: 10.0,
-                                                  alignment: Alignment.center,
-                                                  width: 10.0,
-                                                  decoration: BoxDecoration(
-                                                    border: Border.all(
-                                                        color: Color.fromRGBO(
-                                                            0, 204, 65, 1.0),
-                                                        width: 1.0),
-                                                    borderRadius: BorderRadius.all(
-                                                        Radius.circular(
-                                                            100.0) //                 <--- border radius here
-                                                        ),
-                                                    color: Color.fromRGBO(
-                                                        0, 204, 65, 1.0),
-                                                  ),
-                                                ),
-                                              ),
-                                              Padding(
-                                                padding: const EdgeInsets.only(
-                                                    left: 5.0),
-                                                child: Text(
-                                                  'Sudah Selesai',
-                                                  style: TextStyle(
-                                                    fontSize: 12,
-                                                  ),
-                                                ),
-                                              ),
-                                            ],
-                                          )),
-                                      Padding(
-                                          padding: EdgeInsets.only(top: 10.0),
-                                          child: Row(
-                                            children: <Widget>[
-                                              ClipRRect(
-                                                borderRadius:
-                                                    BorderRadius.circular(
-                                                        100.0),
-                                                child: Container(
-                                                  margin: EdgeInsets.only(
-                                                      right: 3.0),
-                                                  height: 10.0,
-                                                  alignment: Alignment.center,
-                                                  width: 10.0,
-                                                  decoration: BoxDecoration(
-                                                    border: Border.all(
-                                                        color: Color.fromRGBO(
-                                                            0, 204, 65, 1.0),
-                                                        width: 1.0),
-                                                    borderRadius: BorderRadius.all(
-                                                        Radius.circular(
-                                                            100.0) //                 <--- border radius here
-                                                        ),
-                                                    color: Colors.grey[400],
-                                                  ),
-                                                ),
-                                              ),
-                                              Padding(
-                                                padding: const EdgeInsets.only(
-                                                    left: 5.0),
-                                                child: Text(
-                                                  'Belum Selesai',
-                                                  style: TextStyle(
-                                                    fontSize: 12,
-                                                  ),
-                                                ),
-                                              ),
-                                            ],
-                                          )),
-                                    ],
-                                  ),
-                                )
-                              ],
-                            ),
-                          ),
-                          Container(
-                              margin: EdgeInsets.only(bottom: 15.0, top: 15.0),
-                              child: Padding(
-                                padding: const EdgeInsets.only(top: 20.0),
-                                child: Text(
-                                  'Team Member',
-                                  style: TextStyle(
-                                      color: Colors.black87,
-                                      fontWeight: FontWeight.w500),
-                                ),
-                              )),
-                          Container(
-                            color: Colors.white,
-                            margin: EdgeInsets.only(
-                              top: 0.0,
-                            ),
-                            child: SingleChildScrollView(
-                              child: Container(
+                                    : dataProject['p_desc'] == null ||
+                                            dataProject['p_desc'] == '' ||
+                                            dataProject['p_desc'] == 'null'
+                                        ? 'Belum ada deskripsi project'
+                                        : dataProject['p_desc'],
+                                style: TextStyle(height: 2),
+                              ),
+                              Container(
+                                margin:
+                                    EdgeInsets.only(top: 25.0, bottom: 15.0),
                                 child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  children: projectMemberdetail
-                                      .map((Member item) => InkWell(
-                                            onTap: () async {
-                                              _showdetailMemberProject(
-                                                  item.iduser);
-                                            },
-                                            child: Container(
-                                              width: 40.0,
-                                              height: 40.0,
-                                              margin:
-                                                  EdgeInsets.only(right: 15.0),
-                                              child: ClipOval(
-                                                child: FadeInImage.assetNetwork(
-                                                  placeholder:
-                                                      'images/loading.gif',
-                                                  image: item.image == null ||
-                                                          item.image == '' ||
-                                                          item.image == 'null'
-                                                      ? url(
-                                                          'assets/images/imgavatar.png')
-                                                      : url(
-                                                          'storage/image/profile/${item.image}'),
-                                                  fit: BoxFit.cover,
-                                                ),
-                                              ),
-                                              decoration: BoxDecoration(
-                                                shape: BoxShape.circle,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: <Widget>[
+                                    InkWell(
+                                      onTap: () async {
+                                        Fluttertoast.showToast(
+                                            msg: 'Fitur ini masih dikerjakan');
+                                      },
+                                      child: Container(
+                                        margin: EdgeInsets.only(right: 3),
+                                        padding: EdgeInsets.only(
+                                            top: 10.0,
+                                            left: 5,
+                                            bottom: 10.0,
+                                            right: 5),
+                                        decoration: BoxDecoration(
+                                          border: Border.all(
+                                              color: Colors.grey[300],
+                                              width: 1.0),
+                                          borderRadius:
+                                              BorderRadius.circular(10.0),
+                                        ),
+                                        child: Row(
+                                          children: <Widget>[
+                                            Icon(
+                                              Icons.insert_drive_file,
+                                              size: 13,
+                                              color: Colors.red,
+                                            ),
+                                            Padding(
+                                              padding: const EdgeInsets.only(
+                                                  left: 5.0),
+                                              child: Text(
+                                                'Proposal Project',
+                                                style: TextStyle(
+                                                    color: Colors.black,
+                                                    fontSize: 12),
                                               ),
                                             ),
-                                          ))
-                                      .toList(),
-                                ),
-                              ),
-                            ),
-                          ),
-                          Container(
-                              margin: EdgeInsets.only(bottom: 10.0, top: 15.0),
-                              child: Padding(
-                                padding: const EdgeInsets.only(top: 20.0),
-                                child: Text(
-                                  'To Do',
-                                  style: TextStyle(
-                                      color: Colors.black87,
-                                      fontWeight: FontWeight.w500),
-                                ),
-                              )),
-                          projectTododetail.length == 0
-                              ? Padding(
-                                  padding: const EdgeInsets.only(top: 20.0),
-                                  child: Column(children: <Widget>[
-                                    new Container(
-                                      width: 100.0,
-                                      height: 100.0,
-                                      child: Image.asset(
-                                          "images/empty-white-box.png"),
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.only(
-                                        top: 20.0,
-                                        left: 15.0,
-                                        right: 15.0,
-                                      ),
-                                      child: Center(
-                                        child: Text(
-                                          "${widget.namaproject} Belum Memiliki To Do Sama Sekali",
-                                          style: TextStyle(
-                                            fontSize: 16,
-                                            color: Colors.black45,
-                                            height: 1.5,
-                                          ),
-                                          textAlign: TextAlign.center,
+                                          ],
                                         ),
                                       ),
                                     ),
-                                  ]),
-                                )
-                              : Container(
-                                  color: Colors.white,
-                                  margin: EdgeInsets.only(
-                                    top: 0.0,
-                                  ),
-                                  child: SingleChildScrollView(
-                                    child: Container(
-                                      child: Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: projectTododetail
-                                            .map((Todo item) => InkWell(
-                                                onTap: () async {},
-                                                child: Card(
-                                                    elevation: 0.5,
-                                                    margin: EdgeInsets.only(
-                                                        top: 5.0,
-                                                        bottom: 5.0,
-                                                        left: 5.0,
-                                                        right: 5.0),
-                                                    child: ListTile(
-                                                      title: Row(
-                                                        children: <Widget>[
-                                                          Expanded(
-                                                            child: Text(
-                                                                item.title ==
-                                                                            '' ||
-                                                                        item.title ==
-                                                                            null
-                                                                    ? 'Nama To Do Tidak Diketahui'
-                                                                    : item
-                                                                        .title,
-                                                                overflow:
-                                                                    TextOverflow
-                                                                        .ellipsis,
-                                                                softWrap: true,
-                                                                maxLines: 1,
-                                                                style: TextStyle(
-                                                                    fontSize:
-                                                                        14,
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .w500)),
-                                                          ),
-                                                          ButtonTheme(
-                                                            minWidth: 0.0,
-                                                            height: 0,
-                                                            child: FlatButton(
-                                                                onPressed:
-                                                                    () async {
-                                                                  try {
-                                                                    final actionPinnedTodo = await http.post(
-                                                                        url(
-                                                                            'api/actionpinned_todo'),
-                                                                        headers:
-                                                                            requestHeaders,
-                                                                        body: {
-                                                                          'todolist': item
-                                                                              .id
-                                                                              .toString(),
-                                                                        });
-
-                                                                    if (actionPinnedTodo
-                                                                            .statusCode ==
-                                                                        200) {
-                                                                      var actionPinnedTodoJson =
-                                                                          json.decode(
-                                                                              actionPinnedTodo.body);
-                                                                      if (actionPinnedTodoJson[
-                                                                              'status'] ==
-                                                                          'tambah') {
-                                                                        setState(
-                                                                            () {
-                                                                          item.statuspinned = item
-                                                                              .id
-                                                                              .toString();
-                                                                        });
-                                                                      } else if (actionPinnedTodoJson[
-                                                                              'status'] ==
-                                                                          'hapus') {
-                                                                        setState(
-                                                                            () {
-                                                                          item.statuspinned =
-                                                                              null;
-                                                                        });
-                                                                      }
-                                                                    } else {
-                                                                      print(actionPinnedTodo
-                                                                          .body);
-                                                                    }
-                                                                  } on TimeoutException catch (_) {
-                                                                    Fluttertoast
-                                                                        .showToast(
-                                                                            msg:
-                                                                                "Timed out, Try again");
-                                                                  } catch (e) {
-                                                                    print(e);
-                                                                  }
-                                                                },
-                                                                color: Colors
-                                                                    .white,
-                                                                padding:
-                                                                    EdgeInsets
-                                                                        .all(0),
-                                                                child: Icon(
-                                                                  Icons
-                                                                      .star_border,
-                                                                  color: item.statuspinned == null ||
-                                                                          item.statuspinned ==
-                                                                              'null' ||
-                                                                          item.statuspinned ==
-                                                                              ''
-                                                                      ? Colors
-                                                                          .grey
-                                                                      : Colors
-                                                                          .orange,
-                                                                )),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                      subtitle: Column(
-                                                        crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .start,
-                                                        mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .start,
-                                                        children: <Widget>[
-                                                          Padding(
-                                                            padding:
-                                                                const EdgeInsets
-                                                                        .only(
-                                                                    top: 0,
-                                                                    bottom:
-                                                                        10.0),
-                                                            child: Text(
-                                                                '${item.timestart}'),
-                                                          ),
-                                                          Container(
-                                                            padding: EdgeInsets.only(bottom:10.0),
-                                                            child:
-                                                                LinearPercentIndicator(
-                                                                    lineHeight:
-                                                                        8.0,
-                                                                    percent:
-                                                                        double.parse(item.progress) /
-                                                                            100,
-                                                                    trailing:
-                                                                        new Text(
-                                                                      "${item.progress}%",
-                                                                      style: TextStyle(
-                                                                          color: Colors
-                                                                              .black,
-                                                                          fontWeight:
-                                                                              FontWeight.w500),
-                                                                    ),
-                                                                    progressColor:
-                                                                        Colors
-                                                                            .green),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    ))))
-                                            .toList(),
+                                    InkWell(
+                                      onTap: () async {
+                                        Fluttertoast.showToast(
+                                            msg: 'Fitur ini masih dikerjakan');
+                                      },
+                                      child: Container(
+                                        margin: EdgeInsets.only(left: 3),
+                                        padding: EdgeInsets.only(
+                                            top: 10.0,
+                                            left: 5,
+                                            bottom: 10.0,
+                                            right: 5),
+                                        decoration: BoxDecoration(
+                                          border: Border.all(
+                                              color: Colors.grey[300],
+                                              width: 1.0),
+                                          borderRadius:
+                                              BorderRadius.circular(10.0),
+                                        ),
+                                        child: Row(
+                                          children: <Widget>[
+                                            Icon(
+                                              Icons.insert_drive_file,
+                                              size: 13,
+                                              color: Colors.red,
+                                            ),
+                                            Padding(
+                                              padding: const EdgeInsets.only(
+                                                  left: 5.0),
+                                              child: Text(
+                                                'Ruang Lingkup',
+                                                style: TextStyle(
+                                                    color: Colors.black,
+                                                    fontSize: 12),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
                                       ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Container(
+                                  margin: EdgeInsets.only(bottom: 15.0),
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(top: 20.0),
+                                    child: Text(
+                                      'Project Progress',
+                                      style: TextStyle(
+                                          color: Colors.black87,
+                                          fontWeight: FontWeight.w500),
+                                    ),
+                                  )),
+                              Container(
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: <Widget>[
+                                    CircularPercentIndicator(
+                                      radius: 80.0,
+                                      lineWidth: 5.0,
+                                      animation: true,
+                                      percent:
+                                          double.parse(projectPercent) / 100,
+                                      center: new Text(
+                                        "$projectPercent%",
+                                        style: new TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 12.0),
+                                      ),
+                                      circularStrokeCap:
+                                          CircularStrokeCap.round,
+                                      progressColor: Colors.green,
+                                    ),
+                                    Container(
+                                      margin: EdgeInsets.only(left: 15.0),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                        children: <Widget>[
+                                          Padding(
+                                              padding:
+                                                  EdgeInsets.only(top: 15.0),
+                                              child: Row(
+                                                children: <Widget>[
+                                                  ClipRRect(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            100.0),
+                                                    child: Container(
+                                                      margin: EdgeInsets.only(
+                                                          right: 3.0),
+                                                      height: 10.0,
+                                                      alignment:
+                                                          Alignment.center,
+                                                      width: 10.0,
+                                                      decoration: BoxDecoration(
+                                                        border: Border.all(
+                                                            color:
+                                                                Color.fromRGBO(
+                                                                    0,
+                                                                    204,
+                                                                    65,
+                                                                    1.0),
+                                                            width: 1.0),
+                                                        borderRadius:
+                                                            BorderRadius.all(
+                                                                Radius.circular(
+                                                                    100.0) //                 <--- border radius here
+                                                                ),
+                                                        color: Color.fromRGBO(
+                                                            0, 204, 65, 1.0),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  Padding(
+                                                    padding:
+                                                        const EdgeInsets.only(
+                                                            left: 5.0),
+                                                    child: Text(
+                                                      'Sudah Selesai',
+                                                      style: TextStyle(
+                                                        fontSize: 12,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              )),
+                                          Padding(
+                                              padding:
+                                                  EdgeInsets.only(top: 10.0),
+                                              child: Row(
+                                                children: <Widget>[
+                                                  ClipRRect(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            100.0),
+                                                    child: Container(
+                                                      margin: EdgeInsets.only(
+                                                          right: 3.0),
+                                                      height: 10.0,
+                                                      alignment:
+                                                          Alignment.center,
+                                                      width: 10.0,
+                                                      decoration: BoxDecoration(
+                                                        border: Border.all(
+                                                            color:
+                                                                Color.fromRGBO(
+                                                                    0,
+                                                                    204,
+                                                                    65,
+                                                                    1.0),
+                                                            width: 1.0),
+                                                        borderRadius:
+                                                            BorderRadius.all(
+                                                                Radius.circular(
+                                                                    100.0) //                 <--- border radius here
+                                                                ),
+                                                        color: Colors.grey[400],
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  Padding(
+                                                    padding:
+                                                        const EdgeInsets.only(
+                                                            left: 5.0),
+                                                    child: Text(
+                                                      'Belum Selesai',
+                                                      style: TextStyle(
+                                                        fontSize: 12,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              )),
+                                        ],
+                                      ),
+                                    )
+                                  ],
+                                ),
+                              ),
+                              Container(
+                                  margin:
+                                      EdgeInsets.only(bottom: 15.0, top: 15.0),
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(top: 20.0),
+                                    child: Text(
+                                      'Team Member',
+                                      style: TextStyle(
+                                          color: Colors.black87,
+                                          fontWeight: FontWeight.w500),
+                                    ),
+                                  )),
+                              Container(
+                                color: Colors.white,
+                                margin: EdgeInsets.only(
+                                  top: 0.0,
+                                ),
+                                child: SingleChildScrollView(
+                                  child: Container(
+                                    child: Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      children: projectMemberdetail
+                                          .map((Member item) => InkWell(
+                                                onTap: () async {
+                                                  _showdetailMemberProject(
+                                                      item.iduser);
+                                                },
+                                                child: Container(
+                                                  width: 40.0,
+                                                  height: 40.0,
+                                                  margin: EdgeInsets.only(
+                                                      right: 15.0),
+                                                  child: ClipOval(
+                                                    child: FadeInImage
+                                                        .assetNetwork(
+                                                      placeholder:
+                                                          'images/loading.gif',
+                                                      image: item.image ==
+                                                                  null ||
+                                                              item.image ==
+                                                                  '' ||
+                                                              item.image ==
+                                                                  'null'
+                                                          ? url(
+                                                              'assets/images/imgavatar.png')
+                                                          : url(
+                                                              'storage/image/profile/${item.image}'),
+                                                      fit: BoxFit.cover,
+                                                    ),
+                                                  ),
+                                                  decoration: BoxDecoration(
+                                                    shape: BoxShape.circle,
+                                                  ),
+                                                ),
+                                              ))
+                                          .toList(),
                                     ),
                                   ),
                                 ),
-                        ],
+                              ),
+                              Container(
+                                  margin:
+                                      EdgeInsets.only(bottom: 10.0, top: 15.0),
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(top: 20.0),
+                                    child: Text(
+                                      'To Do',
+                                      style: TextStyle(
+                                          color: Colors.black87,
+                                          fontWeight: FontWeight.w500),
+                                    ),
+                                  )),
+                              projectTododetail.length == 0
+                                  ? Padding(
+                                      padding: const EdgeInsets.only(top: 20.0),
+                                      child: Column(children: <Widget>[
+                                        new Container(
+                                          width: 100.0,
+                                          height: 100.0,
+                                          child: Image.asset(
+                                              "images/empty-white-box.png"),
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.only(
+                                            top: 20.0,
+                                            left: 15.0,
+                                            right: 15.0,
+                                          ),
+                                          child: Center(
+                                            child: Text(
+                                              "${widget.namaproject} Belum Memiliki To Do Sama Sekali",
+                                              style: TextStyle(
+                                                fontSize: 16,
+                                                color: Colors.black45,
+                                                height: 1.5,
+                                              ),
+                                              textAlign: TextAlign.center,
+                                            ),
+                                          ),
+                                        ),
+                                      ]),
+                                    )
+                                  : Container(
+                                      color: Colors.white,
+                                      margin: EdgeInsets.only(
+                                        top: 0.0,
+                                      ),
+                                      child: SingleChildScrollView(
+                                        child: Container(
+                                          child: Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: projectTododetail
+                                                .map((Todo item) => InkWell(
+                                                    onTap: () async {
+                                                      Navigator.push(
+                                                          context,
+                                                          MaterialPageRoute(
+                                                              builder: (context) =>
+                                                                  ManajemenDetailTodo(
+                                                                    idtodo:
+                                                                        item.id,
+                                                                    namatodo: item
+                                                                        .title,
+                                                                  )));
+                                                    },
+                                                    child: Card(
+                                                        elevation: 0.5,
+                                                        margin: EdgeInsets.only(
+                                                            top: 5.0,
+                                                            bottom: 5.0,
+                                                            left: 5.0,
+                                                            right: 5.0),
+                                                        child: ListTile(
+                                                          title: Row(
+                                                            children: <Widget>[
+                                                              Expanded(
+                                                                child: Text(
+                                                                    item.title ==
+                                                                                '' ||
+                                                                            item.title ==
+                                                                                null
+                                                                        ? 'Nama To Do Tidak Diketahui'
+                                                                        : item
+                                                                            .title,
+                                                                    overflow:
+                                                                        TextOverflow
+                                                                            .ellipsis,
+                                                                    softWrap:
+                                                                        true,
+                                                                    maxLines: 1,
+                                                                    style: TextStyle(
+                                                                        fontSize:
+                                                                            14,
+                                                                        fontWeight:
+                                                                            FontWeight.w500)),
+                                                              ),
+                                                              ButtonTheme(
+                                                                minWidth: 0.0,
+                                                                height: 0,
+                                                                child:
+                                                                    FlatButton(
+                                                                        onPressed:
+                                                                            () async {
+                                                                          try {
+                                                                            final actionPinnedTodo =
+                                                                                await http.post(url('api/actionpinned_todo'), headers: requestHeaders, body: {
+                                                                              'todolist': item.id.toString(),
+                                                                            });
+
+                                                                            if (actionPinnedTodo.statusCode ==
+                                                                                200) {
+                                                                              var actionPinnedTodoJson = json.decode(actionPinnedTodo.body);
+                                                                              if (actionPinnedTodoJson['status'] == 'tambah') {
+                                                                                setState(() {
+                                                                                  item.statuspinned = item.id.toString();
+                                                                                });
+                                                                              } else if (actionPinnedTodoJson['status'] == 'hapus') {
+                                                                                setState(() {
+                                                                                  item.statuspinned = null;
+                                                                                });
+                                                                              }
+                                                                            } else {
+                                                                              print(actionPinnedTodo.body);
+                                                                            }
+                                                                          } on TimeoutException catch (_) {
+                                                                            Fluttertoast.showToast(msg: "Timed out, Try again");
+                                                                          } catch (e) {
+                                                                            print(e);
+                                                                          }
+                                                                        },
+                                                                        color: Colors
+                                                                            .white,
+                                                                        padding:
+                                                                            EdgeInsets.all(
+                                                                                0),
+                                                                        child:
+                                                                            Icon(
+                                                                          Icons
+                                                                              .star_border,
+                                                                          color: item.statuspinned == null || item.statuspinned == 'null' || item.statuspinned == ''
+                                                                              ? Colors.grey
+                                                                              : Colors.orange,
+                                                                        )),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                          subtitle: Column(
+                                                            crossAxisAlignment:
+                                                                CrossAxisAlignment
+                                                                    .start,
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment
+                                                                    .start,
+                                                            children: <Widget>[
+                                                              Padding(
+                                                                padding:
+                                                                    const EdgeInsets
+                                                                            .only(
+                                                                        top: 0,
+                                                                        bottom:
+                                                                            10.0),
+                                                                child: Text(
+                                                                    '${item.timestart}'),
+                                                              ),
+                                                              Container(
+                                                                padding: EdgeInsets
+                                                                    .only(
+                                                                        bottom:
+                                                                            10.0),
+                                                                child:
+                                                                    LinearPercentIndicator(
+                                                                        lineHeight:
+                                                                            8.0,
+                                                                        percent:
+                                                                            double.parse(item.progress) /
+                                                                                100,
+                                                                        trailing:
+                                                                            new Text(
+                                                                          "${item.progress}%",
+                                                                          style: TextStyle(
+                                                                              color: Colors.black,
+                                                                              fontWeight: FontWeight.w500),
+                                                                        ),
+                                                                        progressColor:
+                                                                            Colors.green),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        ))))
+                                                .toList(),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                            ],
+                          ),
+                        ),
                       ),
                     ),
+        ));
+  }
+
+  Widget errorSystem(BuildContext context) {
+    return SingleChildScrollView(
+      child: Container(
+        color: Colors.white,
+        margin: EdgeInsets.only(top: 10.0, left: 10.0, right: 10.0),
+        padding: const EdgeInsets.only(top: 10.0, bottom: 15.0),
+        child: RefreshIndicator(
+          onRefresh: () => getHeaderHTTP(),
+          child: Column(children: <Widget>[
+            new Container(
+              width: 100.0,
+              height: 100.0,
+              child: Image.asset("images/system-eror.png"),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(
+                top: 30.0,
+                left: 15.0,
+                right: 15.0,
+              ),
+              child: Center(
+                child: Text(
+                  "Gagal memuat halaman, tekan tombol muat ulang halaman untuk refresh halaman",
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.black54,
+                    height: 1.5,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(
+                  top: 15.0, left: 15.0, right: 15.0, bottom: 15.0),
+              child: SizedBox(
+                width: double.infinity,
+                child: RaisedButton(
+                  color: Colors.white,
+                  textColor: primaryAppBarColor,
+                  disabledColor: Colors.grey,
+                  disabledTextColor: Colors.black,
+                  padding: EdgeInsets.all(15.0),
+                  onPressed: () async {
+                    getHeaderHTTP();
+                  },
+                  child: Text(
+                    "Muat Ulang Halaman",
+                    style:
+                        TextStyle(fontSize: 14.0, fontWeight: FontWeight.w500),
                   ),
                 ),
-        ));
+              ),
+            ),
+          ]),
+        ),
+      ),
+    );
   }
 
   Widget loadingPage(BuildContext context) {

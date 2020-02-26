@@ -75,7 +75,7 @@ class _DetailProjectState extends State<DetailProject>
     getHeaderHTTP();
     datepickerlastTodo = FocusNode();
     _tabController =
-        TabController(length: 2, vsync: _DetailProjectState(), initialIndex: 0);
+        TabController(length: 3, vsync: _DetailProjectState(), initialIndex: 0);
     _tabController.addListener(_handleTabIndex);
     super.initState();
     listMemberProject = [];
@@ -90,9 +90,9 @@ class _DetailProjectState extends State<DetailProject>
     setState(() {
       _searchQuery.text = '';
     });
-    if (_tabController.index == 0) {
+    if (_tabController.index == 1) {
       filterMemberproject();
-    } else {
+    } else if (_tabController.index == 2) {
       filterTodoProject();
     }
     setState(() {
@@ -267,7 +267,7 @@ class _DetailProjectState extends State<DetailProject>
             desc: i['tl_desc'],
             timestart: i['tl_timestart'],
             timeend: i['tl_timeend'],
-            progress: i['tl_progress'],
+            progress: i['tl_progress'].toString(),
             status: i['tl_status'],
           );
           listTodoProject.add(todo);
@@ -339,7 +339,7 @@ class _DetailProjectState extends State<DetailProject>
             desc: i['tl_desc'],
             timestart: i['tl_timestart'],
             timeend: i['tl_timeend'],
-            progress: i['tl_progress'],
+            progress: i['tl_progress'].toString(),
             status: i['tl_status'],
           );
           listTodoProject.add(todo);
@@ -396,9 +396,9 @@ class _DetailProjectState extends State<DetailProject>
   void _handleTabIndex() {
     setState(() {
       _searchQuery.text = '';
-      if (_tabController.index == 0) {
+      if (_tabController.index == 1) {
         filterMemberproject();
-      } else {
+      } else if (_tabController.index == 2) {
         filterTodoProject();
       }
       // ignore: new_with_non_type
@@ -976,6 +976,20 @@ class _DetailProjectState extends State<DetailProject>
                       children: <Widget>[
                         Padding(
                           padding: const EdgeInsets.only(top: 5.0, bottom: 5.0),
+                          child: Text('Information',
+                              style: TextStyle(
+                                  fontSize: 14, color: Colors.black38)),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Tab(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        Padding(
+                          padding: const EdgeInsets.only(top: 5.0, bottom: 5.0),
                           child: Text('Member',
                               style: TextStyle(
                                   fontSize: 14, color: Colors.black38)),
@@ -1006,6 +1020,52 @@ class _DetailProjectState extends State<DetailProject>
               child: TabBarView(
                 controller: _tabController,
                 children: [
+                  Container(
+                    child: SingleChildScrollView(
+                      child: Column(
+                        children: <Widget>[
+                          Container(
+                            padding: EdgeInsets.all(15.0),
+                            width: double.infinity,
+                            color: Colors.white,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: <Widget>[
+                                Container(
+                                  margin: EdgeInsets.only(bottom: 10.0),
+                                  child: Text(
+                                    'Informasi Project',
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.w500),
+                                  ),
+                                ),
+                                Divider(),
+                                Container(
+                                  child: Text('Nama Project'),
+                                ),
+                                Container(
+                                    margin:
+                                        EdgeInsets.only(bottom: 5.0, top: 5.0),
+                                    child: TextFormField(
+                                      
+                                      
+                                      decoration: InputDecoration(
+                                        contentPadding: EdgeInsets.all(20.0),
+                                          border: OutlineInputBorder(),
+                                          hintText: 'Masukkan Email Pengguna',
+                                          hintStyle: TextStyle(
+                                            fontSize: 12,
+                                            color: Colors.black,
+                                          )),
+                                    )),
+                              ],
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
                   Container(
                     child: SingleChildScrollView(
                       child: Column(
@@ -1298,46 +1358,41 @@ class _DetailProjectState extends State<DetailProject>
                                                                               ],
                                                                             ),
                                                                           ),
-                                                                          trailing:
-                                                                              Row(
-                                                                            mainAxisSize:
-                                                                                MainAxisSize.min,
-                                                                            children: <Widget>[
-                                                                              PopupMenuButton<PageMember>(
-                                                                                onSelected: (PageMember value) {
-                                                                                  switch (value) {
-                                                                                    case PageMember.hapusMember:
-                                                                                      hapusMember(item.iduser.toString());
-                                                                                      break;
-                                                                                    case PageMember.gantiStatusMember:
-                                                                                      gantiStatusMember(item.iduser.toString(), item.roleid);
-                                                                                      break;
-                                                                                    default:
-                                                                                      break;
-                                                                                  }
-                                                                                },
-                                                                                icon: Icon(Icons.more_vert),
-                                                                                itemBuilder: (context) => [
-                                                                                  item.roleid == '1' ?
-                                                                                  null:
-                                                                                  PopupMenuItem(
-                                                                                    value: PageMember.gantiStatusMember,
-                                                                                    child: Text("Ganti Status")
-                                                                                  ),
-                                                                                  PopupMenuItem(
-                                                                                    // value: PageEnum.deletePeserta,
-                                                                                    child: Text("Atur TodoList"),
-                                                                                  ),
-                                                                                  item.roleid == '1' ?
-                                                                                  null:
-                                                                                  PopupMenuItem(
-                                                                                    value: PageMember.hapusMember,
-                                                                                    child: Text("Hapus Member"),
-                                                                                  ),
-                                                                                ],
-                                                                              ),
-                                                                            ],
-                                                                          ),
+                                                                          trailing: item.roleid == '1'
+                                                                              ? null
+                                                                              : Row(
+                                                                                  mainAxisSize: MainAxisSize.min,
+                                                                                  children: <Widget>[
+                                                                                    PopupMenuButton<PageMember>(
+                                                                                      onSelected: (PageMember value) {
+                                                                                        switch (value) {
+                                                                                          case PageMember.hapusMember:
+                                                                                            hapusMember(item.iduser.toString());
+                                                                                            break;
+                                                                                          case PageMember.gantiStatusMember:
+                                                                                            gantiStatusMember(item.iduser.toString(), item.roleid);
+                                                                                            break;
+                                                                                          default:
+                                                                                            break;
+                                                                                        }
+                                                                                      },
+                                                                                      icon: Icon(Icons.more_vert),
+                                                                                      itemBuilder: (context) => [
+                                                                                        item.roleid == '1' ? null : PopupMenuItem(value: PageMember.gantiStatusMember, child: Text("Ganti Status")),
+                                                                                        PopupMenuItem(
+                                                                                          // value: PageEnum.deletePeserta,
+                                                                                          child: Text("Atur TodoList"),
+                                                                                        ),
+                                                                                        item.roleid == '1'
+                                                                                            ? null
+                                                                                            : PopupMenuItem(
+                                                                                                value: PageMember.hapusMember,
+                                                                                                child: Text("Hapus Member"),
+                                                                                              ),
+                                                                                      ],
+                                                                                    ),
+                                                                                  ],
+                                                                                ),
                                                                         )))
                                                                     .toList(),
                                                               ),
@@ -1972,9 +2027,9 @@ class _DetailProjectState extends State<DetailProject>
                 disabledTextColor: Colors.black,
                 padding: EdgeInsets.all(15.0),
                 onPressed: () async {
-                  if (_tabController.index == 0) {
+                  if (_tabController.index == 1) {
                     filterMemberproject();
-                  } else {
+                  } else if (_tabController.index == 2) {
                     filterTodoProject();
                   }
                 },
@@ -2030,9 +2085,9 @@ class _DetailProjectState extends State<DetailProject>
                                 controller: _searchQuery,
                                 onSubmitted: (string) {
                                   if (string != null || string != '') {
-                                    if (_tabController.index == 0) {
+                                    if (_tabController.index == 1) {
                                       filterMemberproject();
-                                    } else {
+                                    } else if (_tabController.index == 2) {
                                       filterTodoProject();
                                     }
                                   }

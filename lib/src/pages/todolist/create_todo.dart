@@ -164,16 +164,12 @@ class _TodoListState extends State<TodoList> {
       } else {
         print(addadminevent.body);
         progressApiAction.hide().then((isHidden) {});
-        Fluttertoast.showToast(msg: "Gagal, Silahkan Coba Kembali");
+        Fluttertoast.showToast(msg: "Gagal, Silahkan Coba Kembalis");
       }
     } on TimeoutException catch (_) {
       progressApiAction.hide().then((isHidden) {});
       Fluttertoast.showToast(msg: "Timed out, Try again");
-    } catch (e) {
-      progressApiAction.hide().then((isHidden) {});
-      Fluttertoast.showToast(msg: "Gagal, Silahkan Coba Kembali");
-      print(e);
-    }
+    } 
   }
 
   void dispose() {
@@ -195,6 +191,8 @@ class _TodoListState extends State<TodoList> {
     _descController.text = '';
     categoriesID = null;
     idProjectChoose = null;
+    _dfileName = null;
+    fileImage =null;
     getDataCategory();
     timeSetToMinute();
     super.initState();

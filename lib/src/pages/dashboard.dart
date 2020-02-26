@@ -31,6 +31,7 @@ String _tanggalawalProject, _tanggalakhirProject;
 TextEditingController _namaprojectController = TextEditingController();
 TextEditingController _tanggalawalProjectController = TextEditingController();
 TextEditingController _tanggalakhirProjectController = TextEditingController();
+TextEditingController _namaCategoryController = TextEditingController();
 
 class Dashboard extends StatefulWidget {
   Dashboard({Key key, this.title}) : super(key: key);
@@ -100,7 +101,7 @@ class _DashboardState extends State<Dashboard> {
         context: context,
         builder: (builder) {
           return Container(
-            height: 170.0 + MediaQuery.of(context).viewInsets.bottom,
+            height: 230.0 + MediaQuery.of(context).viewInsets.bottom,
             padding: EdgeInsets.only(
                 bottom: MediaQuery.of(context).viewInsets.bottom,
                 right: 15.0,
@@ -116,11 +117,50 @@ class _DashboardState extends State<Dashboard> {
                     child: RaisedButton(
                         onPressed: () async {
                           Navigator.pop(context);
-                          _showmodalcreateProject();
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => TodoList()));
                         },
                         color: primaryAppBarColor,
                         textColor: Colors.white,
                         disabledColor: Color.fromRGBO(254, 86, 14, 0.7),
+                        disabledTextColor: Colors.white,
+                        splashColor: Colors.blueAccent,
+                        child: Text("Buat To Do",
+                            style: TextStyle(color: Colors.white)))),
+                Container(
+                    margin: EdgeInsets.only(top: 15.0),
+                    decoration: BoxDecoration(
+                        border: Border(
+                      right: BorderSide(
+                        color: Colors.green,
+                        width: 1.0,
+                      ),
+                      left: BorderSide(
+                        color: Colors.green,
+                        width: 1.0,
+                      ),
+                      top: BorderSide(
+                        color: Colors.green,
+                        width: 1.0,
+                      ),
+                      bottom: BorderSide(
+                        color: Colors.green,
+                        width: 1.0,
+                      ),
+                    )),
+                    width: double.infinity,
+                    height: 50.0,
+                    child: RaisedButton(
+                        onPressed: () async {
+                          Navigator.pop(context);
+                          _showmodalcreateProject();
+                        },
+                        color: Colors.green,
+                        elevation: 0,
+                        textColor: Colors.white,
+                        disabledColor: Colors.green[400],
                         disabledTextColor: Colors.white,
                         splashColor: Colors.blueAccent,
                         child: Text("Buat Project",
@@ -130,20 +170,20 @@ class _DashboardState extends State<Dashboard> {
                     decoration: BoxDecoration(
                         border: Border(
                       right: BorderSide(
-                        color: primaryAppBarColor,
-                        width: 2.0,
+                        color: Colors.blue,
+                        width: 1.0,
                       ),
                       left: BorderSide(
-                        color: primaryAppBarColor,
-                        width: 2.0,
+                        color: Colors.blue,
+                        width: 1.0,
                       ),
                       top: BorderSide(
-                        color: primaryAppBarColor,
-                        width: 2.0,
+                        color: Colors.blue,
+                        width: 1.0,
                       ),
                       bottom: BorderSide(
-                        color: primaryAppBarColor,
-                        width: 2.0,
+                        color: Colors.blue,
+                        width: 1.0,
                       ),
                     )),
                     width: double.infinity,
@@ -151,19 +191,73 @@ class _DashboardState extends State<Dashboard> {
                     child: RaisedButton(
                         onPressed: () async {
                           Navigator.pop(context);
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => TodoList()));
+                          _showModalCreateCategory();
                         },
-                        color: Colors.white,
+                        color: Colors.blue,
                         elevation: 0,
-                        textColor: primaryAppBarColor,
-                        disabledColor: Colors.white,
-                        disabledTextColor: primaryAppBarColor,
+                        textColor: Colors.white,
+                        disabledColor: Colors.blue,
+                        disabledTextColor: Colors.white,
                         splashColor: Colors.blueAccent,
-                        child: Text("Buat To Do",
-                            style: TextStyle(color: primaryAppBarColor)))),
+                        child: Text("Buat Kategori",
+                            style: TextStyle(color: Colors.white)))),
+              ],
+            ),
+          );
+        });
+  }
+
+  void _showModalCreateCategory() {
+    setState(() {
+      _namaCategoryController.text = '';
+    });
+    showModalBottomSheet(
+        isScrollControlled: true,
+        context: context,
+        builder: (builder) {
+          return Container(
+            height: 200.0 + MediaQuery.of(context).viewInsets.bottom,
+            padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewInsets.bottom,
+                right: 15.0,
+                left: 15.0,
+                top: 15.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Container(
+                    margin: EdgeInsets.only(bottom: 20.0, top: 20.0),
+                    child: TextField(
+                      controller: _namaCategoryController,
+                      decoration: InputDecoration(
+                        contentPadding: EdgeInsets.only(
+                            top: 5, bottom: 5, left: 10, right: 10),
+                        border: OutlineInputBorder(),
+                        hintText: 'Masukkan Nama Kategori',
+                        hintStyle: TextStyle(fontSize: 12, color: Colors.black),
+                      ),
+                    )),
+                Center(
+                    child: Container(
+                        width: double.infinity,
+                        height: 45.0,
+                        child: RaisedButton(
+                            onPressed: () async {
+                              if (_namaCategoryController.text == '') {
+                                Fluttertoast.showToast(
+                                    msg: 'Nama Kategori tidak boleh kosong');
+                              } else {
+                                _tambahcategory();
+                              }
+                            },
+                            color: primaryAppBarColor,
+                            textColor: Colors.white,
+                            disabledColor: Color.fromRGBO(254, 86, 14, 0.7),
+                            disabledTextColor: Colors.white,
+                            splashColor: Colors.blueAccent,
+                            child: Text("Tambah Kategori",
+                                style: TextStyle(color: Colors.white)))))
               ],
             ),
           );
@@ -305,6 +399,40 @@ class _DashboardState extends State<Dashboard> {
             ),
           );
         });
+  }
+
+  void _tambahcategory() async {
+    Navigator.pop(context);
+    await progressApiAction.show();
+    try {
+      final addadminevent = await http
+          .post(url('api/tambah_kategori'), headers: requestHeaders, body: {
+        'nama_kategori': _namaCategoryController.text,
+      });
+
+      if (addadminevent.statusCode == 200) {
+        var addpesertaJson = json.decode(addadminevent.body);
+        if (addpesertaJson['status'] == 'success') {
+          progressApiAction.hide().then((isHidden) {});
+          Fluttertoast.showToast(msg: "Berhasil, Menambahkan Kategori");
+        }
+      } else {
+        print(addadminevent.body);
+        progressApiAction.hide().then((isHidden) {});
+        Fluttertoast.showToast(msg: "Gagal, Silahkan Coba Kembali");
+      }
+    } on TimeoutException catch (_) {
+      progressApiAction.hide().then((isHidden) {
+        print(isHidden);
+      });
+      Fluttertoast.showToast(msg: "Timed out, Try again");
+    } catch (e) {
+      progressApiAction.hide().then((isHidden) {
+        print(isHidden);
+      });
+      Fluttertoast.showToast(msg: "Gagal, Silahkan Coba Kembali");
+      print(e);
+    }
   }
 
   void _tambahProject() async {
