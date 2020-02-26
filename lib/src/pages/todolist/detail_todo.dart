@@ -1,3 +1,4 @@
+import 'package:todolist_app/src/pages/todolist/edit.dart';
 import 'package:todolist_app/src/routes/env.dart';
 import 'package:todolist_app/src/storage/storage.dart';
 import 'package:todolist_app/src/utils/utils.dart';
@@ -420,12 +421,12 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo> {
                     ),
                     tooltip: 'Edit Data Todo',
                     onPressed: () async {
-                      // Fluttertoast.showToast(msg: 'Fitur ini masih dikerjakan');
                       Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => ManajemenEditTodo(
-                                  idTodo: widget.idtodo,)));
+                              builder: (context) => EditTodo(
+                                  idTodo: widget.idtodo,
+                                  )));
                     },
                   ),
                 ],

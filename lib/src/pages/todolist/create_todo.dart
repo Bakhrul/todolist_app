@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
+import 'package:todolist_app/src/pages/todolist/adduserfile.dart';
 import 'package:todolist_app/src/utils/utils.dart';
 import 'package:todolist_app/src/models/category.dart';
 import 'package:todolist_app/src/routes/env.dart';
@@ -22,7 +23,7 @@ String categoriesName;
 bool isLoading, isError;
 String idProjectChoose;
 String namaProjectChoose;
-
+String isAllday = "Pilih Tanggal";
 class TodoList extends StatefulWidget {
   @override
   _TodoListState createState() => _TodoListState();
@@ -31,7 +32,7 @@ class TodoList extends StatefulWidget {
 class _TodoListState extends State<TodoList> {
   ProgressDialog progressApiAction;
   final _formKey = GlobalKey<FormState>();
-  final format = DateFormat("yyyy-MM-dd HH:mm:ss");
+  final format = isAllday != 'AllDay' ?  DateFormat("dd-MM-yyyy HH:mm:ss") :DateFormat("dd-MM-yyyy") ;
   DateTime timeReplacement;
   List<Category> listCategory = [];
 
@@ -145,19 +146,19 @@ class _TodoListState extends State<TodoList> {
         "planend": _dateEndController.text.toString(),
         "desc": _descController.text.toString(),
         "category": categoriesID.toString(),
-        'project': idProjectChoose.toString(),
-          'fileextension' :fileImage == null ? 'kosong': _dfileName.toString(),
-          'attachment': fileImage == null ? 'kosong' : fileImage.toString(),
+        'project': idProjectChoose.toString()
+       
       };
-      print(body);
       final addadminevent = await http.post(url('api/todo/create'),
           headers: requestHeaders, body: body);
+      print(addadminevent);
       if (addadminevent.statusCode == 200) {
         var addpesertaJson = json.decode(addadminevent.body);
         if (addpesertaJson['status'] == 'success') {
           Fluttertoast.showToast(msg: "Berhasil !");
+         var idTodo  = addpesertaJson['data'];
           progressApiAction.hide().then((isHidden) {});
-          Navigator.pushReplacementNamed(context, '/dashboard');
+          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => AddUserFileTodo(idTodo: idTodo) ));
           setState(() {});
         }
       } else {
@@ -212,7 +213,7 @@ class _TodoListState extends State<TodoList> {
             color: Colors.black, fontSize: 12.0, fontWeight: FontWeight.w600));
     return Scaffold(
       backgroundColor:
-          isError == true ? Colors.white : Color.fromRGBO(242, 242, 242, 1),
+          isError == true ? Colors.white : Colors.white ,
       appBar: AppBar(
         backgroundColor: primaryAppBarColor,
         title: Text(
@@ -307,13 +308,14 @@ class _TodoListState extends State<TodoList> {
                               children: <Widget>[
                                 Container(
                                   margin: EdgeInsets.only(bottom: 10.0),
-                                  child: Text(
-                                    'Tambah To Do',
-                                    style:
-                                        TextStyle(fontWeight: FontWeight.w500),
-                                  ),
+                                  // child: Text(
+                                  //   'Tambah To Do',
+                                  //   style:
+                                  //       TextStyle(fontWeight: FontWeight.w500),
+                                  // ),
                                 ),
                                 Divider(),
+                              
                                 Container(
                                     alignment: Alignment.center,
                                     height: 45.0,
@@ -331,12 +333,33 @@ class _TodoListState extends State<TodoList> {
                                       controller: _titleController,
                                     )),
                                 Container(
+                                  width: double.infinity,
+                                  
+                                    height: 45.0,
+                                  child: new DropdownButton<String>(
+                                    hint: Text(isAllday),
+                                    isExpanded: true,
+                                  items: <String>['AllDay', 'Not AllDAy'].map((String value) {
+                                    return new DropdownMenuItem<String>(
+                                      value: value,
+                                      child: new Text(value),
+                                    );
+                                  }).toList(),
+                                  onChanged: (val) {
+                                    print(val);
+                                    setState(() {
+                                      isAllday = val;
+                                    });
+                                  },
+                                ),
+                                ),
+                                Container(
                                     alignment: Alignment.center,
                                     height: 45.0,
                                     margin: EdgeInsets.only(bottom: 10.0),
                                     child: DateTimeField(
                                       controller: _dateStartController,
-                                      format: format,
+                                      format: isAllday != 'AllDay' ?  DateFormat("dd-MM-yyyy HH:mm:ss") :DateFormat("dd-MM-yyyy "),
                                       readOnly: true,
                                       decoration: InputDecoration(
                                         contentPadding: EdgeInsets.only(
@@ -345,7 +368,7 @@ class _TodoListState extends State<TodoList> {
                                             left: 10,
                                             right: 10),
                                         border: OutlineInputBorder(),
-                                        hintText: 'Tanggal Berakhirnya To Do',
+                                        hintText: 'Tanggal Mulainya To Do',
                                         hintStyle: TextStyle(
                                             fontSize: 12, color: Colors.black),
                                       ),
@@ -356,40 +379,50 @@ class _TodoListState extends State<TodoList> {
                                             firstDate: DateTime.now(),
                                             initialDate: DateTime.now(),
                                             lastDate: DateTime(2100));
-                                        if (date != null) {
-                                          final time = await showTimePicker(
+                                        if (date != null ) {
+                                          if(isAllday != "AllDay"){
+                                            final times = await showTimePicker(
                                             context: context,
                                             initialTime: TimeOfDay.fromDateTime(
                                                 currentValue ??
                                                     timeReplacement),
                                           );
                                           return DateTimeField.combine(
+                                              date, times);
+
+                                          } else {
+                                          final time = TimeOfDay.fromDateTime(timeReplacement);
+                                          return DateTimeField.combine(
                                               date, time);
-                                        } else {
+                                        }
+                                        }else{
                                           return currentValue;
                                         }
                                       },
                                       onChanged: (ini) {
                                         setState(() {
+                                          // print(_dateStartController.text.tostring());
+                                            // print(DateFormat("yyyy-MM-dd HH:mm:ss").format(DateTime.parse(_dateStartController.text)).toString());
+
                                           _dateEndController.text = '';
                                         });
                                       },
                                     )),
-                                Container(
+                                    Container(
                                     alignment: Alignment.center,
                                     height: 45.0,
                                     margin: EdgeInsets.only(bottom: 10.0),
                                     child: DateTimeField(
                                       controller: _dateEndController,
-                                      format: format,
+                                      format: isAllday != 'AllDay' ?  DateFormat("dd-MM-yyyy HH:mm:ss") :DateFormat("dd-MM-yyyy "),
                                       readOnly: true,
                                       decoration: InputDecoration(
-                                        border: OutlineInputBorder(),
                                         contentPadding: EdgeInsets.only(
                                             top: 2,
                                             bottom: 2,
                                             left: 10,
                                             right: 10),
+                                        border: OutlineInputBorder(),
                                         hintText: 'Tanggal Berakhirnya To Do',
                                         hintStyle: TextStyle(
                                             fontSize: 12, color: Colors.black),
@@ -398,33 +431,32 @@ class _TodoListState extends State<TodoList> {
                                           (context, currentValue) async {
                                         final date = await showDatePicker(
                                             context: context,
-                                            firstDate: _dateStartController
-                                                        .text ==
-                                                    ''
-                                                ? DateTime.now()
-                                                : DateTime.parse(
-                                                    _dateStartController.text),
-                                            initialDate: _dateStartController
-                                                        .text ==
-                                                    ''
-                                                ? DateTime.now()
-                                                : DateTime.parse(
-                                                    _dateStartController.text),
+                                            firstDate: _dateStartController.text  == '' ? DateTime.now() : DateTime.now(),
+                                            initialDate: _dateStartController.text  == '' ? DateTime.now() : DateTime.now(),
                                             lastDate: DateTime(2100));
-                                        if (date != null) {
-                                          final time = await showTimePicker(
+                                        if (date != null ) {
+                                          if(isAllday != "AllDay"){
+                                            final times = await showTimePicker(
                                             context: context,
                                             initialTime: TimeOfDay.fromDateTime(
                                                 currentValue ??
                                                     timeReplacement),
                                           );
                                           return DateTimeField.combine(
+                                              date, times);
+
+                                          } else {
+                                          final time = TimeOfDay.fromDateTime(timeReplacement);
+                                          return DateTimeField.combine(
                                               date, time);
-                                        } else {
+                                        }
+                                        }else{
                                           return currentValue;
                                         }
                                       },
+                                    
                                     )),
+                             
                                 InkWell(
                                   onTap: () async {
                                     showCategory();
@@ -521,109 +553,166 @@ class _TodoListState extends State<TodoList> {
                                               fontSize: 12,
                                               color: Colors.black)),
                                     )),
-                                Container(
-                                    margin: EdgeInsets.only(
-                                        bottom: 10.0, top: 10.0),
-                                    child: Text("Tambah Attachment",
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.bold))),
-                                Container(
-                                    width: double.infinity,
-                                    margin: EdgeInsets.only(
-                                      bottom: 10.0,
-                                    ),
-                                    child: FlatButton(
-                                      onPressed: () => _openFileExplorer(),
-                                      child: SizedBox(
-                                        width: double.infinity,
-                                        child: Text(
-                                          'Pilih File',
-                                          textAlign: TextAlign.left,
-                                        ),
-                                      ),
-                                    )),
-                                         new Builder(
-                  builder: (BuildContext context) => 
-                  // _loadingPath
-                  //     ? Padding(
-                  //         padding: const EdgeInsets.only(bottom: 10.0),
-                  //         child: const CircularProgressIndicator())
-                  //     : 
-                  _dfileName != null 
-                          ?
-                           new Container(
-                              // padding: const EdgeInsets.only(bottom: 10.0),
-                              // height: MediaQuery.of(context).size.height / 4,
-                              child: Text(_dfileName != null ? _dfileName : '..'),
-                            )
-                          : new Container(),
-                                         ),
-
-                                Center(
-                                    child: Container(
-                                        margin: EdgeInsets.only(top: 10.0),
-                                        width: double.infinity,
-                                        height: 40.0,
-                                        child: RaisedButton(
-                                            onPressed: () async {
-                                              if (_titleController.text == '') {
-                                                Fluttertoast.showToast(
-                                                    msg:
-                                                        "Nama To Do Tidak Boleh Kosong");
-                                              } else if (categoriesID
-                                                          .toString() ==
-                                                      '' ||
-                                                  categoriesID == null) {
-                                                Fluttertoast.showToast(
-                                                    msg:
-                                                        "Kategori Tidak Boleh Kosong");
-                                              } else if (_dateStartController
-                                                      .text ==
-                                                  '') {
-                                                Fluttertoast.showToast(
-                                                    msg:
-                                                        "Tanggal Dimulainya To Do Tidak Boleh Kosong");
-                                              } else if (_dateEndController
-                                                      .text ==
-                                                  '') {
-                                                Fluttertoast.showToast(
-                                                    msg:
-                                                        "Tanggal Berakhirnya To Do Tidak Boleh Kosong");
-                                              } else if (_descController.text ==
-                                                  '') {
-                                                Fluttertoast.showToast(
-                                                    msg:
-                                                        "Deskripsi tidak boleh kosong");
-                                              } else if (categoriesID
-                                                      .toString() ==
-                                                  '1') {
-                                                if (idProjectChoose == null) {
-                                                  Fluttertoast.showToast(
-                                                      msg:
-                                                          "Silahkan Pilih Project Terlebih Dahulu");
-                                                } else {
-                                                  saveTodo();
-                                                }
-                                              } else {
-                                                saveTodo();
-                                              }
-                                            },
-                                            color: primaryAppBarColor,
-                                            textColor: Colors.white,
-                                            disabledColor: Color.fromRGBO(
-                                                254, 86, 14, 0.7),
-                                            disabledTextColor: Colors.white,
-                                            splashColor: Colors.blueAccent,
-                                            child: Text("Tambahkan To Do",
-                                                style: TextStyle(
-                                                    fontSize: 12,
-                                                    color: Colors.white)))))
+                                // Container(
+                                //     margin: EdgeInsets.only(
+                                //         bottom: 10.0, top: 10.0),
+                                //     child: FlatButton(
+                                //       onPressed: () {
+                                //         Navigator.push(
+                                //             context,
+                                //             MaterialPageRoute(
+                                //                 builder: (context) =>
+                                //                     AddUserFileTodo()));
+                                //       },
+                                //       child: Text("Tambah Attachment",
+                                //           style: TextStyle(
+                                //               fontWeight: FontWeight.bold)),
+                                //     )),
+                                // Container(
+                                //     width: double.infinity,
+                                //     margin: EdgeInsets.only(
+                                //       bottom: 10.0,
+                                //     ),
+                                //     child: FlatButton(
+                                //       onPressed: () => _openFileExplorer(),
+                                //       child: SizedBox(
+                                //         width: double.infinity,
+                                //         child: Text(
+                                //           'Pilih File',
+                                //           textAlign: TextAlign.left,
+                                //         ),
+                                //       ),
+                                //     )),
+                                // new Builder(
+                                //   builder: (BuildContext context) =>
+                                //       // _loadingPath
+                                //       //     ? Padding(
+                                //       //         padding: const EdgeInsets.only(bottom: 10.0),
+                                //       //         child: const CircularProgressIndicator())
+                                //       //     :
+                                //       _dfileName != null
+                                //           ? new Container(
+                                //               // padding: const EdgeInsets.only(bottom: 10.0),
+                                //               // height: MediaQuery.of(context).size.height / 4,
+                                //               child: Text(_dfileName != null
+                                //                   ? _dfileName
+                                //                   : '..'),
+                                //             )
+                                //           : new Container(),
+                                // ),
+                                // Center(
+                                //     child: Container(
+                                //         margin: EdgeInsets.only(top: 10.0),
+                                //         width: double.infinity,
+                                //         height: 40.0,
+                                //         child: RaisedButton(
+                                //             onPressed: () async {
+                                //               if (_titleController.text == '') {
+                                //                 Fluttertoast.showToast(
+                                //                     msg:
+                                //                         "Nama To Do Tidak Boleh Kosong");
+                                //               } else if (categoriesID
+                                //                           .toString() ==
+                                //                       '' ||
+                                //                   categoriesID == null) {
+                                //                 Fluttertoast.showToast(
+                                //                     msg:
+                                //                         "Kategori Tidak Boleh Kosong");
+                                //               } else if (_dateStartController
+                                //                       .text ==
+                                //                   '') {
+                                //                 Fluttertoast.showToast(
+                                //                     msg:
+                                //                         "Tanggal Dimulainya To Do Tidak Boleh Kosong");
+                                //               } else if (_dateEndController
+                                //                       .text ==
+                                //                   '') {
+                                //                 Fluttertoast.showToast(
+                                //                     msg:
+                                //                         "Tanggal Berakhirnya To Do Tidak Boleh Kosong");
+                                //               } else if (_descController.text ==
+                                //                   '') {
+                                //                 Fluttertoast.showToast(
+                                //                     msg:
+                                //                         "Deskripsi tidak boleh kosong");
+                                //               } else if (categoriesID
+                                //                       .toString() ==
+                                //                   '1') {
+                                //                 if (idProjectChoose == null) {
+                                //                   Fluttertoast.showToast(
+                                //                       msg:
+                                //                           "Silahkan Pilih Project Terlebih Dahulu");
+                                //                 } else {
+                                //                   saveTodo();
+                                //                 }
+                                //               } else {
+                                //                 saveTodo();
+                                //               }
+                                //             },
+                                //             color: primaryAppBarColor,
+                                //             textColor: Colors.white,
+                                //             disabledColor: Color.fromRGBO(
+                                //                 254, 86, 14, 0.7),
+                                //             disabledTextColor: Colors.white,
+                                //             splashColor: Colors.blueAccent,
+                                //             child: Text("Tambahkan To Do",
+                                //                 style: TextStyle(
+                                //                     fontSize: 12,
+                                //                     color: Colors.white)))))
                               ],
                             )),
               ],
             ),
           ),
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: (){
+            if (_titleController.text == '') {
+              Fluttertoast.showToast(
+                  msg:
+                      "Nama To Do Tidak Boleh Kosong");
+            } else if (categoriesID
+                        .toString() ==
+                    '' ||
+                categoriesID == null) {
+              Fluttertoast.showToast(
+                  msg:
+                      "Kategori Tidak Boleh Kosong");
+            } else if (_dateStartController
+                    .text ==
+                '') {
+              Fluttertoast.showToast(
+                  msg:
+                      "Tanggal Dimulainya To Do Tidak Boleh Kosong");
+            } else if (_dateEndController
+                    .text ==
+                '') {
+              Fluttertoast.showToast(
+                  msg:
+                      "Tanggal Berakhirnya To Do Tidak Boleh Kosong");
+            } else if (_descController.text ==
+                '') {
+              Fluttertoast.showToast(
+                  msg:
+                      "Deskripsi tidak boleh kosong");
+            } else if (categoriesID
+                    .toString() ==
+                '1') {
+              if (idProjectChoose == null) {
+                Fluttertoast.showToast(
+                    msg:
+                        "Silahkan Pilih Project Terlebih Dahulu");
+              } else {
+                saveTodo();
+              }
+            } else {
+              saveTodo();
+            }
+                                            
+        },
+        backgroundColor: primaryAppBarColor,
+        child: Icon(Icons.arrow_forward_ios),
       ),
     );
   }
@@ -747,23 +836,22 @@ class _TodoListState extends State<TodoList> {
           ),
         )));
   }
-    void _openFileExplorer() async {
+
+  void _openFileExplorer() async {
     if (_pickingType != FileType.CUSTOM || _hasValidMime) {
       setState(() => _loadingPath = true);
       try {
-          
-          //  _path = await FilePicker. getFilePath(
-          //     type: _pickingType, fileExtension: _extension,);
-              File file = await FilePicker.getFile(type: FileType.ANY);
-              setState(() {
-              _dfileName = file.toString();
-             fileImage = base64Encode(file.readAsBytesSync());
-             _loadingPath = false;
-                
-              });
-              // print("Extensi");
-              // print(file.toString().split('/').last);
-        
+        //  _path = await FilePicker. getFilePath(
+        //     type: _pickingType, fileExtension: _extension,);
+        File file = await FilePicker.getFile(type: FileType.ANY);
+        setState(() {
+          _dfileName = file.toString();
+          fileImage = base64Encode(file.readAsBytesSync());
+          _loadingPath = false;
+        });
+        // print("Extensi");
+        // print(file.toString().split('/').last);
+
       } on PlatformException catch (e) {
         print("Unsupported operation" + e.toString());
       }
@@ -777,3 +865,4 @@ class _TodoListState extends State<TodoList> {
     }
   }
 }
+
