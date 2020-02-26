@@ -23,7 +23,7 @@ String categoriesName;
 bool isLoading, isError;
 String idProjectChoose;
 String namaProjectChoose;
-
+String isAllday = "Pilih Tanggal";
 class TodoList extends StatefulWidget {
   @override
   _TodoListState createState() => _TodoListState();
@@ -32,7 +32,7 @@ class TodoList extends StatefulWidget {
 class _TodoListState extends State<TodoList> {
   ProgressDialog progressApiAction;
   final _formKey = GlobalKey<FormState>();
-  final format = DateFormat("yyyy-MM-dd HH:mm:ss");
+  final format = isAllday != 'AllDay' ?  DateFormat("dd-MM-yyyy HH:mm:ss") :DateFormat("dd-MM-yyyy") ;
   DateTime timeReplacement;
   List<Category> listCategory = [];
 
@@ -310,13 +310,14 @@ class _TodoListState extends State<TodoList> {
                               children: <Widget>[
                                 Container(
                                   margin: EdgeInsets.only(bottom: 10.0),
-                                  child: Text(
-                                    'Tambah To Do',
-                                    style:
-                                        TextStyle(fontWeight: FontWeight.w500),
-                                  ),
+                                  // child: Text(
+                                  //   'Tambah To Do',
+                                  //   style:
+                                  //       TextStyle(fontWeight: FontWeight.w500),
+                                  // ),
                                 ),
                                 Divider(),
+                              
                                 Container(
                                     alignment: Alignment.center,
                                     height: 45.0,
@@ -334,12 +335,33 @@ class _TodoListState extends State<TodoList> {
                                       controller: _titleController,
                                     )),
                                 Container(
+                                  width: double.infinity,
+                                  
+                                    height: 45.0,
+                                  child: new DropdownButton<String>(
+                                    hint: Text(isAllday),
+                                    isExpanded: true,
+                                  items: <String>['AllDay', 'Not AllDAy'].map((String value) {
+                                    return new DropdownMenuItem<String>(
+                                      value: value,
+                                      child: new Text(value),
+                                    );
+                                  }).toList(),
+                                  onChanged: (val) {
+                                    print(val);
+                                    setState(() {
+                                      isAllday = val;
+                                    });
+                                  },
+                                ),
+                                ),
+                                Container(
                                     alignment: Alignment.center,
                                     height: 45.0,
                                     margin: EdgeInsets.only(bottom: 10.0),
                                     child: DateTimeField(
                                       controller: _dateStartController,
-                                      format: format,
+                                      format: isAllday != 'AllDay' ?  DateFormat("dd-MM-yyyy HH:mm:ss") :DateFormat("dd-MM-yyyy "),
                                       readOnly: true,
                                       decoration: InputDecoration(
                                         contentPadding: EdgeInsets.only(
@@ -348,7 +370,7 @@ class _TodoListState extends State<TodoList> {
                                             left: 10,
                                             right: 10),
                                         border: OutlineInputBorder(),
-                                        hintText: 'Tanggal Berakhirnya To Do',
+                                        hintText: 'Tanggal Mulainya To Do',
                                         hintStyle: TextStyle(
                                             fontSize: 12, color: Colors.black),
                                       ),
@@ -359,40 +381,50 @@ class _TodoListState extends State<TodoList> {
                                             firstDate: DateTime.now(),
                                             initialDate: DateTime.now(),
                                             lastDate: DateTime(2100));
-                                        if (date != null) {
-                                          final time = await showTimePicker(
+                                        if (date != null ) {
+                                          if(isAllday != "AllDay"){
+                                            final times = await showTimePicker(
                                             context: context,
                                             initialTime: TimeOfDay.fromDateTime(
                                                 currentValue ??
                                                     timeReplacement),
                                           );
                                           return DateTimeField.combine(
+                                              date, times);
+
+                                          } else {
+                                          final time = TimeOfDay.fromDateTime(timeReplacement);
+                                          return DateTimeField.combine(
                                               date, time);
-                                        } else {
+                                        }
+                                        }else{
                                           return currentValue;
                                         }
                                       },
                                       onChanged: (ini) {
                                         setState(() {
+                                          // print(_dateStartController.text.tostring());
+                                            // print(DateFormat("yyyy-MM-dd HH:mm:ss").format(DateTime.parse(_dateStartController.text)).toString());
+
                                           _dateEndController.text = '';
                                         });
                                       },
                                     )),
-                                Container(
+                                    Container(
                                     alignment: Alignment.center,
                                     height: 45.0,
                                     margin: EdgeInsets.only(bottom: 10.0),
                                     child: DateTimeField(
                                       controller: _dateEndController,
-                                      format: format,
+                                      format: isAllday != 'AllDay' ?  DateFormat("dd-MM-yyyy HH:mm:ss") :DateFormat("dd-MM-yyyy "),
                                       readOnly: true,
                                       decoration: InputDecoration(
-                                        border: OutlineInputBorder(),
                                         contentPadding: EdgeInsets.only(
                                             top: 2,
                                             bottom: 2,
                                             left: 10,
                                             right: 10),
+                                        border: OutlineInputBorder(),
                                         hintText: 'Tanggal Berakhirnya To Do',
                                         hintStyle: TextStyle(
                                             fontSize: 12, color: Colors.black),
@@ -401,33 +433,32 @@ class _TodoListState extends State<TodoList> {
                                           (context, currentValue) async {
                                         final date = await showDatePicker(
                                             context: context,
-                                            firstDate: _dateStartController
-                                                        .text ==
-                                                    ''
-                                                ? DateTime.now()
-                                                : DateTime.parse(
-                                                    _dateStartController.text),
-                                            initialDate: _dateStartController
-                                                        .text ==
-                                                    ''
-                                                ? DateTime.now()
-                                                : DateTime.parse(
-                                                    _dateStartController.text),
+                                            firstDate: _dateStartController.text  == '' ? DateTime.now() : DateTime.now(),
+                                            initialDate: _dateStartController.text  == '' ? DateTime.now() : DateTime.now(),
                                             lastDate: DateTime(2100));
-                                        if (date != null) {
-                                          final time = await showTimePicker(
+                                        if (date != null ) {
+                                          if(isAllday != "AllDay"){
+                                            final times = await showTimePicker(
                                             context: context,
                                             initialTime: TimeOfDay.fromDateTime(
                                                 currentValue ??
                                                     timeReplacement),
                                           );
                                           return DateTimeField.combine(
+                                              date, times);
+
+                                          } else {
+                                          final time = TimeOfDay.fromDateTime(timeReplacement);
+                                          return DateTimeField.combine(
                                               date, time);
-                                        } else {
+                                        }
+                                        }else{
                                           return currentValue;
                                         }
                                       },
+                                    
                                     )),
+                             
                                 InkWell(
                                   onTap: () async {
                                     showCategory();

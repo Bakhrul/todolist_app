@@ -10,6 +10,7 @@ import 'package:todolist_app/src/model/Todo.dart';
 import 'package:todolist_app/src/models/project.dart';
 import 'package:todolist_app/src/pages/todolist/detail_todo.dart';
 import 'package:todolist_app/src/pages/todolist/edit.dart';
+import 'package:todolist_app/src/pages/todolist/widget_action.dart';
 import 'package:todolist_app/src/routes/env.dart';
 import 'package:todolist_app/src/storage/storage.dart';
 import 'package:http/http.dart' as http;
@@ -53,11 +54,12 @@ class _HomeState extends State<Home> {
   }
 
   List listFilter = [
-    {'index': "1", 'name': "Hari ini"},
-    {'index': "2", 'name': "3 Hari"},
-    {'index': "3", 'name': "7 Hari"},
-    {'index': "4", 'name': "Bulan Ini"},
-    {'index': "5", 'name': "Bulan Depan"}
+    {'index': "1", 'name': "Hari Ini"},
+    {'index': "2", 'name': "Besok"},
+    {'index': "3", 'name': "Lusa"},
+    {'index': "4", 'name': "Minggu Ini"},
+    {'index': "5", 'name': "Bulan Ini"},
+    {'index': "6", 'name': "Belum Selesai"}
   ];
   int currentFilter = 1;
 
@@ -343,10 +345,12 @@ class _HomeState extends State<Home> {
                                           context,
                                           MaterialPageRoute(
                                               builder: (context) =>
-                                                  ManajemenDetailProjectAll(
-                                                      idproject: index.id,
-                                                      namaproject:
-                                                          index.title)));
+                                                  // ManajemenDetailProjectAll(
+                                                  //     idproject: index.id,
+                                                  //     namaproject:
+                                                  //         index.title)
+                                                  ActionTodo()
+                                                          ));
                                     },
                                     child: Container(
                                       margin: EdgeInsets.all(5.0),

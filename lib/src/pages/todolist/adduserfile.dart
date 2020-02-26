@@ -439,7 +439,6 @@ Future<List<List>> listAttachment() async {
         url('api/todo/attachment/$id'),
         headers: requestHeaders,
       );
-      print(index);
 
       if (addpeserta.statusCode == 200) {
         var addpesertaJson = json.decode(addpeserta.body);
@@ -449,7 +448,6 @@ Future<List<List>> listAttachment() async {
             pathname = '';
             isCreate = false;
           });
-          Navigator.pop(context);
           Fluttertoast.showToast(msg: "Berhasil");
           progressApiAction.hide().then((isHidden) {});
         } else if (addpesertaJson['status'] == 'owner') {
