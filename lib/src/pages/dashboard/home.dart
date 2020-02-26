@@ -15,7 +15,9 @@ import 'package:todolist_app/src/storage/storage.dart';
 import 'package:http/http.dart' as http;
 import 'dart:async';
 import '../manajemen_project/detail_project.dart';
+import '../todolist/detail_todo.dart';
 import 'package:todolist_app/src/utils/utils.dart';
+import '../todolist/edit.dart';
 
 final Widget placeholder = Container(color: Colors.grey);
 
@@ -558,8 +560,10 @@ class _HomeState extends State<Home> {
                                         Navigator.push(
                                             context,
                                             MaterialPageRoute(
-                                                builder: (context) => ManajemenDetailTodo(
-                                                      
+                                                builder: (context) =>
+                                                    ManajemenDetailTodo(
+                                                      idtodo: x.id,
+                                                      namatodo: x.title,
                                                     )));
                                       },
                                       child: Container(

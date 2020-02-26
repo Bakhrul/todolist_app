@@ -146,13 +146,12 @@ class _TodoListState extends State<TodoList> {
         "desc": _descController.text.toString(),
         "category": categoriesID.toString(),
         'project': idProjectChoose.toString(),
-        'fileextension' : _dfileName,
-        'attachment': fileImage,
+          'fileextension' :fileImage == null ? 'kosong': _dfileName.toString(),
+          'attachment': fileImage == null ? 'kosong' : fileImage.toString(),
       };
-print(_dfileName);
+      print(body);
       final addadminevent = await http.post(url('api/todo/create'),
           headers: requestHeaders, body: body);
-      print(addadminevent.statusCode);
       if (addadminevent.statusCode == 200) {
         var addpesertaJson = json.decode(addadminevent.body);
         if (addpesertaJson['status'] == 'success') {
@@ -164,16 +163,12 @@ print(_dfileName);
       } else {
         print(addadminevent.body);
         progressApiAction.hide().then((isHidden) {});
-        Fluttertoast.showToast(msg: "Gagal, Silahkan Coba Kembali");
+        Fluttertoast.showToast(msg: "Gagal, Silahkan Coba Kembalis");
       }
     } on TimeoutException catch (_) {
       progressApiAction.hide().then((isHidden) {});
       Fluttertoast.showToast(msg: "Timed out, Try again");
-    } catch (e) {
-      progressApiAction.hide().then((isHidden) {});
-      Fluttertoast.showToast(msg: "Gagal, Silahkan Coba Kembali");
-      print(e);
-    }
+    } 
   }
 
   void dispose() {
@@ -195,6 +190,8 @@ print(_dfileName);
     _descController.text = '';
     categoriesID = null;
     idProjectChoose = null;
+    _dfileName = null;
+    fileImage =null;
     getDataCategory();
     timeSetToMinute();
     super.initState();

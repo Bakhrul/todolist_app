@@ -10,6 +10,7 @@ import 'package:intl/intl.dart';
 import 'package:todolist_app/src/utils/utils.dart';
 import 'package:todolist_app/src/model/Todo.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:todolist_app/src/pages/todolist/detail_todo.dart';
 
 String tokenType, accessToken;
 Map<String, String> requestHeaders = Map();
@@ -423,31 +424,38 @@ class _ManajemenTodoImportantState extends State<ManajemenTodoImportant>
                                                                   (Todo item) =>
                                                                       InkWell(
                                                                         onTap:
-                                                                            () async {},
+                                                                            () async {
+                                                                          Navigator.push(
+                                                                              context,
+                                                                              MaterialPageRoute(
+                                                                                  builder: (context) => ManajemenDetailTodo(
+                                                                                        idtodo: item.id,
+                                                                                        namatodo: item.title,
+                                                                                      )));
+                                                                        },
                                                                         child:
                                                                             Container(
                                                                           child: Card(
                                                                               elevation: 0.5,
-                                                                            margin: EdgeInsets.only(top:5.0,bottom:5.0,left:0.0,right:0.0),
+                                                                              margin: EdgeInsets.only(top: 5.0, bottom: 5.0, left: 0.0, right: 0.0),
                                                                               child: ListTile(
                                                                                 leading: ClipRRect(
-                                                                                    borderRadius: BorderRadius.circular(100.0),
-                                                                                    child: Container(
-                                                                                        height: 40.0,
-                                                                                        alignment: Alignment.center,
-                                                                                        width: 40.0,
-                                                                                        decoration: BoxDecoration(
-                                                                                          border: Border.all(color: Colors.white, width: 2.0),
-                                                                                          borderRadius: BorderRadius.all(Radius.circular(100.0) //                 <--- border radius here
-                                                                                              ),
-                                                                                          color: primaryAppBarColor,
-                                                                                        ),
-                                                                                        child: Text(
-                                                                                          '${item.title[0].toUpperCase()}',
-                                                                                          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                                                                                        )),
-                                                                                  ),
-                                                                                
+                                                                                  borderRadius: BorderRadius.circular(100.0),
+                                                                                  child: Container(
+                                                                                      height: 40.0,
+                                                                                      alignment: Alignment.center,
+                                                                                      width: 40.0,
+                                                                                      decoration: BoxDecoration(
+                                                                                        border: Border.all(color: Colors.white, width: 2.0),
+                                                                                        borderRadius: BorderRadius.all(Radius.circular(100.0) //                 <--- border radius here
+                                                                                            ),
+                                                                                        color: primaryAppBarColor,
+                                                                                      ),
+                                                                                      child: Text(
+                                                                                        '${item.title[0].toUpperCase()}',
+                                                                                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                                                                                      )),
+                                                                                ),
                                                                                 trailing: Row(
                                                                                   mainAxisSize: MainAxisSize.min,
                                                                                   children: <Widget>[

@@ -13,6 +13,7 @@ import 'package:todolist_app/src/model/Project.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:progress_dialog/progress_dialog.dart';
 import 'create_todo.dart';
+import 'edit_todo.dart';
 
 String tokenType, accessToken;
 var datepickerfirst, datepickerlast;
@@ -191,6 +192,8 @@ class _ChooseProjectAvailableState extends State<ChooseProjectAvailable>
           setState(() {
             idProjectChoose = idProject;
             namaProjectChoose = _controllerNamaProject.text;
+            idProjectEditChoose = idProject;
+            namaProjectEditChoose = _controllerNamaProject.text;
           });
           Navigator.pop(context);
         }
@@ -409,6 +412,11 @@ class _ChooseProjectAvailableState extends State<ChooseProjectAvailable>
                                                                               .toString();
                                                                           namaProjectChoose =
                                                                               item.title;
+                                                                          idProjectEditChoose = item
+                                                                              .id
+                                                                              .toString();
+                                                                          namaProjectEditChoose =
+                                                                              item.title;
                                                                         });
                                                                         Navigator.pop(
                                                                             context);
@@ -425,7 +433,9 @@ class _ChooseProjectAvailableState extends State<ChooseProjectAvailable>
                                                                     subtitle:
                                                                         Text(
                                                                       '${item.start} - ${item.end}',
-                                                                      style: TextStyle(fontSize:12),
+                                                                      style: TextStyle(
+                                                                          fontSize:
+                                                                              12),
                                                                       overflow:
                                                                           TextOverflow
                                                                               .ellipsis,
