@@ -379,9 +379,9 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo> {
                 backgroundColor: primaryAppBarColor,
                 flexibleSpace: FlexibleSpaceBar(
 
-                    // titlePadding: EdgeInsets.only(left: 15.0,bottom: 10.0,top:20.0,right: 15.0),
+                   
                     centerTitle: true,
-                    // titlePadding: EdgeInsets.only(left:40.0,right:40.0),
+                 
                     title: Container(
                       margin:
                           EdgeInsets.only(left: 50.0, right: 50.0, bottom: 0.0),
