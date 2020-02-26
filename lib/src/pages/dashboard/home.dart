@@ -347,11 +347,11 @@ class _HomeState extends State<Home> {
                                           context,
                                           MaterialPageRoute(
                                               builder: (context) =>
-                                                  // ManajemenDetailProjectAll(
-                                                  //     idproject: index.id,
-                                                  //     namaproject:
-                                                  //         index.title)
-                                                  ActionTodo()));
+                                                  ManajemenDetailProjectAll(
+                                                      idproject: index.id,
+                                                      namaproject:
+                                                          index.title)
+                                                          ));
                                     },
                                     child: Container(
                                       margin: EdgeInsets.all(5.0),

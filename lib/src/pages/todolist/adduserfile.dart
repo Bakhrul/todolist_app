@@ -306,6 +306,7 @@ class _AddUserFileTodoState extends State<AddUserFileTodo>
         'todo': widget.idTodo.toString(),
         'user': idpeserta.toString(),
         'role': radioItem.toString(),
+        'own': 'T'
       });
 
       if (addpeserta.statusCode == 200) {
