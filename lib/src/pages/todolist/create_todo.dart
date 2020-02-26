@@ -24,6 +24,7 @@ bool isLoading, isError;
 String idProjectChoose;
 String namaProjectChoose;
 String isAllday = "Pilih Tanggal";
+
 class TodoList extends StatefulWidget {
   @override
   _TodoListState createState() => _TodoListState();
@@ -32,7 +33,9 @@ class TodoList extends StatefulWidget {
 class _TodoListState extends State<TodoList> {
   ProgressDialog progressApiAction;
   final _formKey = GlobalKey<FormState>();
-  final format = isAllday != 'AllDay' ?  DateFormat("dd-MM-yyyy HH:mm:ss") :DateFormat("dd-MM-yyyy") ;
+  final format = isAllday != 'AllDay'
+      ? DateFormat("dd-MM-yyyy HH:mm:ss")
+      : DateFormat("dd-MM-yyyy");
   DateTime timeReplacement;
   List<Category> listCategory = [];
 
@@ -147,7 +150,6 @@ class _TodoListState extends State<TodoList> {
         "desc": _descController.text.toString(),
         "category": categoriesID.toString(),
         'project': idProjectChoose.toString()
-       
       };
       final addadminevent = await http.post(url('api/todo/create'),
           headers: requestHeaders, body: body);
@@ -156,9 +158,12 @@ class _TodoListState extends State<TodoList> {
         var addpesertaJson = json.decode(addadminevent.body);
         if (addpesertaJson['status'] == 'success') {
           Fluttertoast.showToast(msg: "Berhasil !");
-         var idTodo  = addpesertaJson['data'];
+          var idTodo = addpesertaJson['data'];
           progressApiAction.hide().then((isHidden) {});
-          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => AddUserFileTodo(idTodo: idTodo) ));
+          Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => AddUserFileTodo(idTodo: idTodo)));
           setState(() {});
         }
       } else {
@@ -169,7 +174,7 @@ class _TodoListState extends State<TodoList> {
     } on TimeoutException catch (_) {
       progressApiAction.hide().then((isHidden) {});
       Fluttertoast.showToast(msg: "Timed out, Try again");
-    } 
+    }
   }
 
   void dispose() {
@@ -192,7 +197,7 @@ class _TodoListState extends State<TodoList> {
     categoriesID = null;
     idProjectChoose = null;
     _dfileName = null;
-    fileImage =null;
+    fileImage = null;
     getDataCategory();
     timeSetToMinute();
     super.initState();
@@ -212,8 +217,7 @@ class _TodoListState extends State<TodoList> {
         messageTextStyle: TextStyle(
             color: Colors.black, fontSize: 12.0, fontWeight: FontWeight.w600));
     return Scaffold(
-      backgroundColor:
-          isError == true ? Colors.white : Colors.white ,
+      backgroundColor: isError == true ? Colors.white : Colors.white,
       appBar: AppBar(
         backgroundColor: primaryAppBarColor,
         title: Text(
@@ -307,16 +311,6 @@ class _TodoListState extends State<TodoList> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: <Widget>[
                                 Container(
-                                  margin: EdgeInsets.only(bottom: 10.0),
-                                  // child: Text(
-                                  //   'Tambah To Do',
-                                  //   style:
-                                  //       TextStyle(fontWeight: FontWeight.w500),
-                                  // ),
-                                ),
-                                Divider(),
-                              
-                                Container(
                                     alignment: Alignment.center,
                                     height: 45.0,
                                     margin: EdgeInsets.only(
@@ -334,24 +328,57 @@ class _TodoListState extends State<TodoList> {
                                     )),
                                 Container(
                                   width: double.infinity,
-                                  
-                                    height: 45.0,
-                                  child: new DropdownButton<String>(
-                                    hint: Text(isAllday),
+                                  margin: EdgeInsets.only(bottom: 10.0),
+                                  decoration: BoxDecoration(
+                                      border: Border.all(color: Colors.black45),
+                                      borderRadius: BorderRadius.all(
+                                          Radius.circular(5.0))),
+                                  height: 45.0,
+                                  child: new DropdownButtonFormField<String>(
+                                    hint: Padding(
+                                      padding:
+                                          const EdgeInsets.only(left: 10.0),
+                                      child: Text(
+                                        isAllday,
+                                        style: TextStyle(
+                                          color: Colors.black,
+                                          fontWeight: FontWeight.w400,
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                    ),
+                                    decoration: InputDecoration(
+                                        enabledBorder: UnderlineInputBorder(
+                                            borderSide: BorderSide(
+                                                color: Colors.white))),
                                     isExpanded: true,
-                                  items: <String>['AllDay', 'Not AllDAy'].map((String value) {
-                                    return new DropdownMenuItem<String>(
-                                      value: value,
-                                      child: new Text(value),
-                                    );
-                                  }).toList(),
-                                  onChanged: (val) {
-                                    print(val);
-                                    setState(() {
-                                      isAllday = val;
-                                    });
-                                  },
-                                ),
+                                    items: <String>['AllDay', 'Not AllDAy']
+                                        .map((String value) {
+                                      return new DropdownMenuItem<String>(
+                                        value: value,
+                                        child: Padding(
+                                          padding:
+                                              const EdgeInsets.only(left: 10.0),
+                                          child: new Text(
+                                            value,
+                                            style: TextStyle(
+                                              color: Colors.black,
+                                              fontWeight: FontWeight.w400,
+                                              fontSize: 14,
+                                            ),
+                                          ),
+                                        ),
+                                      );
+                                    }).toList(),
+                                    onChanged: (val) {
+                                      print(val);
+                                      setState(() {
+                                        isAllday = val;
+                                        _dateStartController.text = '';
+                                        _dateEndController.text = '';
+                                      });
+                                    },
+                                  ),
                                 ),
                                 Container(
                                     alignment: Alignment.center,
@@ -359,7 +386,9 @@ class _TodoListState extends State<TodoList> {
                                     margin: EdgeInsets.only(bottom: 10.0),
                                     child: DateTimeField(
                                       controller: _dateStartController,
-                                      format: isAllday != 'AllDay' ?  DateFormat("dd-MM-yyyy HH:mm:ss") :DateFormat("dd-MM-yyyy "),
+                                      format: isAllday != 'AllDay'
+                                          ? DateFormat("dd-MM-yyyy HH:mm:ss")
+                                          : DateFormat("dd-MM-yyyy "),
                                       readOnly: true,
                                       decoration: InputDecoration(
                                         contentPadding: EdgeInsets.only(
@@ -379,42 +408,42 @@ class _TodoListState extends State<TodoList> {
                                             firstDate: DateTime.now(),
                                             initialDate: DateTime.now(),
                                             lastDate: DateTime(2100));
-                                        if (date != null ) {
-                                          if(isAllday != "AllDay"){
+                                        if (date != null) {
+                                          if (isAllday != "AllDay") {
                                             final times = await showTimePicker(
-                                            context: context,
-                                            initialTime: TimeOfDay.fromDateTime(
-                                                currentValue ??
-                                                    timeReplacement),
-                                          );
-                                          return DateTimeField.combine(
-                                              date, times);
-
+                                              context: context,
+                                              initialTime:
+                                                  TimeOfDay.fromDateTime(
+                                                      currentValue ??
+                                                          timeReplacement),
+                                            );
+                                            return DateTimeField.combine(
+                                                date, times);
                                           } else {
-                                          final time = TimeOfDay.fromDateTime(timeReplacement);
-                                          return DateTimeField.combine(
-                                              date, time);
-                                        }
-                                        }else{
+                                            final time = TimeOfDay.fromDateTime(
+                                                timeReplacement);
+                                            return DateTimeField.combine(
+                                                date, time);
+                                          }
+                                        } else {
                                           return currentValue;
                                         }
                                       },
                                       onChanged: (ini) {
                                         setState(() {
-                                          // print(_dateStartController.text.tostring());
-                                            // print(DateFormat("yyyy-MM-dd HH:mm:ss").format(DateTime.parse(_dateStartController.text)).toString());
-
                                           _dateEndController.text = '';
                                         });
                                       },
                                     )),
-                                    Container(
+                                Container(
                                     alignment: Alignment.center,
                                     height: 45.0,
                                     margin: EdgeInsets.only(bottom: 10.0),
                                     child: DateTimeField(
                                       controller: _dateEndController,
-                                      format: isAllday != 'AllDay' ?  DateFormat("dd-MM-yyyy HH:mm:ss") :DateFormat("dd-MM-yyyy "),
+                                      format: isAllday != 'AllDay'
+                                          ? DateFormat("dd-MM-yyyy HH:mm:ss")
+                                          : DateFormat("dd-MM-yyyy "),
                                       readOnly: true,
                                       decoration: InputDecoration(
                                         contentPadding: EdgeInsets.only(
@@ -431,32 +460,38 @@ class _TodoListState extends State<TodoList> {
                                           (context, currentValue) async {
                                         final date = await showDatePicker(
                                             context: context,
-                                            firstDate: _dateStartController.text  == '' ? DateTime.now() : DateTime.now(),
-                                            initialDate: _dateStartController.text  == '' ? DateTime.now() : DateTime.now(),
+                                            firstDate:
+                                                _dateStartController.text == ''
+                                                    ? DateTime.now()
+                                                    : DateTime.now(),
+                                            initialDate:
+                                                _dateStartController.text == ''
+                                                    ? DateTime.now()
+                                                    : DateTime.now(),
                                             lastDate: DateTime(2100));
-                                        if (date != null ) {
-                                          if(isAllday != "AllDay"){
+                                        if (date != null) {
+                                          if (isAllday != "AllDay") {
                                             final times = await showTimePicker(
-                                            context: context,
-                                            initialTime: TimeOfDay.fromDateTime(
-                                                currentValue ??
-                                                    timeReplacement),
-                                          );
-                                          return DateTimeField.combine(
-                                              date, times);
-
+                                              context: context,
+                                              initialTime:
+                                                  TimeOfDay.fromDateTime(
+                                                      currentValue ??
+                                                          timeReplacement),
+                                            );
+                                            return DateTimeField.combine(
+                                                date, times);
                                           } else {
-                                          final time = TimeOfDay.fromDateTime(timeReplacement);
-                                          return DateTimeField.combine(
-                                              date, time);
-                                        }
-                                        }else{
+                                            final time = TimeOfDay.fromDateTime(
+                                                timeReplacement);
+                                            return DateTimeField.combine(
+                                                date, time);
+                                          }
+                                        } else {
                                           return currentValue;
                                         }
                                       },
-                                    
                                     )),
-                             
+
                                 InkWell(
                                   onTap: () async {
                                     showCategory();
@@ -667,49 +702,29 @@ class _TodoListState extends State<TodoList> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: (){
-            if (_titleController.text == '') {
+        onPressed: () {
+          if (_titleController.text == '') {
+            Fluttertoast.showToast(msg: "Nama To Do Tidak Boleh Kosong");
+          } else if (categoriesID.toString() == '' || categoriesID == null) {
+            Fluttertoast.showToast(msg: "Kategori Tidak Boleh Kosong");
+          } else if (_dateStartController.text == '') {
+            Fluttertoast.showToast(
+                msg: "Tanggal Dimulainya To Do Tidak Boleh Kosong");
+          } else if (_dateEndController.text == '') {
+            Fluttertoast.showToast(
+                msg: "Tanggal Berakhirnya To Do Tidak Boleh Kosong");
+          } else if (_descController.text == '') {
+            Fluttertoast.showToast(msg: "Deskripsi tidak boleh kosong");
+          } else if (categoriesID.toString() == '1') {
+            if (idProjectChoose == null) {
               Fluttertoast.showToast(
-                  msg:
-                      "Nama To Do Tidak Boleh Kosong");
-            } else if (categoriesID
-                        .toString() ==
-                    '' ||
-                categoriesID == null) {
-              Fluttertoast.showToast(
-                  msg:
-                      "Kategori Tidak Boleh Kosong");
-            } else if (_dateStartController
-                    .text ==
-                '') {
-              Fluttertoast.showToast(
-                  msg:
-                      "Tanggal Dimulainya To Do Tidak Boleh Kosong");
-            } else if (_dateEndController
-                    .text ==
-                '') {
-              Fluttertoast.showToast(
-                  msg:
-                      "Tanggal Berakhirnya To Do Tidak Boleh Kosong");
-            } else if (_descController.text ==
-                '') {
-              Fluttertoast.showToast(
-                  msg:
-                      "Deskripsi tidak boleh kosong");
-            } else if (categoriesID
-                    .toString() ==
-                '1') {
-              if (idProjectChoose == null) {
-                Fluttertoast.showToast(
-                    msg:
-                        "Silahkan Pilih Project Terlebih Dahulu");
-              } else {
-                saveTodo();
-              }
+                  msg: "Silahkan Pilih Project Terlebih Dahulu");
             } else {
               saveTodo();
             }
-                                            
+          } else {
+            saveTodo();
+          }
         },
         backgroundColor: primaryAppBarColor,
         child: Icon(Icons.arrow_forward_ios),
@@ -865,4 +880,3 @@ class _TodoListState extends State<TodoList> {
     }
   }
 }
-

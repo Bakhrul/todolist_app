@@ -351,8 +351,7 @@ class _HomeState extends State<Home> {
                                                   //     idproject: index.id,
                                                   //     namaproject:
                                                   //         index.title)
-                                                  ActionTodo()
-                                                          ));
+                                                  ActionTodo()));
                                     },
                                     child: Container(
                                       margin: EdgeInsets.all(5.0),
@@ -410,11 +409,13 @@ class _HomeState extends State<Home> {
                           },
                         ),
                       ])),
-            Container(
-                margin: EdgeInsets.only(top: 15.0, bottom: 10.0),
-                child: Divider(
-                  color: Colors.grey[300],
-                )),
+            listProject.length == 0
+                ? Container(height: 15.0,)
+                : Container(
+                    margin: EdgeInsets.only(top: 15.0, bottom: 10.0),
+                    child: Divider(
+                      color: Colors.grey[300],
+                    )),
             isLoading == true
                 ? Container(
                     child: SingleChildScrollView(
@@ -564,8 +565,10 @@ class _HomeState extends State<Home> {
                                         Navigator.push(
                                             context,
                                             MaterialPageRoute(
-                                                builder: (context) => ManajemenDetailTodo(
+                                                builder: (context) =>
+                                                    ManajemenDetailTodo(
                                                       idtodo: x.id,
+                                                      namatodo: x.title,
                                                     )));
                                       },
                                       child: Container(
