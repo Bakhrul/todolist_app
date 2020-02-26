@@ -328,7 +328,7 @@ class _TodoListState extends State<TodoList> {
                                           TextAlignVertical.center,
                                       decoration: InputDecoration(
                                           border: OutlineInputBorder(),
-                                          hintText: 'Nama To Do',
+                                          hintText: 'Judul To Do',
                                           hintStyle: TextStyle(
                                               fontSize: 12,
                                               color: Colors.black)),
@@ -673,7 +673,7 @@ class _TodoListState extends State<TodoList> {
             if (_titleController.text == '') {
               Fluttertoast.showToast(
                   msg:
-                      "Nama To Do Tidak Boleh Kosong");
+                      "Judul To Do Tidak Boleh Kosong");
             } else if (categoriesID
                         .toString() ==
                     '' ||

@@ -304,6 +304,7 @@ Future<List<List>> listAttachment() async {
         'todo': widget.idTodo.toString(),
         'user': idpeserta.toString(),
         'role': radioItem.toString(),
+        'own': 'T'
       });
 
       if (addpeserta.statusCode == 200) {
