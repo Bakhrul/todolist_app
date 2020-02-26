@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
+import 'package:todolist_app/src/pages/todolist/adduserfile.dart';
 import 'package:todolist_app/src/utils/utils.dart';
 import 'package:todolist_app/src/models/category.dart';
 import 'package:todolist_app/src/routes/env.dart';
@@ -145,20 +146,19 @@ class _TodoListState extends State<TodoList> {
         "planend": _dateEndController.text.toString(),
         "desc": _descController.text.toString(),
         "category": categoriesID.toString(),
-        'project': idProjectChoose.toString(),
-        'fileextension' : _dfileName,
-        'attachment': fileImage,
+        'project': idProjectChoose.toString()
+       
       };
-print(_dfileName);
       final addadminevent = await http.post(url('api/todo/create'),
           headers: requestHeaders, body: body);
-      print(addadminevent.statusCode);
+      print(addadminevent);
       if (addadminevent.statusCode == 200) {
         var addpesertaJson = json.decode(addadminevent.body);
         if (addpesertaJson['status'] == 'success') {
           Fluttertoast.showToast(msg: "Berhasil !");
+         var idTodo  = addpesertaJson['data'];
           progressApiAction.hide().then((isHidden) {});
-          Navigator.pushReplacementNamed(context, '/dashboard');
+          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => AddUserFileTodo(idTodo: idTodo) ));
           setState(() {});
         }
       } else {
@@ -215,7 +215,7 @@ print(_dfileName);
             color: Colors.black, fontSize: 12.0, fontWeight: FontWeight.w600));
     return Scaffold(
       backgroundColor:
-          isError == true ? Colors.white : Color.fromRGBO(242, 242, 242, 1),
+          isError == true ? Colors.white : Colors.white ,
       appBar: AppBar(
         backgroundColor: primaryAppBarColor,
         title: Text(
@@ -524,109 +524,166 @@ print(_dfileName);
                                               fontSize: 12,
                                               color: Colors.black)),
                                     )),
-                                Container(
-                                    margin: EdgeInsets.only(
-                                        bottom: 10.0, top: 10.0),
-                                    child: Text("Tambah Attachment",
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.bold))),
-                                Container(
-                                    width: double.infinity,
-                                    margin: EdgeInsets.only(
-                                      bottom: 10.0,
-                                    ),
-                                    child: FlatButton(
-                                      onPressed: () => _openFileExplorer(),
-                                      child: SizedBox(
-                                        width: double.infinity,
-                                        child: Text(
-                                          'Pilih File',
-                                          textAlign: TextAlign.left,
-                                        ),
-                                      ),
-                                    )),
-                                         new Builder(
-                  builder: (BuildContext context) => 
-                  // _loadingPath
-                  //     ? Padding(
-                  //         padding: const EdgeInsets.only(bottom: 10.0),
-                  //         child: const CircularProgressIndicator())
-                  //     : 
-                  _dfileName != null 
-                          ?
-                           new Container(
-                              // padding: const EdgeInsets.only(bottom: 10.0),
-                              // height: MediaQuery.of(context).size.height / 4,
-                              child: Text(_dfileName != null ? _dfileName : '..'),
-                            )
-                          : new Container(),
-                                         ),
-
-                                Center(
-                                    child: Container(
-                                        margin: EdgeInsets.only(top: 10.0),
-                                        width: double.infinity,
-                                        height: 40.0,
-                                        child: RaisedButton(
-                                            onPressed: () async {
-                                              if (_titleController.text == '') {
-                                                Fluttertoast.showToast(
-                                                    msg:
-                                                        "Nama To Do Tidak Boleh Kosong");
-                                              } else if (categoriesID
-                                                          .toString() ==
-                                                      '' ||
-                                                  categoriesID == null) {
-                                                Fluttertoast.showToast(
-                                                    msg:
-                                                        "Kategori Tidak Boleh Kosong");
-                                              } else if (_dateStartController
-                                                      .text ==
-                                                  '') {
-                                                Fluttertoast.showToast(
-                                                    msg:
-                                                        "Tanggal Dimulainya To Do Tidak Boleh Kosong");
-                                              } else if (_dateEndController
-                                                      .text ==
-                                                  '') {
-                                                Fluttertoast.showToast(
-                                                    msg:
-                                                        "Tanggal Berakhirnya To Do Tidak Boleh Kosong");
-                                              } else if (_descController.text ==
-                                                  '') {
-                                                Fluttertoast.showToast(
-                                                    msg:
-                                                        "Deskripsi tidak boleh kosong");
-                                              } else if (categoriesID
-                                                      .toString() ==
-                                                  '1') {
-                                                if (idProjectChoose == null) {
-                                                  Fluttertoast.showToast(
-                                                      msg:
-                                                          "Silahkan Pilih Project Terlebih Dahulu");
-                                                } else {
-                                                  saveTodo();
-                                                }
-                                              } else {
-                                                saveTodo();
-                                              }
-                                            },
-                                            color: primaryAppBarColor,
-                                            textColor: Colors.white,
-                                            disabledColor: Color.fromRGBO(
-                                                254, 86, 14, 0.7),
-                                            disabledTextColor: Colors.white,
-                                            splashColor: Colors.blueAccent,
-                                            child: Text("Tambahkan To Do",
-                                                style: TextStyle(
-                                                    fontSize: 12,
-                                                    color: Colors.white)))))
+                                // Container(
+                                //     margin: EdgeInsets.only(
+                                //         bottom: 10.0, top: 10.0),
+                                //     child: FlatButton(
+                                //       onPressed: () {
+                                //         Navigator.push(
+                                //             context,
+                                //             MaterialPageRoute(
+                                //                 builder: (context) =>
+                                //                     AddUserFileTodo()));
+                                //       },
+                                //       child: Text("Tambah Attachment",
+                                //           style: TextStyle(
+                                //               fontWeight: FontWeight.bold)),
+                                //     )),
+                                // Container(
+                                //     width: double.infinity,
+                                //     margin: EdgeInsets.only(
+                                //       bottom: 10.0,
+                                //     ),
+                                //     child: FlatButton(
+                                //       onPressed: () => _openFileExplorer(),
+                                //       child: SizedBox(
+                                //         width: double.infinity,
+                                //         child: Text(
+                                //           'Pilih File',
+                                //           textAlign: TextAlign.left,
+                                //         ),
+                                //       ),
+                                //     )),
+                                // new Builder(
+                                //   builder: (BuildContext context) =>
+                                //       // _loadingPath
+                                //       //     ? Padding(
+                                //       //         padding: const EdgeInsets.only(bottom: 10.0),
+                                //       //         child: const CircularProgressIndicator())
+                                //       //     :
+                                //       _dfileName != null
+                                //           ? new Container(
+                                //               // padding: const EdgeInsets.only(bottom: 10.0),
+                                //               // height: MediaQuery.of(context).size.height / 4,
+                                //               child: Text(_dfileName != null
+                                //                   ? _dfileName
+                                //                   : '..'),
+                                //             )
+                                //           : new Container(),
+                                // ),
+                                // Center(
+                                //     child: Container(
+                                //         margin: EdgeInsets.only(top: 10.0),
+                                //         width: double.infinity,
+                                //         height: 40.0,
+                                //         child: RaisedButton(
+                                //             onPressed: () async {
+                                //               if (_titleController.text == '') {
+                                //                 Fluttertoast.showToast(
+                                //                     msg:
+                                //                         "Nama To Do Tidak Boleh Kosong");
+                                //               } else if (categoriesID
+                                //                           .toString() ==
+                                //                       '' ||
+                                //                   categoriesID == null) {
+                                //                 Fluttertoast.showToast(
+                                //                     msg:
+                                //                         "Kategori Tidak Boleh Kosong");
+                                //               } else if (_dateStartController
+                                //                       .text ==
+                                //                   '') {
+                                //                 Fluttertoast.showToast(
+                                //                     msg:
+                                //                         "Tanggal Dimulainya To Do Tidak Boleh Kosong");
+                                //               } else if (_dateEndController
+                                //                       .text ==
+                                //                   '') {
+                                //                 Fluttertoast.showToast(
+                                //                     msg:
+                                //                         "Tanggal Berakhirnya To Do Tidak Boleh Kosong");
+                                //               } else if (_descController.text ==
+                                //                   '') {
+                                //                 Fluttertoast.showToast(
+                                //                     msg:
+                                //                         "Deskripsi tidak boleh kosong");
+                                //               } else if (categoriesID
+                                //                       .toString() ==
+                                //                   '1') {
+                                //                 if (idProjectChoose == null) {
+                                //                   Fluttertoast.showToast(
+                                //                       msg:
+                                //                           "Silahkan Pilih Project Terlebih Dahulu");
+                                //                 } else {
+                                //                   saveTodo();
+                                //                 }
+                                //               } else {
+                                //                 saveTodo();
+                                //               }
+                                //             },
+                                //             color: primaryAppBarColor,
+                                //             textColor: Colors.white,
+                                //             disabledColor: Color.fromRGBO(
+                                //                 254, 86, 14, 0.7),
+                                //             disabledTextColor: Colors.white,
+                                //             splashColor: Colors.blueAccent,
+                                //             child: Text("Tambahkan To Do",
+                                //                 style: TextStyle(
+                                //                     fontSize: 12,
+                                //                     color: Colors.white)))))
                               ],
                             )),
               ],
             ),
           ),
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: (){
+            if (_titleController.text == '') {
+              Fluttertoast.showToast(
+                  msg:
+                      "Nama To Do Tidak Boleh Kosong");
+            } else if (categoriesID
+                        .toString() ==
+                    '' ||
+                categoriesID == null) {
+              Fluttertoast.showToast(
+                  msg:
+                      "Kategori Tidak Boleh Kosong");
+            } else if (_dateStartController
+                    .text ==
+                '') {
+              Fluttertoast.showToast(
+                  msg:
+                      "Tanggal Dimulainya To Do Tidak Boleh Kosong");
+            } else if (_dateEndController
+                    .text ==
+                '') {
+              Fluttertoast.showToast(
+                  msg:
+                      "Tanggal Berakhirnya To Do Tidak Boleh Kosong");
+            } else if (_descController.text ==
+                '') {
+              Fluttertoast.showToast(
+                  msg:
+                      "Deskripsi tidak boleh kosong");
+            } else if (categoriesID
+                    .toString() ==
+                '1') {
+              if (idProjectChoose == null) {
+                Fluttertoast.showToast(
+                    msg:
+                        "Silahkan Pilih Project Terlebih Dahulu");
+              } else {
+                saveTodo();
+              }
+            } else {
+              saveTodo();
+            }
+                                            
+        },
+        backgroundColor: primaryAppBarColor,
+        child: Icon(Icons.arrow_forward_ios),
       ),
     );
   }
@@ -750,23 +807,22 @@ print(_dfileName);
           ),
         )));
   }
-    void _openFileExplorer() async {
+
+  void _openFileExplorer() async {
     if (_pickingType != FileType.CUSTOM || _hasValidMime) {
       setState(() => _loadingPath = true);
       try {
-          
-          //  _path = await FilePicker. getFilePath(
-          //     type: _pickingType, fileExtension: _extension,);
-              File file = await FilePicker.getFile(type: FileType.ANY);
-              setState(() {
-              _dfileName = file.toString();
-             fileImage = base64Encode(file.readAsBytesSync());
-             _loadingPath = false;
-                
-              });
-              // print("Extensi");
-              // print(file.toString().split('/').last);
-        
+        //  _path = await FilePicker. getFilePath(
+        //     type: _pickingType, fileExtension: _extension,);
+        File file = await FilePicker.getFile(type: FileType.ANY);
+        setState(() {
+          _dfileName = file.toString();
+          fileImage = base64Encode(file.readAsBytesSync());
+          _loadingPath = false;
+        });
+        // print("Extensi");
+        // print(file.toString().split('/').last);
+
       } on PlatformException catch (e) {
         print("Unsupported operation" + e.toString());
       }
@@ -780,3 +836,4 @@ print(_dfileName);
     }
   }
 }
+

@@ -1,3 +1,4 @@
+import 'package:todolist_app/src/pages/todolist/edit.dart';
 import 'package:todolist_app/src/routes/env.dart';
 import 'package:todolist_app/src/storage/storage.dart';
 import 'package:todolist_app/src/utils/utils.dart';
@@ -365,12 +366,12 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo> {
                     ),
                     tooltip: 'Edit Data Project',
                     onPressed: () async {
-                      // Navigator.push(
-                      //     context,
-                      //     MaterialPageRoute(
-                      //         builder: (context) => DetailProject(
-                      //             idproject: widget.idproject,
-                      //             namaproject: widget.namaproject)));
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => EditTodo(
+                                  idTodo: widget.idtodo,
+                                  )));
                     },
                   ),
                 ],
