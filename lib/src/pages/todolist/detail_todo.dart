@@ -173,7 +173,7 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
               activity: t['tlt_activity'],
               progress: t['tlt_progress'].toString(),
               note: t['tlt_note'],
-              updateat: DateFormat("dd MMMM yyyy HH:mm:ss")
+              updateat: DateFormat("dd MMMM yyyy")
                   .format(DateTime.parse(t['tlt_created'])));
           todoActivityDetail.add(todo);
         }
@@ -713,23 +713,28 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
                     pinned: true,
                     centerTitle: false,
                     actions: <Widget>[
-                      dataStatusKita == null ? Container() : dataStatusKita['tlr_role'] == 1 || dataStatusKita['tlr_role'] == 2 ?
-                      IconButton(
-                        icon: const Icon(
-                          Icons.edit,
-                          size: 16,
-                          color: Colors.white,
-                        ),
-                        tooltip: 'Edit Data Todo',
-                        onPressed: () async {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => ManajemenEditTodo(
-                                        idTodo: widget.idtodo,
-                                      )));
-                        },
-                      ) : Container(),
+                      dataStatusKita == null
+                          ? Container()
+                          : dataStatusKita['tlr_role'] == 1 ||
+                                  dataStatusKita['tlr_role'] == 2
+                              ? IconButton(
+                                  icon: const Icon(
+                                    Icons.edit,
+                                    size: 16,
+                                    color: Colors.white,
+                                  ),
+                                  tooltip: 'Edit Data Todo',
+                                  onPressed: () async {
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                ManajemenEditTodo(
+                                                  idTodo: widget.idtodo,
+                                                )));
+                                  },
+                                )
+                              : Container(),
                     ],
                     // automaticallyImplyLeading: false,
                     backgroundColor: primaryAppBarColor,
@@ -1468,7 +1473,11 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
                           children: <Widget>[
                             isLoadingTodoAll == true
                                 ? widgetLoadingTodo()
-                                : dataTodoAction(),
+                                : isErrorTodoAll == true
+                                    ? errorSystem(context)
+                                    : listTodoAction.length == 0
+                                        ? emptyTodoAction()
+                                        : dataTodoAction(),
                           ],
                         ),
                       )),
@@ -1482,7 +1491,11 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
                           children: <Widget>[
                             isLoadingTodoAll == true
                                 ? widgetLoadingTodo()
-                                : dataTodoReady(),
+                                : isErrorTodoAll == true
+                                    ? errorSystem(context)
+                                    : listTodoReady.length == 0
+                                        ? emptyTodoAction()
+                                        : dataTodoReady(),
                           ],
                         ),
                       )),
@@ -1496,7 +1509,11 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
                           children: <Widget>[
                             isLoadingTodoAll == true
                                 ? widgetLoadingTodo()
-                                : dataTodoNormal(),
+                                : isErrorTodoAll == true
+                                    ? errorSystem(context)
+                                    : listTodoNormal.length == 0
+                                        ? emptyTodoAction()
+                                        : dataTodoNormal(),
                           ],
                         ),
                       )),
@@ -1510,18 +1527,22 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
                           children: <Widget>[
                             isLoadingTodoAll == true
                                 ? widgetLoadingTodo()
-                                : dataTodoDone(),
+                                : isErrorTodoAll == true
+                                    ? errorSystem(context)
+                                    : listTodoDone.length == 0
+                                        ? emptyTodoAction()
+                                        : dataTodoDone(),
                           ],
                         ),
                       )),
                 ),
               ]))),
       floatingActionButton: _bottomButtons(),
-      bottomNavigationBar: _bottomvaigation(),
+      bottomNavigationBar: bottomvaigation(),
     );
   }
 
-  Widget _bottomvaigation() {
+  Widget bottomvaigation() {
     if (_tabController.index != 0) {
       return null;
     } else if (dataTodo == null) {
@@ -1708,6 +1729,7 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
                 ],
               )));
     }
+    return null;
   }
 
   Widget _bottomButtons() {
@@ -2567,7 +2589,17 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
                   disabledTextColor: Colors.black,
                   padding: EdgeInsets.all(15.0),
                   onPressed: () async {
-                    getHeaderHTTP();
+                    if (_tabController.index == 0) {
+                      getHeaderHTTP();
+                    } else if (_tabController.index == 1) {
+                      listTodoActionData();
+                    } else if (_tabController.index == 2) {
+                      listTodoReadyData();
+                    } else if (_tabController.index == 3) {
+                      listTodoNormalData();
+                    } else if (_tabController.index == 4) {
+                      listTodoDoneData();
+                    }
                   },
                   child: Text(
                     "Muat Ulang Halaman",
@@ -2763,6 +2795,37 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
             ))),
       ],
     ));
+  }
+
+  Widget emptyTodoAction() {
+    return Container(
+      padding: const EdgeInsets.only(top: 20.0),
+      child: Column(children: <Widget>[
+        new Container(
+          width: 100.0,
+          height: 100.0,
+          child: Image.asset("images/empty-white-box.png"),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(
+            top: 20.0,
+            left: 15.0,
+            right: 15.0,
+          ),
+          child: Center(
+            child: Text(
+              "Anda Tidak Memiliki To Do Action Pada To Do Ini",
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.black45,
+                height: 1.5,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ),
+      ]),
+    );
   }
 }
 

@@ -506,7 +506,7 @@ class _ManajemenTodoImportantState extends State<ManajemenTodoImportant>
                                                                                   style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
                                                                                 ),
                                                                                 subtitle: Text(
-                                                                                  DateFormat('d/M/y HH:mm:ss').format(DateTime.parse("${item.timestart}")).toString() + ' - ' + DateFormat('d/M/y H:mm:ss').format(DateTime.parse("${item.timeend}")).toString(),
+                                                                                  DateFormat('dd/MM/yyyy HH:mm:ss').format(DateTime.parse("${item.timestart}")).toString() + ' - ' + DateFormat('dd/MM/yyyy H:mm:ss').format(DateTime.parse("${item.timeend}")).toString(),
                                                                                   overflow: TextOverflow.ellipsis,
                                                                                   maxLines: 1,
                                                                                   softWrap: true,

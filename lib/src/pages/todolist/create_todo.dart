@@ -33,7 +33,7 @@ class TodoList extends StatefulWidget {
 class _TodoListState extends State<TodoList> {
   ProgressDialog progressApiAction;
   final _formKey = GlobalKey<FormState>();
-  
+
   DateTime timeReplacement;
   List<Category> listCategory = [];
 
@@ -325,22 +325,27 @@ class _TodoListState extends State<TodoList> {
                                               color: Colors.black)),
                                       controller: _titleController,
                                     )),
-                                    Text("Pelaksanaan Kegiatan"),
+                                Text("Pelaksanaan Kegiatan"),
                                 Row(
                                   children: <Widget>[
                                     Container(
-                                      child: Checkbox(
-                                        value: isAllday,
-                                        // checkColor: Colors.green,
-                                        activeColor: Colors.green,
-                                        onChanged: (bool value) {
-                                          setState(() {
-                                          isAllday = value;
-                                          _dateStartController.text = '';
-                                          _dateEndController.text = '';
-                                        });
-                                        }, 
-                                        
+                                      margin: EdgeInsets.only(top:10.0,bottom:10.0),
+                                      child: SizedBox(
+                                        height: 24.0,
+                                        width: 24.0,
+                                        child: Checkbox(
+                                          value: isAllday,
+
+                                          // checkColor: Colors.green,
+                                          activeColor: primaryAppBarColor,
+                                          onChanged: (bool value) {
+                                            setState(() {
+                                              isAllday = value;
+                                              _dateStartController.text = '';
+                                              _dateEndController.text = '';
+                                            });
+                                          },
+                                        ),
                                       ),
                                     ),
                                     Text("All Day")
@@ -401,8 +406,7 @@ class _TodoListState extends State<TodoList> {
                                         });
                                       },
                                     )),
-                                    
-                              
+
                                 Container(
                                     alignment: Alignment.center,
                                     height: 45.0,
@@ -426,10 +430,12 @@ class _TodoListState extends State<TodoList> {
                                       ),
                                       onShowPicker:
                                           (context, currentValue) async {
-                                            DateFormat inputFormat = DateFormat("dd-MM-yyyy");
-                                            DateTime dateTime = inputFormat.parse("${_dateStartController.text}");
+                                        DateFormat inputFormat =
+                                            DateFormat("dd-MM-yyyy");
+                                        DateTime dateTime = inputFormat.parse(
+                                            "${_dateStartController.text}");
 
-                                            print(dateTime);
+                                        print(dateTime);
                                         final date = await showDatePicker(
                                             context: context,
                                             firstDate:
@@ -462,8 +468,7 @@ class _TodoListState extends State<TodoList> {
                                           return currentValue;
                                         }
                                       },
-                                    )) ,
-                                    
+                                    )),
 
                                 InkWell(
                                   onTap: () async {

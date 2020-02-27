@@ -795,69 +795,105 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
                                                       controller:
                                                           _titleController,
                                                     )),
-                                                Container(
-                                                  height: 45.0,
-                                                  margin: EdgeInsets.only(
-                                                      bottom: 10.0),
-                                                  padding: EdgeInsets.only(
-                                                      left: 10.0, right: 10.0),
-                                                  decoration: BoxDecoration(
-                                                      border: Border.all(
-                                                          color:
-                                                              Colors.black45),
-                                                      borderRadius:
-                                                          BorderRadius.all(
-                                                              Radius.circular(
-                                                                  5.0))),
-                                                  child:
-                                                      DropdownButtonHideUnderline(
-                                                    child:
-                                                        DropdownButton<String>(
-                                                      isExpanded: true,
-                                                      items: [
-                                                        DropdownMenuItem<
-                                                            String>(
-                                                          child: Text(
-                                                            'All Day',
-                                                            style: TextStyle(
-                                                              fontSize: 12,
-                                                            ),
-                                                          ),
-                                                          value: '1',
+                                                // Container(
+                                                //   height: 45.0,
+                                                //   margin: EdgeInsets.only(
+                                                //       bottom: 10.0),
+                                                //   padding: EdgeInsets.only(
+                                                //       left: 10.0, right: 10.0),
+                                                //   decoration: BoxDecoration(
+                                                //       border: Border.all(
+                                                //           color:
+                                                //               Colors.black45),
+                                                //       borderRadius:
+                                                //           BorderRadius.all(
+                                                //               Radius.circular(
+                                                //                   5.0))),
+                                                //   child:
+                                                //       DropdownButtonHideUnderline(
+                                                //     child:
+                                                //         DropdownButton<String>(
+                                                //       isExpanded: true,
+                                                //       items: [
+                                                //         DropdownMenuItem<
+                                                //             String>(
+                                                //           child: Text(
+                                                //             'All Day',
+                                                //             style: TextStyle(
+                                                //               fontSize: 12,
+                                                //             ),
+                                                //           ),
+                                                //           value: '1',
+                                                //         ),
+                                                //         DropdownMenuItem<
+                                                //             String>(
+                                                //           child: Text(
+                                                //             'Bukan All Day',
+                                                //             style: TextStyle(
+                                                //               fontSize: 12,
+                                                //             ),
+                                                //           ),
+                                                //           value: '0',
+                                                //         ),
+                                                //       ],
+                                                //       value: _alldayTipe == null
+                                                //           ? null
+                                                //           : _alldayTipe,
+                                                //       onChanged:
+                                                //           (String value) {
+                                                //         setState(() {
+                                                //           _alldayTipe = value;
+                                                //           _dateStartController
+                                                //               .text = '';
+                                                //           _dateEndController
+                                                //               .text = '';
+                                                //         });
+                                                //       },
+                                                //       hint: Text(
+                                                //         'Pilih Tipe Tanggal',
+                                                //         style: TextStyle(
+                                                //             fontSize: 12,
+                                                //             color:
+                                                //                 Colors.black),
+                                                //       ),
+                                                //     ),
+                                                //   ),
+                                                // ),
+                                                Text("Pelaksanaan Kegiatan"),
+                                                Row(
+                                                  children: <Widget>[
+                                                    Container(
+                                                      margin: EdgeInsets.only(top:10.0,bottom:10.0),
+                                                      child: SizedBox(
+                                                        height: 24.0,
+                                                        width: 24.0,
+                                                        child: Checkbox(
+                                                          value:
+                                                              _alldayTipe == '0'
+                                                                  ? false
+                                                                  : true,
+
+                                                          // checkColor: Colors.green,
+                                                          activeColor:
+                                                              primaryAppBarColor,
+                                                          onChanged:
+                                                              (bool value) {
+                                                            setState(() {
+                                                              _alldayTipe =
+                                                                  value == true
+                                                                      ? '1'
+                                                                      : '0';
+                                                              _dateStartController
+                                                                  .text = '';
+                                                              _dateEndController
+                                                                  .text = '';
+                                                            });
+                                                          },
                                                         ),
-                                                        DropdownMenuItem<
-                                                            String>(
-                                                          child: Text(
-                                                            'Bukan All Day',
-                                                            style: TextStyle(
-                                                              fontSize: 12,
-                                                            ),
-                                                          ),
-                                                          value: '0',
-                                                        ),
-                                                      ],
-                                                      value: _alldayTipe == null
-                                                          ? null
-                                                          : _alldayTipe,
-                                                      onChanged:
-                                                          (String value) {
-                                                        setState(() {
-                                                          _alldayTipe = value;
-                                                          _dateStartController
-                                                              .text = '';
-                                                          _dateEndController
-                                                              .text = '';
-                                                        });
-                                                      },
-                                                      hint: Text(
-                                                        'Pilih Tipe Tanggal',
-                                                        style: TextStyle(
-                                                            fontSize: 12,
-                                                            color:
-                                                                Colors.black),
                                                       ),
                                                     ),
-                                                  ),
+                                                    Text("All Day")
+                                                  ],
                                                 ),
                                                 _alldayTipe == '0'
                                                     ? Container(
@@ -1002,15 +1038,28 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
                                                           ),
                                                           onShowPicker: (context,
                                                               currentValue) async {
+                                                            DateFormat
+                                                                inputFormat =
+                                                                DateFormat(
+                                                                    "dd-MM-yyyy");
+                                                            DateTime dateTime =
+                                                                inputFormat.parse(
+                                                                    "${_dateStartController.text}");
                                                             final date = await showDatePicker(
                                                                 context:
                                                                     context,
-                                                                firstDate:
-                                                                    DateTime
-                                                                        .now(),
-                                                                initialDate:
-                                                                    DateTime
-                                                                        .now(),
+                                                                firstDate: _dateStartController
+                                                                            .text ==
+                                                                        ''
+                                                                    ? DateTime
+                                                                        .now()
+                                                                    : dateTime,
+                                                                initialDate: _dateStartController
+                                                                            .text ==
+                                                                        ''
+                                                                    ? DateTime
+                                                                        .now()
+                                                                    : dateTime,
                                                                 lastDate:
                                                                     DateTime(
                                                                         2100));
@@ -1063,15 +1112,28 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
                                                           ),
                                                           onShowPicker: (context,
                                                               currentValue) {
+                                                            DateFormat
+                                                                inputFormat =
+                                                                DateFormat(
+                                                                    "dd-MM-yyyy");
+                                                            DateTime dateTime =
+                                                                inputFormat.parse(
+                                                                    "${_dateStartController.text}");
                                                             return showDatePicker(
                                                                 context:
                                                                     context,
-                                                                firstDate:
-                                                                    DateTime
-                                                                        .now(),
-                                                                initialDate:
-                                                                    DateTime
-                                                                        .now(),
+                                                                firstDate: _dateStartController
+                                                                            .text ==
+                                                                        ''
+                                                                    ? DateTime
+                                                                        .now()
+                                                                    : dateTime,
+                                                                initialDate: _dateStartController
+                                                                            .text ==
+                                                                        ''
+                                                                    ? DateTime
+                                                                        .now()
+                                                                    : dateTime,
                                                                 lastDate:
                                                                     DateTime(
                                                                         2100));
