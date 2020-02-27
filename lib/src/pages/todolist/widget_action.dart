@@ -377,7 +377,7 @@ class _ActionTodoState extends State<ActionTodo> {
                       child: ListTile(
                         leading: Checkbox(
                           activeColor: Colors.green,
-                          value: listTodoAction[index].done == 'false' ? false : true, onChanged: (bool value) { 
+                          value: listTodoAction[index].done == null ? false : true, onChanged: (bool value) { 
                             checkedDone(value,index);
                            },
                         ),
