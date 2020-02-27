@@ -147,7 +147,8 @@ class _TodoListState extends State<TodoList> {
         "planend": _dateEndController.text.toString(),
         "desc": _descController.text.toString(),
         "category": categoriesID.toString(),
-        'project': idProjectChoose.toString()
+        'project': idProjectChoose.toString(),
+        'allday' : isAllday == false ? '0' : '1',
       };
       final addadminevent = await http.post(url('api/todo/create'),
           headers: requestHeaders, body: body);
