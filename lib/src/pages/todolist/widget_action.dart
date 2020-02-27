@@ -26,7 +26,6 @@ class _ActionTodoState extends State<ActionTodo> {
   
   @override
   void initState() {
-    isDone = false;
     getHeaderHTTP();
     super.initState();
   }
@@ -76,16 +75,18 @@ class _ActionTodoState extends State<ActionTodo> {
         var participants = listParticipantToJson;
         print(participants);
         for (var i in participants) {
-          if(i['done'] == null){
-            isDone = false;
-          }else{
-            isDone = true;
-          }
+          // if(i['done'] == null){
+          //   isDone = false;
+          // }else{
+          //   isDone = true;
+          // }
           TodoAction participant = TodoAction(
             id: i['id'],
             title: i['title'].toString(),
-            created: DateTime.parse(i['created']) ,
-            done: isDone.toString()
+            created: DateTime.parse(i['created']),
+            done: i['done'],
+            valid: i['valid']
+
           );
           listTodoAction.add(participant);
         }
@@ -131,15 +132,18 @@ class _ActionTodoState extends State<ActionTodo> {
     try {
       // Fluttertoast.showToast(msg: "Mohon Tunggu Sebentar");
       print(listTodoAction[index].id);
-      final addpeserta = await http
-          .patch(url('api/todo/list/actions/${listTodoAction[index].id}'), headers: requestHeaders, body: {
-          'id': listTodoAction[index].id.toString(),
+      var body = {
+        'id': listTodoAction[index].id.toString(),
         'todo': '10',
         'done':value.toString()
-      });
-    print(addpeserta.statusCode);
+      };
+      final addpeserta = await http
+          .patch(url('api/todo/list/actions/${listTodoAction[index].id}'), headers: requestHeaders, body: body );
+    print(body);
       if (addpeserta.statusCode == 200) {
         var addpesertaJson = json.decode(addpeserta.body);
+    print(addpesertaJson);
+
         if (addpesertaJson['status'] == 'success') {
           // getHeaderHTTP();
           setState(() {
@@ -372,21 +376,21 @@ class _ActionTodoState extends State<ActionTodo> {
                   header: Center(child: Text("Action",style:TextStyle(fontWeight: FontWeight.bold)),),
                   collapsed: Column(
                     children: <Widget>[
-                      for(int index = 0; index < 3; index++)
-                      Card(
-                      child: ListTile(
-                        leading: Checkbox(
-                          activeColor: Colors.green,
-                          value: listTodoAction[index].done == null ? false : true, onChanged: (bool value) { 
-                            checkedDone(value,index);
-                           },
-                        ),
-                        title: 
-                        listTodoAction[index].done == 'true' ?
-                        Text("${listTodoAction[index].title}",  style: TextStyle(decoration:TextDecoration.lineThrough),)
-                        : 
-                        Text("${listTodoAction[index].title}")
-                      ),)
+                      // for(int index = 0; index < 3; index++)
+                      // Card(
+                      // child: ListTile(
+                      //   leading: Checkbox(
+                      //     activeColor: Colors.green,
+                      //     value: listTodoAction[index].done == 'false' ? false : true, onChanged: (bool value) { 
+                      //       checkedDone(value,index);
+                      //      },
+                      //   ),
+                      //   title: 
+                      //   listTodoAction[index].done == 'true' ?
+                      //   Text("${listTodoAction[index].title}",  style: TextStyle(decoration:TextDecoration.lineThrough),)
+                      //   : 
+                      //   Text("${listTodoAction[index].title}")
+                      // ),)
                     ],
                   ),
                   expanded: 
@@ -395,13 +399,13 @@ class _ActionTodoState extends State<ActionTodo> {
                     Card(
                       child: ListTile(
                         leading: Checkbox(
-                          activeColor: Colors.green,
-                          value: listTodoAction[index].done == 'false' ? false : true, onChanged: (bool value) { 
+                          activeColor: listTodoAction[index].done != null && listTodoAction[index].valid != null ? Colors.green : Colors.yellow,
+                          value: listTodoAction[index].done != null ? true : false, onChanged: (bool value) { 
                             checkedDone(value,index);
                            },
                         ),
                         title: 
-                        listTodoAction[index].done == 'true' ?
+                        listTodoAction[index].done != null ?
                         Text("${listTodoAction[index].title}",  style: TextStyle(decoration:TextDecoration.lineThrough),)
                         : 
                         Text("${listTodoAction[index].title}")

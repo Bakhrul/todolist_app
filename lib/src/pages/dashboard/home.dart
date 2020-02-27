@@ -697,12 +697,12 @@ class _HomeState extends State<Home> {
                                                       fontWeight:
                                                           FontWeight.w500)),
                                               subtitle: Text(
-                                                  DateFormat('d/M/y HH:mm:ss')
+                                                  DateFormat('d/MM/y HH:mm:ss')
                                                           .format(DateTime.parse(
                                                               "${x.timestart}"))
                                                           .toString() +
                                                       ' - ' +
-                                                      DateFormat('d/M/y H:mm:ss')
+                                                      DateFormat('d/MM/y H:mm:ss')
                                                           .format(DateTime.parse(
                                                               "${x.timeend}"))
                                                           .toString(),
