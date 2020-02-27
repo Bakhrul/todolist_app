@@ -33,12 +33,13 @@ class _ManajemenTodoImportantState extends State<ManajemenTodoImportant>
   bool actionBackAppBar, iconButtonAppbarColor;
   TextEditingController _searchQuery = TextEditingController();
   List listFilter = [
-    {'index': "1", 'name': "Hari Ini"},
-    {'index': "2", 'name': "Besok"},
-    {'index': "3", 'name': "Lusa"},
-    {'index': "4", 'name': "Minggu Ini"},
-    {'index': "5", 'name': "Bulan Ini"},
-    {'index': "6", 'name': "Belum Selesai"}
+    {'index': "1", 'name': "Belum Selesai"},
+    {'index': "2", 'name': "Hari Ini"},
+    {'index': "3", 'name': "Besok"},
+    {'index': "4", 'name': "Lusa"},
+    {'index': "5", 'name': "Minggu Ini"},
+    {'index': "6", 'name': "Bulan Ini"},
+    {'index': "7", 'name': "Pending"}
   ];
   int currentFilter = 1;
 

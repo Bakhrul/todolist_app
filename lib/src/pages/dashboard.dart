@@ -351,10 +351,13 @@ class _DashboardState extends State<Dashboard> {
                       hintStyle: TextStyle(fontSize: 12, color: Colors.black),
                     ),
                     onShowPicker: (context, currentValue) {
+                       DateFormat inputFormat = DateFormat("dd-MM-yyyy");
+                       DateTime dateTime = inputFormat.parse("${_tanggalawalProjectController.text}");
+
                       return showDatePicker(
-                          firstDate: DateTime(1900),
+                          firstDate: dateTime,
                           context: context,
-                          initialDate: DateTime.now(),
+                          initialDate: dateTime,
                           lastDate: DateTime(2100));
                     },
                     onChanged: (ini) {
