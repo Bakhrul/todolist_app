@@ -9,6 +9,7 @@ import 'dart:async';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'dart:convert';
 import 'package:progress_dialog/progress_dialog.dart';
+import 'package:intl/intl.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:todolist_app/src/model/TodoMember.dart';
 import 'package:todolist_app/src/model/TodoActivity.dart';
@@ -124,6 +125,8 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo> {
             activity: t['tlt_activity'],
             progress: t['tlt_progress'].toString(),
             note: t['tlt_note'],
+            updateat:DateFormat("dd MMMM yyyy HH:mm:ss")
+                    .format(DateTime.parse(t['tlt_created']))
           );
           todoActivityDetail.add(todo);
         }
@@ -424,7 +427,7 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo> {
                       Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => EditTodo(
+                              builder: (context) => ManajemenEditTodo(
                                   idTodo: widget.idtodo,
                                   )));
                     },
@@ -467,15 +470,29 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: <Widget>[
-                              Text(
-                                dataTodo == null
-                                    ? 'Belum ada deskripsi Todo'
-                                    : dataTodo['tl_desc'] == null ||
-                                            dataTodo['tl_desc'] == '' ||
-                                            dataTodo['tl_desc'] == 'null'
-                                        ? 'Belum ada deskripsi Todo'
-                                        : dataTodo['tl_desc'],
-                                style: TextStyle(height: 2),
+                              dataTodo == null ?
+                              Text('Belum Ada Keterangan Tanggal'):
+                              dataTodo['tl_allday'] == 0 ?
+                              Row(children: <Widget>[
+                                Text(DateFormat('dd-MM-yyyy HH:mm:sss').format(DateTime.parse(dataTodo['tl_planstart'])),style: TextStyle(color:Colors.black45,fontWeight: FontWeight.w500,fontSize: 14),),
+                              ],):
+                              Row(
+                                children: <Widget>[
+                                  Text(DateFormat('dd-MM-yyyy').format(DateTime.parse(dataTodo['tl_planstart'])),style: TextStyle(color:Colors.black45,fontWeight: FontWeight.w500,fontSize: 14,),),
+                                ],
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.only(top:10.0),
+                                child: Text(
+                                  dataTodo == null
+                                      ? 'Belum ada deskripsi Todo'
+                                      : dataTodo['tl_desc'] == null ||
+                                              dataTodo['tl_desc'] == '' ||
+                                              dataTodo['tl_desc'] == 'null'
+                                          ? 'Belum ada deskripsi Todo'
+                                          : dataTodo['tl_desc'],
+                                  style: TextStyle(height: 2),
+                                ),
                               ),
                               todoAttachmentDetail.length == 0
                                   ? Container()
@@ -848,7 +865,9 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo> {
                                           ),
                                         ),
                                         Container(height: 15.0),
-                                        Divider(),
+                                        todoActivityDetail.length > 0 ?
+                                        Divider():
+                                        Container(),
                                         Container(height: 15.0),
                                       ],
                                     ),
@@ -866,7 +885,7 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo> {
                                                 CrossAxisAlignment.start,
                                             children: <Widget>[
                                               Container(
-                                                margin: EdgeInsets.only(
+                                                margin: EdgeInsets.only(top:10.0,
                                                     right: 15.0),
                                                 child: Container(
                                                   width: 40.0,
@@ -885,6 +904,7 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo> {
                                                   mainAxisAlignment:
                                                       MainAxisAlignment.start,
                                                   children: <Widget>[
+                                                    Text('${item.updateat}',style: TextStyle(color:Colors.grey,fontSize: 10,),),
                                                     Row(
                                                       children: <Widget>[
                                                         Expanded(

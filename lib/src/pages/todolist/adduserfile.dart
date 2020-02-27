@@ -231,7 +231,8 @@ class _AddUserFileTodoState extends State<AddUserFileTodo>
     }
     return null;
   }
-Future<List<List>> listAttachment() async {
+
+  Future<List<List>> listAttachment() async {
     var storage = new DataStore();
     var tokenTypeStorage = await storage.getDataString('token_type');
     var accessTokenStorage = await storage.getDataString('access_token');
@@ -295,6 +296,7 @@ Future<List<List>> listAttachment() async {
     }
     return null;
   }
+
   void _tambahpeserta(idpeserta) async {
     await progressApiAction.show();
     try {
@@ -372,9 +374,9 @@ Future<List<List>> listAttachment() async {
         'file64': fileImage.toString(),
         'pathname': pathname,
         'filename': filename,
-        'todo': widget.idTodo.toString(),
+        'todolist': widget.idTodo.toString(),
       });
-
+      print(widget.idTodo.toString());
       if (addpeserta.statusCode == 200) {
         var addpesertaJson = json.decode(addpeserta.body);
         if (addpesertaJson['status'] == 'success') {
@@ -567,6 +569,18 @@ Future<List<List>> listAttachment() async {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: primaryAppBarColor,
+        title: Text('Tambah Peserta Dan Document',
+            style: TextStyle(
+              fontSize: 14,
+            )),
+        actions: <Widget>[
+          IconButton(
+            onPressed: () async {
+              Navigator.pop(context);
+            },
+            icon: Icon(Icons.check),
+          )
+        ],
       ),
       body: Container(
         child: Stack(
@@ -738,74 +752,70 @@ Future<List<List>> listAttachment() async {
                                                                         fontWeight:
                                                                             FontWeight
                                                                                 .w500)),
-                                                                trailing: isAccess == false ? Icon(Icons.lock) :
-                                                                    PopupMenuButton<
+                                                                trailing: isAccess ==
+                                                                        false
+                                                                    ? Icon(Icons
+                                                                        .lock)
+                                                                    : PopupMenuButton<
                                                                         PageEnum>(
-                                                                  onSelected:
-                                                                      (PageEnum
-                                                                          value) {
-                                                                    switch (
-                                                                        value) {
-                                                                      case PageEnum
-                                                                          .editPeserta:
-                                                                        dialogAddPermision(
-                                                                            item);
-                                                                        break;
+                                                                        onSelected:
+                                                                            (PageEnum
+                                                                                value) {
+                                                                          switch (
+                                                                              value) {
+                                                                            case PageEnum.editPeserta:
+                                                                              dialogAddPermision(item);
+                                                                              break;
 
-                                                                      case PageEnum
-                                                                          .hapusPeserta:
-                                                                        showDialog(
-                                                                          context:
-                                                                              context,
-                                                                          builder: (BuildContext context) =>
-                                                                              AlertDialog(
-                                                                            title:
-                                                                                Text('Peringatan!'),
-                                                                            content:
-                                                                                Text("Apakah Anda Yakin?"),
-                                                                            actions: <Widget>[
-                                                                              FlatButton(
-                                                                                child: Text('Tidak'),
-                                                                                onPressed: () {
-                                                                                  Navigator.pop(context);
-                                                                                },
-                                                                              ),
-                                                                              FlatButton(
-                                                                                textColor: Colors.green,
-                                                                                child: Text('Ya'),
-                                                                                onPressed: () async {
-                                                                                  setState(() {
-                                                                                    isCreate = true;
-                                                                                  });
-                                                                                  Navigator.pop(context);
-                                                                                  deletePeserta(item);
-                                                                                },
-                                                                              )
-                                                                            ],
+                                                                            case PageEnum.hapusPeserta:
+                                                                              showDialog(
+                                                                                context: context,
+                                                                                builder: (BuildContext context) => AlertDialog(
+                                                                                  title: Text('Peringatan!'),
+                                                                                  content: Text("Apakah Anda Yakin?"),
+                                                                                  actions: <Widget>[
+                                                                                    FlatButton(
+                                                                                      child: Text('Tidak'),
+                                                                                      onPressed: () {
+                                                                                        Navigator.pop(context);
+                                                                                      },
+                                                                                    ),
+                                                                                    FlatButton(
+                                                                                      textColor: Colors.green,
+                                                                                      child: Text('Ya'),
+                                                                                      onPressed: () async {
+                                                                                        setState(() {
+                                                                                          isCreate = true;
+                                                                                        });
+                                                                                        Navigator.pop(context);
+                                                                                        deletePeserta(item);
+                                                                                      },
+                                                                                    )
+                                                                                  ],
+                                                                                ),
+                                                                              );
+
+                                                                              break;
+                                                                            default:
+                                                                          }
+                                                                        },
+                                                                        itemBuilder:
+                                                                            (context) =>
+                                                                                [
+                                                                          PopupMenuItem(
+                                                                            value:
+                                                                                PageEnum.editPeserta,
+                                                                            child:
+                                                                                Text("Edit"),
                                                                           ),
-                                                                        );
-
-                                                                        break;
-                                                                      default:
-                                                                    }
-                                                                  },
-                                                                  itemBuilder:
-                                                                      (context) =>
-                                                                          [
-                                                                    PopupMenuItem(
-                                                                      value: PageEnum
-                                                                          .editPeserta,
-                                                                      child: Text(
-                                                                          "Edit"),
-                                                                    ),
-                                                                    PopupMenuItem(
-                                                                      value: PageEnum
-                                                                          .hapusPeserta,
-                                                                      child: Text(
-                                                                          "Hapus"),
-                                                                    ),
-                                                                  ],
-                                                                )
+                                                                          PopupMenuItem(
+                                                                            value:
+                                                                                PageEnum.hapusPeserta,
+                                                                            child:
+                                                                                Text("Hapus"),
+                                                                          ),
+                                                                        ],
+                                                                      )
 
                                                                 // subtitle:
                                                                 //     Text(
@@ -859,53 +869,70 @@ Future<List<List>> listAttachment() async {
                                                       color: Colors.red,
                                                     ),
                                                     title: Text(
-                                                        "${listAttachmentItem[item].path}"),
-                                                    trailing: 
-                                                    isAccess == false ? Icon(Icons.lock) :
-                                                    FlatButton(
-                                                        onPressed: () {
-                                                          showDialog(
-                                                            context: context,
-                                                            builder: (BuildContext
-                                                                    context) =>
-                                                                AlertDialog(
-                                                              title: Text(
-                                                                  'Peringatan!'),
-                                                              content: Text(
-                                                                  "Apakah Anda Yakin?"),
-                                                              actions: <Widget>[
-                                                                FlatButton(
-                                                                  child: Text(
-                                                                      'Tidak'),
-                                                                  onPressed: () {
-                                                                    Navigator.pop(
-                                                                        context);
-                                                                  },
+                                                      "${listAttachmentItem[item].path}",
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                      softWrap: true,
+                                                      maxLines: 1,
+                                                      style: TextStyle(
+                                                          fontSize: 14),
+                                                    ),
+                                                    trailing: isAccess == false
+                                                        ? Icon(Icons.lock)
+                                                        : ButtonTheme(
+                                                          minWidth: 0,
+                                                          height: 0,
+                                                          child: FlatButton(
+                                                            padding: EdgeInsets.all(0),
+                                                            onPressed: () {
+                                                              showDialog(
+                                                                context:
+                                                                    context,
+                                                                builder: (BuildContext
+                                                                        context) =>
+                                                                    AlertDialog(
+                                                                  title: Text(
+                                                                      'Peringatan!'),
+                                                                  content: Text(
+                                                                      "Apakah Anda Yakin?"),
+                                                                  actions: <
+                                                                      Widget>[
+                                                                    FlatButton(
+                                                                      child: Text(
+                                                                          'Tidak'),
+                                                                      onPressed:
+                                                                          () {
+                                                                        Navigator.pop(
+                                                                            context);
+                                                                      },
+                                                                    ),
+                                                                    FlatButton(
+                                                                      textColor:
+                                                                          Colors
+                                                                              .green,
+                                                                      child: Text(
+                                                                          'Ya'),
+                                                                      onPressed:
+                                                                          () async {
+                                                                        setState(
+                                                                            () {
+                                                                          isCreate =
+                                                                              true;
+                                                                        });
+                                                                        Navigator.pop(
+                                                                            context);
+                                                                        deleteFile(
+                                                                            item,
+                                                                            listAttachmentItem[item].id);
+                                                                      },
+                                                                    )
+                                                                  ],
                                                                 ),
-                                                                FlatButton(
-                                                                  textColor:
-                                                                      Colors
-                                                                          .green,
-                                                                  child:
-                                                                      Text('Ya'),
-                                                                  onPressed:
-                                                                      () async {
-                                                                    setState(() {
-                                                                      isCreate =
-                                                                          true;
-                                                                    });
-                                                                    Navigator.pop(
-                                                                        context);
-                                                                    deleteFile(
-                                                                        item,listAttachmentItem[item].id);
-                                                                  },
-                                                                )
-                                                              ],
-                                                            ),
-                                                          );
-                                                        },
-                                                        child:
-                                                            Icon(Icons.delete)),
+                                                              );
+                                                            },
+                                                            child: Icon(
+                                                                Icons.delete,color:Colors.red)),
+                                                  ),
                                                   ),
                                                 )),
                                           Divider(),
@@ -924,15 +951,17 @@ Future<List<List>> listAttachment() async {
           ],
         ),
       ),
-      floatingActionButton: isAccess == false ? Container() : FloatingActionButton(
-        backgroundColor: primaryAppBarColor,
-        onPressed: () {
-          _tabController.index == 0
-              ? showModalAddPeserta()
-              : showModalAddFile();
-        },
-        child: Icon(Icons.add),
-      ),
+      floatingActionButton: isAccess == false
+          ? Container()
+          : FloatingActionButton(
+              backgroundColor: primaryAppBarColor,
+              onPressed: () {
+                _tabController.index == 0
+                    ? showModalAddPeserta()
+                    : showModalAddFile();
+              },
+              child: Icon(Icons.add),
+            ),
     );
   }
 

@@ -296,6 +296,7 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
           progressApiAction.hide().then((isHidden) {
             print(isHidden);
           });
+          getHeaderHTTP();
         } else if (addMemberTodoJson['status'] == 'email belum terdaftar') {
           Fluttertoast.showToast(msg: "Email Ini Belum Memiliki Akun Pengguna");
           progressApiAction.hide().then((isHidden) {
@@ -345,6 +346,7 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
           progressApiAction.hide().then((isHidden) {
             print(isHidden);
           });
+          getHeaderHTTP();
         }
       } else {
         Fluttertoast.showToast(msg: "Gagal, Silahkan Coba Kembali");
@@ -402,6 +404,7 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
         if (tambahFileJson['status'] == 'success') {
           progressApiAction.hide().then((isHidden) {});
           Fluttertoast.showToast(msg: 'success');
+          getHeaderHTTP();
         }
       } else {
         print(tambahfile.body);
@@ -435,6 +438,7 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
           progressApiAction.hide().then((isHidden) {
             print(isHidden);
           });
+          getHeaderHTTP();
         }
       } else {
         Fluttertoast.showToast(msg: "Gagal, Silahkan Coba Kembali");
@@ -553,6 +557,7 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
           progressApiAction.hide().then((isHidden) {
             print(isHidden);
           });
+          getHeaderHTTP();
         }
       } else {
         Fluttertoast.showToast(msg: "Gagal, Silahkan Coba Kembali");
@@ -1647,47 +1652,79 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
                                         mainAxisAlignment:
                                             MainAxisAlignment.start,
                                         children: <Widget>[
-                                          Container(
-                                              child: Column(
-                                                  children: listFileTodo
-                                                      .map(
-                                                          (FileTodo item) =>
-                                                              Card(
-                                                                child: ListTile(
-                                                                  leading: Icon(
-                                                                    Icons
-                                                                        .insert_drive_file,
-                                                                    color: Colors
-                                                                        .red,
-                                                                  ),
-                                                                  title: Text(
-                                                                    item.path ==
-                                                                                null ||
-                                                                            item.path ==
-                                                                                ''
-                                                                        ? 'File Tidak Diketahui'
-                                                                        : item
-                                                                            .path,
-                                                                    style:
-                                                                        TextStyle(
-                                                                      fontSize:
-                                                                          14,
-                                                                    ),
-                                                                    overflow:
-                                                                        TextOverflow
-                                                                            .ellipsis,
-                                                                    softWrap:
-                                                                        true,
-                                                                    maxLines: 1,
-                                                                  ),
-                                                                  trailing:
-                                                                      ButtonTheme(
-                                                                          minWidth:
-                                                                              0,
-                                                                          height:
-                                                                              0,
-                                                                          child:
-                                                                              FlatButton(
+                                          listFileTodo.length == 0
+                                              ? Padding(
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                          top: 20.0),
+                                                  child:
+                                                      Column(children: <Widget>[
+                                                    new Container(
+                                                      width: 100.0,
+                                                      height: 100.0,
+                                                      child: Image.asset(
+                                                          "images/empty-white-box.png"),
+                                                    ),
+                                                    Padding(
+                                                      padding:
+                                                          const EdgeInsets.only(
+                                                        top: 20.0,
+                                                        left: 15.0,
+                                                        right: 15.0,
+                                                      ),
+                                                      child: Center(
+                                                        child: Text(
+                                                          "Document To Do Belum Ditambahkan",
+                                                          style: TextStyle(
+                                                            fontSize: 16,
+                                                            color:
+                                                                Colors.black45,
+                                                            height: 1.5,
+                                                          ),
+                                                          textAlign:
+                                                              TextAlign.center,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ]),
+                                                )
+                                              : Container(
+                                                  child: Column(
+                                                      children: listFileTodo
+                                                          .map(
+                                                              (FileTodo item) =>
+                                                                  Card(
+                                                                    child:
+                                                                        ListTile(
+                                                                      leading:
+                                                                          Icon(
+                                                                        Icons
+                                                                            .insert_drive_file,
+                                                                        color: Colors
+                                                                            .red,
+                                                                      ),
+                                                                      title:
+                                                                          Text(
+                                                                        item.path == null ||
+                                                                                item.path == ''
+                                                                            ? 'File Tidak Diketahui'
+                                                                            : item.path,
+                                                                        style:
+                                                                            TextStyle(
+                                                                          fontSize:
+                                                                              14,
+                                                                        ),
+                                                                        overflow:
+                                                                            TextOverflow.ellipsis,
+                                                                        softWrap:
+                                                                            true,
+                                                                        maxLines:
+                                                                            1,
+                                                                      ),
+                                                                      trailing: ButtonTheme(
+                                                                          minWidth: 0,
+                                                                          height: 0,
+                                                                          child: FlatButton(
                                                                             padding:
                                                                                 EdgeInsets.all(0),
                                                                             onPressed:
@@ -1720,9 +1757,9 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
                                                                             child:
                                                                                 Icon(Icons.delete, color: Colors.red),
                                                                           )),
-                                                                ),
-                                                              ))
-                                                      .toList()))
+                                                                    ),
+                                                                  ))
+                                                          .toList()))
                                         ],
                                       ),
                                     )
@@ -1879,6 +1916,7 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
         if (tambahFileJson['status'] == 'success') {
           progressApiAction.hide().then((isHidden) {});
           Fluttertoast.showToast(msg: 'success');
+          getHeaderHTTP();
         }
       } else {
         print(tambahfile.body);

@@ -415,6 +415,9 @@ class _DashboardState extends State<Dashboard> {
         if (addpesertaJson['status'] == 'success') {
           progressApiAction.hide().then((isHidden) {});
           Fluttertoast.showToast(msg: "Berhasil, Menambahkan Kategori");
+        }else if(addpesertaJson['status'] == 'sudah ada'){
+            progressApiAction.hide().then((isHidden) {});
+          Fluttertoast.showToast(msg: "Kategori Tersebut Sudah Ada");
         }
       } else {
         print(addadminevent.body);
