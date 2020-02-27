@@ -160,12 +160,12 @@ class _HistoryState extends State<History> {
                 ),
                               ),
                               onTap: () {
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => DetailProject(
-                                              idproject: listProject[index].id,
-                                            )));
+                                // Navigator.push(
+                                //     context,
+                                //     MaterialPageRoute(
+                                //         builder: (context) => DetailProject(
+                                //               idproject: listProject[index].id,
+                                //             )));
                               },
                             ),
                           );

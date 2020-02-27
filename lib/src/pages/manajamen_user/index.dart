@@ -155,20 +155,20 @@ class _ManajemenUser extends State<ManajemenUser> {
                                     title: Text("Riwayat"),
                                   )),
                             ),
-                            InkWell(
-                              onTap: () {
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => ActionTodo()));
-                              },
-                              child: Container(
-                                  margin: EdgeInsets.only(bottom: 8.0),
-                                  child: ListTile(
-                                    leading: Icon(Icons.history),
-                                    title: Text("Action"),
-                                  )),
-                            ),
+                            // InkWell(
+                            //   onTap: () {
+                            //     Navigator.push(
+                            //         context,
+                            //         MaterialPageRoute(
+                            //             builder: (context) => ActionTodo()));
+                            //   },
+                            //   child: Container(
+                            //       margin: EdgeInsets.only(bottom: 8.0),
+                            //       child: ListTile(
+                            //         leading: Icon(Icons.history),
+                            //         title: Text("Action"),
+                            //       )),
+                            // ),
                             InkWell(
                               onTap: () {
                                 Navigator.push(

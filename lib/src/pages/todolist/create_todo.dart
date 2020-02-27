@@ -23,7 +23,7 @@ String categoriesName;
 bool isLoading, isError;
 String idProjectChoose;
 String namaProjectChoose;
-String isAllday = "Pilih Tanggal";
+bool isAllday;
 
 class TodoList extends StatefulWidget {
   @override
@@ -33,9 +33,7 @@ class TodoList extends StatefulWidget {
 class _TodoListState extends State<TodoList> {
   ProgressDialog progressApiAction;
   final _formKey = GlobalKey<FormState>();
-  final format = isAllday != 'AllDay'
-      ? DateFormat("dd-MM-yyyy HH:mm:ss")
-      : DateFormat("dd-MM-yyyy");
+  
   DateTime timeReplacement;
   List<Category> listCategory = [];
 
@@ -189,6 +187,7 @@ class _TodoListState extends State<TodoList> {
   @override
   void initState() {
     getHeaderHTTP();
+    isAllday = false;
     namaProjectChoose = null;
     _titleController.text = '';
     _dateStartController.text = '';
@@ -326,59 +325,26 @@ class _TodoListState extends State<TodoList> {
                                               color: Colors.black)),
                                       controller: _titleController,
                                     )),
-                                Container(
-                                  width: double.infinity,
-                                  margin: EdgeInsets.only(bottom: 10.0),
-                                  decoration: BoxDecoration(
-                                      border: Border.all(color: Colors.black45),
-                                      borderRadius: BorderRadius.all(
-                                          Radius.circular(5.0))),
-                                  height: 45.0,
-                                  child: new DropdownButtonFormField<String>(
-                                    hint: Padding(
-                                      padding:
-                                          const EdgeInsets.only(left: 10.0),
-                                      child: Text(
-                                        isAllday,
-                                        style: TextStyle(
-                                          color: Colors.black,
-                                          fontWeight: FontWeight.w400,
-                                          fontSize: 14,
-                                        ),
+                                    Text("Pelaksanaan Kegiatan"),
+                                Row(
+                                  children: <Widget>[
+                                    Container(
+                                      child: Checkbox(
+                                        value: isAllday,
+                                        // checkColor: Colors.green,
+                                        activeColor: Colors.green,
+                                        onChanged: (bool value) {
+                                          setState(() {
+                                          isAllday = value;
+                                          _dateStartController.text = '';
+                                          _dateEndController.text = '';
+                                        });
+                                        }, 
+                                        
                                       ),
                                     ),
-                                    decoration: InputDecoration(
-                                        enabledBorder: UnderlineInputBorder(
-                                            borderSide: BorderSide(
-                                                color: Colors.white))),
-                                    isExpanded: true,
-                                    items: <String>['AllDay', 'Not AllDAy']
-                                        .map((String value) {
-                                      return new DropdownMenuItem<String>(
-                                        value: value,
-                                        child: Padding(
-                                          padding:
-                                              const EdgeInsets.only(left: 10.0),
-                                          child: new Text(
-                                            value,
-                                            style: TextStyle(
-                                              color: Colors.black,
-                                              fontWeight: FontWeight.w400,
-                                              fontSize: 14,
-                                            ),
-                                          ),
-                                        ),
-                                      );
-                                    }).toList(),
-                                    onChanged: (val) {
-                                      print(val);
-                                      setState(() {
-                                        isAllday = val;
-                                        _dateStartController.text = '';
-                                        _dateEndController.text = '';
-                                      });
-                                    },
-                                  ),
+                                    Text("All Day")
+                                  ],
                                 ),
                                 Container(
                                     alignment: Alignment.center,
@@ -386,7 +352,7 @@ class _TodoListState extends State<TodoList> {
                                     margin: EdgeInsets.only(bottom: 10.0),
                                     child: DateTimeField(
                                       controller: _dateStartController,
-                                      format: isAllday != 'AllDay'
+                                      format: isAllday != true
                                           ? DateFormat("dd-MM-yyyy HH:mm:ss")
                                           : DateFormat("dd-MM-yyyy "),
                                       readOnly: true,
@@ -405,11 +371,11 @@ class _TodoListState extends State<TodoList> {
                                           (context, currentValue) async {
                                         final date = await showDatePicker(
                                             context: context,
-                                            firstDate: DateTime.now(),
+                                            firstDate: DateTime(2018),
                                             initialDate: DateTime.now(),
                                             lastDate: DateTime(2100));
                                         if (date != null) {
-                                          if (isAllday != "AllDay") {
+                                          if (isAllday != true) {
                                             final times = await showTimePicker(
                                               context: context,
                                               initialTime:
@@ -435,13 +401,15 @@ class _TodoListState extends State<TodoList> {
                                         });
                                       },
                                     )),
+                                    
+                              
                                 Container(
                                     alignment: Alignment.center,
                                     height: 45.0,
                                     margin: EdgeInsets.only(bottom: 10.0),
                                     child: DateTimeField(
                                       controller: _dateEndController,
-                                      format: isAllday != 'AllDay'
+                                      format: isAllday != true
                                           ? DateFormat("dd-MM-yyyy HH:mm:ss")
                                           : DateFormat("dd-MM-yyyy "),
                                       readOnly: true,
@@ -458,19 +426,23 @@ class _TodoListState extends State<TodoList> {
                                       ),
                                       onShowPicker:
                                           (context, currentValue) async {
+                                            DateFormat inputFormat = DateFormat("dd-MM-yyyy");
+                                            DateTime dateTime = inputFormat.parse("${_dateStartController.text}");
+
+                                            print(dateTime);
                                         final date = await showDatePicker(
                                             context: context,
                                             firstDate:
                                                 _dateStartController.text == ''
                                                     ? DateTime.now()
-                                                    : DateTime.now(),
+                                                    : dateTime,
                                             initialDate:
                                                 _dateStartController.text == ''
                                                     ? DateTime.now()
-                                                    : DateTime.now(),
+                                                    : dateTime,
                                             lastDate: DateTime(2100));
                                         if (date != null) {
-                                          if (isAllday != "AllDay") {
+                                          if (isAllday != true) {
                                             final times = await showTimePicker(
                                               context: context,
                                               initialTime:
@@ -490,7 +462,8 @@ class _TodoListState extends State<TodoList> {
                                           return currentValue;
                                         }
                                       },
-                                    )),
+                                    )) ,
+                                    
 
                                 InkWell(
                                   onTap: () async {

@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 import 'package:random_color/random_color.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:todolist_app/src/model/Project.dart';
+import 'package:todolist_app/src/pages/manajemen_project/detail_project.dart';
 import 'package:todolist_app/src/pages/manajemen_project/edit_project.dart';
 import 'package:todolist_app/src/routes/env.dart';
 import 'dart:async';
@@ -33,7 +34,7 @@ class _ListProjectState extends State<ListProject> {
     getHeaderHTTP();
   }
 
- Future<void> getHeaderHTTP() async {
+  Future<void> getHeaderHTTP() async {
     var storage = new DataStore();
 
     var tokenTypeStorage = await storage.getDataString('token_type');
@@ -46,6 +47,7 @@ class _ListProjectState extends State<ListProject> {
     requestHeaders['Authorization'] = '$tokenType $accessToken';
     return getDataProject();
   }
+
   Future<List<List>> getDataProject() async {
     var storage = new DataStore();
     var tokenTypeStorage = await storage.getDataString('token_type');
@@ -116,46 +118,55 @@ class _ListProjectState extends State<ListProject> {
         backgroundColor: primaryAppBarColor,
       ),
       body: isLoading != false
-              ? listLoadingTodo(): isError == true
-                                  ? errorSystem(context):
-                                  Container(
-        child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: ListView.builder(
-              itemCount: listProject.length,
-              itemBuilder: (BuildContext context, int index) {
-                return 
-              Card(
-                  child: ListTile(
-                    // leading: Text(""),
-                    title: Text("${listProject[index].title}",
-                        overflow: TextOverflow.ellipsis, maxLines: 1),
-                    subtitle: Text(
-                        listProject[index].start == 'null' ||
-                                listProject[index].end == 'null'
-                            ? '-'
-                            : DateFormat('d/M/y')
-                                    .format(DateTime.parse(
-                                        "${listProject[index].start}"))
-                                    .toString() +
-                                ' - ' +
-                                DateFormat('d/M/y')
-                                    .format(DateTime.parse(
-                                        "${listProject[index].end}"))
-                                    .toString(),
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 1),
-                        onTap: (){
-                          Navigator.push(context, MaterialPageRoute(builder:(context) => DetailProject(idproject:listProject[index].id ,) ));
+          ? listLoadingTodo()
+          : isError == true
+              ? errorSystem(context)
+              : Container(
+                  child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: ListView.builder(
+                        itemCount: listProject.length,
+                        itemBuilder: (BuildContext context, int index) {
+                          return Card(
+                            child: ListTile(
+                              // leading: Text(""),
+                              title: Text("${listProject[index].title}",
+                                  overflow: TextOverflow.ellipsis, maxLines: 1),
+                              subtitle: Text(
+                                  listProject[index].start == 'null' ||
+                                          listProject[index].end == 'null'
+                                      ? '-'
+                                      : DateFormat('d/M/y')
+                                              .format(DateTime.parse(
+                                                  "${listProject[index].start}"))
+                                              .toString() +
+                                          ' - ' +
+                                          DateFormat('d/M/y')
+                                              .format(DateTime.parse(
+                                                  "${listProject[index].end}"))
+                                              .toString(),
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 1),
+                              onTap: () {
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            ManajemenDetailProjectAll(
+                                                idproject:
+                                                    listProject[index].id,
+                                                namaproject:
+                                                    listProject[index].title)));
+                              },
+                            ),
+                          );
                         },
-                  ),
-                );
-              },
-            )),
-      ),
+                      )),
+                ),
     );
   }
-    Widget listLoadingTodo() {
+
+  Widget listLoadingTodo() {
     return Container(
         margin: EdgeInsets.only(top: 20.0),
         child: SingleChildScrollView(
@@ -234,6 +245,7 @@ class _ListProjectState extends State<ListProject> {
           ),
         )));
   }
+
   Widget errorSystem(BuildContext context) {
     return Container(
       color: Colors.white,
