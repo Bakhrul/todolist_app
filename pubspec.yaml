@@ -40,6 +40,10 @@ dependencies:
   percent_indicator: "^2.1.1"
   file_picker: ^1.4.3+2
   unicorndial: "^1.1.5"
+  flutter_downloader: ^1.4.1
+  path_provider: ^0.4.1
+  permission_handler: ^4.0.0
+
 
 dev_dependencies:
   flutter_test:
