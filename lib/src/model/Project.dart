@@ -5,7 +5,10 @@ class Project{
   String title;
   String start;
   String end;
+  String percent;
+  int membertotal;
+  List listMember;
   Color colored;
 
-  Project({this.id,this.title, this.start, this.end,this.colored});
+  Project({this.id,this.title, this.start, this.end,this.colored, this.percent, this.membertotal, this.listMember});
 }

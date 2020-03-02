@@ -358,37 +358,34 @@ class _ManajemenTodoImportantState extends State<ManajemenTodoImportant>
                                       ? _errorFilter(context)
                                       : listTodoImportant.length == 0
                                           ? Padding(
-                                              padding: const EdgeInsets.only(
-                                                  top: 20.0),
-                                              child: Column(children: <Widget>[
-                                                new Container(
-                                                  width: 100.0,
-                                                  height: 100.0,
-                                                  child: Image.asset(
-                                                      "images/empty-white-box.png"),
-                                                ),
-                                                Padding(
-                                                  padding:
-                                                      const EdgeInsets.only(
-                                                    top: 20.0,
-                                                    left: 15.0,
-                                                    right: 15.0,
-                                                  ),
-                                                  child: Center(
-                                                    child: Text(
-                                                      "To Do Yang Anda Cari Tidak Ditemukan",
-                                                      style: TextStyle(
-                                                        fontSize: 16,
-                                                        color: Colors.black45,
-                                                        height: 1.5,
-                                                      ),
-                                                      textAlign:
-                                                          TextAlign.center,
-                                                    ),
-                                                  ),
-                                                ),
-                                              ]),
-                                            )
+                                padding: const EdgeInsets.only(top: 25.0),
+                                child: Column(children: <Widget>[
+                                  new Container(
+                                    width: 100.0,
+                                    height: 100.0,
+                                    child: Image.asset(
+                                        "images/todo_icon2.png"),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.only(
+                                        top: 20.0,
+                                        left: 25.0,
+                                        right: 25.0,
+                                        bottom: 35.0),
+                                    child: Center(
+                                      child: Text(
+                                        "To Do Yang Anda Cari Tidak Ditemukan",
+                                        style: TextStyle(
+                                          fontSize: 16,
+
+                                          height: 1.5,
+                                        ),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ),
+                                  ),
+                                ]),
+                              )
                                           : Column(
                                               crossAxisAlignment:
                                                   CrossAxisAlignment.start,

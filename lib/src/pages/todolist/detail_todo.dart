@@ -221,6 +221,8 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
   Future<List<List>> listTodoReadyData() async {
     setState(() {
       isLoadingTodoAll = true;
+      listTodoReady.clear();
+      listTodoReady = [];
     });
     try {
       final getTodoReadyurl = await http.get(
@@ -280,6 +282,8 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
   Future<List<List>> listTodoDoneData() async {
     setState(() {
       isLoadingTodoAll = true;
+      listTodoDone.clear();
+      listTodoDone = [];
     });
     try {
       final getTodoDoneyurl = await http.get(
@@ -350,8 +354,13 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
           headers: requestHeaders);
 
       if (getTodoActionUrl.statusCode == 200) {
+        setState(() {
+          listTodoAction.clear();
+          listTodoAction = [];
+        });
         var getTodoActionUrlJson = json.decode(getTodoActionUrl.body);
         var actions = getTodoActionUrlJson;
+        print(actions);
         for (var i in actions) {
           ToDoAction participant = ToDoAction(
               idtodo: i['todo'],
@@ -401,6 +410,8 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
   Future<List<List>> listTodoNormalData() async {
     setState(() {
       isLoadingTodoAll = true;
+      listTodoNormal.clear();
+      listTodoNormal = [];
     });
     try {
       final getTodoNormalurl = await http.get(
@@ -1171,7 +1182,7 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
                                                 padding: const EdgeInsets.only(
                                                     top: 20.0),
                                                 child: Text(
-                                                  'Team Member',
+                                                  'To Do Member',
                                                   style: TextStyle(
                                                       color: Colors.black87,
                                                       fontWeight:
@@ -1524,7 +1535,7 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
                       )),
                 ),
                 RefreshIndicator(
-                  onRefresh: listTodoReadyData,
+                  onRefresh: listTodoActionData,
                   child: SingleChildScrollView(
                       physics: AlwaysScrollableScrollPhysics(),
                       child: Container(
@@ -1615,7 +1626,7 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
                             borderRadius: new BorderRadius.circular(10.0),
                           ),
                           onPressed: () async {
-                            action_mulaimengerjakan('baru mengerjakan');
+                            actionmulaimengerjakan('baru mengerjakan');
                           },
                           child: Text(
                             "Mulai Mengerjakan",
@@ -1654,7 +1665,7 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
                             borderRadius: new BorderRadius.circular(10.0),
                           ),
                           onPressed: () async {
-                            action_mulaimengerjakan('pending');
+                            actionmulaimengerjakan('pending');
                           },
                           child: Text(
                             "Pending",
@@ -1682,7 +1693,7 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
                             borderRadius: new BorderRadius.circular(10.0),
                           ),
                           onPressed: () async {
-                            action_mulaimengerjakan('selesai');
+                            actionmulaimengerjakan('selesai');
                           },
                           child: Text(
                             "Selesai",
@@ -1720,8 +1731,7 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
                             borderRadius: new BorderRadius.circular(10.0),
                           ),
                           onPressed: () async {
-                            action_mulaimengerjakan(
-                                'mulai mengerjakan kembali');
+                            actionmulaimengerjakan('mulai mengerjakan kembali');
                           },
                           child: Text(
                             "Mulai Mengerjakan Lagi",
@@ -1857,8 +1867,6 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
   }
 
   void tambahAction() async {
-    Navigator.pop(context);
-    await progressApiAction.show();
     String type;
     if (_tabController.index == 1) {
       type = 'Action';
@@ -1869,9 +1877,15 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
     } else if (_tabController.index == 4) {
       type = 'Done';
     } else if (_tabController.index == 0) {
-      progressApiAction.hide().then((isHidden) {});
+      Navigator.pop(context);
       return null;
     }
+    if (_titleTodoListAction.text == '') {
+      Fluttertoast.showToast(msg: 'Masukkan Judul To Do Action');
+      return null;
+    }
+    Navigator.pop(context);
+    await progressApiAction.show();
     try {
       final addpeserta = await http
           .post(url('api/todo/list/actions'), headers: requestHeaders, body: {
@@ -1910,7 +1924,7 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
     }
   }
 
-  void action_mulaimengerjakan(type) async {
+  void actionmulaimengerjakan(type) async {
     await progressApiAction.show();
     try {
       final addpeserta = await http
@@ -2839,26 +2853,22 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
   }
 
   Widget emptyTodoAction() {
-    return Container(
-      padding: const EdgeInsets.only(top: 20.0),
+    return Padding(
+      padding: const EdgeInsets.only(top: 30.0),
       child: Column(children: <Widget>[
         new Container(
           width: 100.0,
           height: 100.0,
-          child: Image.asset("images/empty-white-box.png"),
+          child: Image.asset("images/todo_icon2.png"),
         ),
         Padding(
           padding: const EdgeInsets.only(
-            top: 20.0,
-            left: 15.0,
-            right: 15.0,
-          ),
+              top: 20.0, left: 25.0, right: 25.0, bottom: 35.0),
           child: Center(
             child: Text(
-              "Anda Tidak Memiliki To Do Action Pada To Do Ini",
+              "To Do Action Yang Anda Cari Tidak Ditemukan",
               style: TextStyle(
                 fontSize: 16,
-                color: Colors.black45,
                 height: 1.5,
               ),
               textAlign: TextAlign.center,
