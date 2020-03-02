@@ -5,13 +5,22 @@ import 'package:flutter/material.dart';
 import 'src/pages/auth/login.dart';
 import 'src/pages/dashboard.dart';
 import 'splash_screen.dart';
+// import 'dart:isolate';
+// import 'package:path_provider/path_provider.dart';
+import 'package:flutter_downloader/flutter_downloader.dart';
+// import 'package:permission_handler/permission_handler.dart';
 
 Map<String, WidgetBuilder> routesX = <String, WidgetBuilder>{
   "/dashboard": (BuildContext context) => Dashboard(),
   "/login" : (BuildContext context) => LoginPage(),
 };
 
-void main() => runApp(MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await FlutterDownloader.initialize();
+
+  runApp(new MyApp());
+}
 
 class MyApp extends StatefulWidget{
   MyApp({Key key}) : super(key: key);
@@ -37,7 +46,7 @@ class _MyApp extends State<MyApp> {
   
   @override
   Widget build(BuildContext context) {
-
+    
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'TodoList',

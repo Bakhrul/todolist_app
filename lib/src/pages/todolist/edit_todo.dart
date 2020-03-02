@@ -1,7 +1,9 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:todolist_app/src/routes/env.dart';
 import 'package:todolist_app/src/storage/storage.dart';
 import 'package:http/http.dart' as http;
@@ -26,12 +28,13 @@ String categoriesID;
 String categoriesName;
 bool isLoading, isError;
 String idProjectEditChoose;
-String namaProjectEditChoose;
+String namaProjectEditChoose,titleEdit;
 
 class ManajemenEditTodo extends StatefulWidget {
-  ManajemenEditTodo({Key key, this.title, this.idTodo}) : super(key: key);
+  ManajemenEditTodo({Key key, this.title, this.idTodo,this.platform}) : super(key: key);
   final String title;
   final int idTodo;
+  final TargetPlatform platform;
   @override
   State<StatefulWidget> createState() {
     return _ManajemenEditTodoState();
@@ -40,6 +43,7 @@ class ManajemenEditTodo extends StatefulWidget {
 
 class _ManajemenEditTodoState extends State<ManajemenEditTodo>
     with SingleTickerProviderStateMixin {
+      
   String _dfileName;
   String fileImage;
   bool _loadingPath;
@@ -116,7 +120,7 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
         Map rawTodo = listParticipantToJson['todo'];
         var members = listParticipantToJson['member_todo'];
         var ducuments = listParticipantToJson['document_todo'];
-
+      titleEdit =  rawTodo['tl_title'].toString();
         for (var i in members) {
           MemberTodo member = MemberTodo(
             iduser: i['us_id'],
@@ -579,9 +583,13 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
       print(e);
     }
   }
+    
+  
+  
 
   @override
   Widget build(BuildContext context) {
+    
     progressApiAction = new ProgressDialog(context,
         type: ProgressDialogType.Normal, isDismissible: false, showLogs: false);
     progressApiAction.style(
@@ -597,7 +605,7 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
       backgroundColor: Color.fromRGBO(242, 242, 242, 1),
       appBar: AppBar(
         backgroundColor: primaryAppBarColor,
-        title: Text('Manajemen To Do', style: TextStyle(fontSize: 14)),
+        title: Text(titleEdit == null ? 'Tunggu Sebentar...':'Manajemen To Do ($titleEdit)', style: TextStyle(fontSize: 14)),
         actions: <Widget>[],
       ), //
       body: Container(

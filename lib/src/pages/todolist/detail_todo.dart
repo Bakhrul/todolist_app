@@ -1,3 +1,8 @@
+import 'dart:io';
+
+import 'package:flutter_downloader/flutter_downloader.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:todolist_app/src/models/todo_action.dart';
 import 'package:todolist_app/src/pages/todolist/edit.dart';
 import 'package:todolist_app/src/routes/env.dart';
@@ -32,13 +37,11 @@ String textValue;
 Map<String, String> requestHeaders = Map();
 
 class ManajemenDetailTodo extends StatefulWidget {
-  ManajemenDetailTodo({
-    Key key,
-    this.idtodo,
-    this.namatodo,
-  }) : super(key: key);
+  ManajemenDetailTodo({Key key, this.idtodo, this.namatodo, this.platform})
+      : super(key: key);
   final int idtodo;
   final String namatodo;
+  final TargetPlatform platform;
   @override
   State<StatefulWidget> createState() {
     return _ManajemenDetailTodoState();
@@ -180,8 +183,9 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
 
         for (var t in filetodos) {
           FileTodo files = FileTodo(
-            id: t['tla_id'],
-            path: t['tla_path'],
+            id: t['id'],
+            path: t['path'],
+            filename: t['filename'],
           );
           todoAttachmentDetail.add(files);
         }
@@ -696,6 +700,38 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
         });
   }
 
+  Future<String> _findLocalPath() async {
+    final directory = widget.platform == TargetPlatform.android
+        ? await getExternalStorageDirectory()
+        : await getApplicationDocumentsDirectory();
+    return directory.path;
+  }
+
+  void _requestDownload(url) async {
+    try {
+      PermissionStatus permission = await PermissionHandler()
+          .checkPermissionStatus(PermissionGroup.contacts);
+      if (permission != PermissionStatus.denied) {
+        await PermissionHandler().requestPermissions([PermissionGroup.storage]);
+        Directory tempDir = await getExternalStorageDirectory();
+        var dirPath = await new Directory('${tempDir.path}/todo').create();
+
+        print(tempDir.path);
+        await FlutterDownloader.enqueue(
+          url: url,
+          savedDir: dirPath.path,
+          showNotification:
+              true, // show download progress in status bar (for Android)
+          openFileFromNotification:
+              true, // click on notification to open downloaded file (for Android)
+        );
+      }
+    } catch (Exception) {
+      // print()
+
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     progressApiAction = new ProgressDialog(context,
@@ -891,9 +927,10 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
                                                   .map((FileTodo item) =>
                                                       InkWell(
                                                           onTap: () async {
-                                                            Fluttertoast.showToast(
-                                                                msg:
-                                                                    'Fitur ini masih dikerjakan');
+                                                            _requestDownload(item.path);
+                                                            // Fluttertoast.showToast(
+                                                            //     msg:
+                                                            //         'Fitur ini masih dikerjakan');
                                                           },
                                                           child: Container(
                                                               width: double
@@ -931,23 +968,27 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
                                                                     color: Colors
                                                                         .red,
                                                                   ),
-                                                                  Padding(
-                                                                    padding: const EdgeInsets
-                                                                            .only(
-                                                                        left:
-                                                                            5.0),
+                                                                  Expanded(
+                                                                    // padding: const EdgeInsets
+                                                                    //         .only(
+                                                                    //     left:
+                                                                    //         5.0),
                                                                     child: Text(
                                                                       item.path == '' ||
-                                                                              item.path ==
-                                                                                  null
+                                                                              item.filename ==
+                                                                                  ''
                                                                           ? 'FIle Tidak Diketahui'
                                                                           : item
-                                                                              .path,
+                                                                              .filename,
                                                                       style: TextStyle(
                                                                           color: Colors
                                                                               .black,
                                                                           fontSize:
                                                                               12),
+                                                                              overflow: TextOverflow.ellipsis,
+                                                                              softWrap: true,
+                                                                               maxLines: 1,
+
                                                                     ),
                                                                   ),
                                                                 ],
