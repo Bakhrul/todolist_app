@@ -511,22 +511,22 @@ class _DashboardState extends State<Dashboard> {
     return Scaffold(
         backgroundColor: Colors.white,
         // key: _scaffoldKeyDashboard,
-        appBar: indexColor == 0
-            ? new AppBar(
-                backgroundColor: primaryAppBarColor,
-                iconTheme: IconThemeData(
-                  color: Colors.white,
-                ),
-                title: new Text(
-                  "Dashboard",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                  ),
-                ),
-                automaticallyImplyLeading: false,
-              )
-            : null,
+        // appBar: indexColor == 0
+        //     ? new AppBar(
+        //         backgroundColor: primaryAppBarColor,
+        //         iconTheme: IconThemeData(
+        //           color: Colors.white,
+        //         ),
+        //         title: new Text(
+        //           "Dashboard",
+        //           style: TextStyle(
+        //             color: Colors.white,
+        //             fontSize: 16,
+        //           ),
+        //         ),
+        //         automaticallyImplyLeading: false,
+        //       )
+        //     : null,
         body: PageView(
           controller: _myPage,
           onPageChanged: (int) {
@@ -537,7 +537,7 @@ class _DashboardState extends State<Dashboard> {
           },
           children: <Widget>[
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+              padding: EdgeInsets.all(0),
               child: Container(
                 child: Home(),
               ),

@@ -98,6 +98,10 @@ flutter:
       - images/have_account.png
       - images/not_have_account.png
       - images/manajemen_project.png
+      - images/empty-project.png
+      - images/todo_icon1.png
+      - images/todo_icon2.png
+      - images/icon_document.png
   
   # fonts:
   #   - family: Schyler

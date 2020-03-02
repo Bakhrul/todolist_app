@@ -794,76 +794,14 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
                                                                   .black)),
                                                       controller:
                                                           _titleController,
-                                                    )),
-                                                // Container(
-                                                //   height: 45.0,
-                                                //   margin: EdgeInsets.only(
-                                                //       bottom: 10.0),
-                                                //   padding: EdgeInsets.only(
-                                                //       left: 10.0, right: 10.0),
-                                                //   decoration: BoxDecoration(
-                                                //       border: Border.all(
-                                                //           color:
-                                                //               Colors.black45),
-                                                //       borderRadius:
-                                                //           BorderRadius.all(
-                                                //               Radius.circular(
-                                                //                   5.0))),
-                                                //   child:
-                                                //       DropdownButtonHideUnderline(
-                                                //     child:
-                                                //         DropdownButton<String>(
-                                                //       isExpanded: true,
-                                                //       items: [
-                                                //         DropdownMenuItem<
-                                                //             String>(
-                                                //           child: Text(
-                                                //             'All Day',
-                                                //             style: TextStyle(
-                                                //               fontSize: 12,
-                                                //             ),
-                                                //           ),
-                                                //           value: '1',
-                                                //         ),
-                                                //         DropdownMenuItem<
-                                                //             String>(
-                                                //           child: Text(
-                                                //             'Bukan All Day',
-                                                //             style: TextStyle(
-                                                //               fontSize: 12,
-                                                //             ),
-                                                //           ),
-                                                //           value: '0',
-                                                //         ),
-                                                //       ],
-                                                //       value: _alldayTipe == null
-                                                //           ? null
-                                                //           : _alldayTipe,
-                                                //       onChanged:
-                                                //           (String value) {
-                                                //         setState(() {
-                                                //           _alldayTipe = value;
-                                                //           _dateStartController
-                                                //               .text = '';
-                                                //           _dateEndController
-                                                //               .text = '';
-                                                //         });
-                                                //       },
-                                                //       hint: Text(
-                                                //         'Pilih Tipe Tanggal',
-                                                //         style: TextStyle(
-                                                //             fontSize: 12,
-                                                //             color:
-                                                //                 Colors.black),
-                                                //       ),
-                                                //     ),
-                                                //   ),
-                                                // ),
+                                                    )),                                               
                                                 Text("Pelaksanaan Kegiatan"),
                                                 Row(
                                                   children: <Widget>[
                                                     Container(
-                                                      margin: EdgeInsets.only(top:10.0,bottom:10.0),
+                                                      margin: EdgeInsets.only(
+                                                          top: 10.0,
+                                                          bottom: 10.0),
                                                       child: SizedBox(
                                                         height: 24.0,
                                                         width: 24.0,
@@ -928,8 +866,8 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
                                                                 context:
                                                                     context,
                                                                 firstDate:
-                                                                    DateTime
-                                                                        .now(),
+                                                                    DateTime(
+                                                                        2000),
                                                                 initialDate:
                                                                     DateTime
                                                                         .now(),
@@ -992,8 +930,8 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
                                                                 context:
                                                                     context,
                                                                 firstDate:
-                                                                    DateTime
-                                                                        .now(),
+                                                                    DateTime(
+                                                                        2000),
                                                                 initialDate:
                                                                     DateTime
                                                                         .now(),
@@ -1051,8 +989,7 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
                                                                 firstDate: _dateStartController
                                                                             .text ==
                                                                         ''
-                                                                    ? DateTime
-                                                                        .now()
+                                                                    ? DateTime(2000)
                                                                     : dateTime,
                                                                 initialDate: _dateStartController
                                                                             .text ==
@@ -1125,14 +1062,12 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
                                                                 firstDate: _dateStartController
                                                                             .text ==
                                                                         ''
-                                                                    ? DateTime
-                                                                        .now()
+                                                                    ? DateTime(2000)
                                                                     : dateTime,
                                                                 initialDate: _dateStartController
                                                                             .text ==
                                                                         ''
-                                                                    ? DateTime
-                                                                        .now()
+                                                                    ? DateTime.now()
                                                                     : dateTime,
                                                                 lastDate:
                                                                     DateTime(
@@ -1725,7 +1660,7 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
                                                       width: 100.0,
                                                       height: 100.0,
                                                       child: Image.asset(
-                                                          "images/empty-white-box.png"),
+                                                          "images/icon_document.png"),
                                                     ),
                                                     Padding(
                                                       padding:
@@ -1996,7 +1931,9 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
         isScrollControlled: true,
         context: context,
         builder: (builder) {
-          return Container(
+          return 
+          SingleChildScrollView(
+          child: Container(
             // height: 200.0 + MediaQuery.of(context).viewInsets.bottom,
             padding: EdgeInsets.only(
                 bottom: MediaQuery.of(context).viewInsets.bottom,
@@ -2022,7 +1959,7 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
                         ),
                       ),
                     )),
-            ]),
+            ]),)
           );
         });
   }

@@ -716,7 +716,10 @@ class _TodoListState extends State<TodoList> {
         isScrollControlled: true,
         context: context,
         builder: (builder) {
-          return Container(
+          return 
+          SingleChildScrollView(
+            scrollDirection: Axis.vertical,
+          child: Container(
             // height: 200.0 + MediaQuery.of(context).viewInsets.bottom,
             padding: EdgeInsets.only(
                 bottom: MediaQuery.of(context).viewInsets.bottom,
@@ -743,7 +746,7 @@ class _TodoListState extends State<TodoList> {
                       ),
                     )),
             ]),
-          );
+          ));
         });
   }
 

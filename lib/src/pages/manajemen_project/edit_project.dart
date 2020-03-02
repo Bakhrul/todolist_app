@@ -11,9 +11,11 @@ import 'package:todolist_app/src/utils/utils.dart';
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 import 'package:todolist_app/src/model/Todo.dart';
 import 'package:todolist_app/src/model/Member.dart';
+import 'package:draggable_fab/draggable_fab.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:progress_dialog/progress_dialog.dart';
 import 'package:email_validator/email_validator.dart';
+import 'package:todolist_app/src/pages/todolist/detail_todo.dart';
 
 enum PageMember {
   hapusMember,
@@ -56,6 +58,11 @@ class _DetailProjectState extends State<DetailProject>
   TextEditingController _controllerdeskripsiTodo = TextEditingController();
   TextEditingController _tanggalawalTodoController = TextEditingController();
   TextEditingController _tanggalakhirTodoController = TextEditingController();
+
+  TextEditingController _titleProjectController = TextEditingController();
+  TextEditingController _deskripsiProjectController = TextEditingController();
+  TextEditingController _dateStartController = TextEditingController();
+  TextEditingController _dateEndController = TextEditingController();
   final format = DateFormat("yyyy-MM-dd HH:mm:ss");
   DateTime timeReplacement;
   ProgressDialog progressApiAction;
@@ -75,7 +82,7 @@ class _DetailProjectState extends State<DetailProject>
     getHeaderHTTP();
     datepickerlastTodo = FocusNode();
     _tabController =
-        TabController(length: 2, vsync: _DetailProjectState(), initialIndex: 0);
+        TabController(length: 3, vsync: _DetailProjectState(), initialIndex: 0);
     _tabController.addListener(_handleTabIndex);
     super.initState();
     listMemberProject = [];
@@ -90,13 +97,12 @@ class _DetailProjectState extends State<DetailProject>
     setState(() {
       _searchQuery.text = '';
     });
-    if (_tabController.index == 0) {
+    if (_tabController.index == 1) {
       filterMemberproject();
-    } else if (_tabController.index == 1) {
+    } else if (_tabController.index == 2) {
       filterTodoProject();
     }
     setState(() {
-      // ignore: new_with_non_type
       actionBackAppBar = true;
       iconButtonAppbarColor = true;
       this.actionIcon = new Icon(
@@ -331,6 +337,17 @@ class _DetailProjectState extends State<DetailProject>
         print(getDetailProjectJson);
         var todos = getDetailProjectJson['todo'];
         var members = getDetailProjectJson['member'];
+        Map rawProject = getDetailProjectJson['project'];
+        if (mounted) {
+          setState(() {
+            _titleProjectController.text = rawProject['p_name'];
+            _dateStartController.text = DateFormat('dd-MM-yyyy')
+                .format(DateTime.parse(rawProject['p_timestart']));
+            _dateEndController.text = DateFormat('dd-MM-yyyy')
+                .format(DateTime.parse(rawProject['p_timeend']));
+            _deskripsiProjectController.text = rawProject['p_desc'];
+          });
+        }
 
         for (var i in todos) {
           Todo todo = Todo(
@@ -976,6 +993,20 @@ class _DetailProjectState extends State<DetailProject>
                       children: <Widget>[
                         Padding(
                           padding: const EdgeInsets.only(top: 5.0, bottom: 5.0),
+                          child: Text('Information',
+                              style: TextStyle(
+                                  fontSize: 14, color: Colors.black38)),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Tab(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        Padding(
+                          padding: const EdgeInsets.only(top: 5.0, bottom: 5.0),
                           child: Text('Member',
                               style: TextStyle(
                                   fontSize: 14, color: Colors.black38)),
@@ -1006,6 +1037,159 @@ class _DetailProjectState extends State<DetailProject>
               child: TabBarView(
                 controller: _tabController,
                 children: [
+                  Container(
+                    padding: EdgeInsets.all(10.0),
+                    margin: EdgeInsets.only(top: 5.0),
+                    color: Colors.white,
+                    child: SingleChildScrollView(
+                      child: Column(
+                        children: <Widget>[
+                          isLoading == true
+                              ? _loadingview()
+                              : isError == true
+                                  ? errorSystem(context)
+                                  : Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      children: <Widget>[
+                                        Container(
+                                          margin: EdgeInsets.only(bottom: 10.0),
+                                          child: Text(
+                                            'Edit Data Project',
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.w500),
+                                          ),
+                                        ),
+                                        Divider(),
+                                        Container(
+                                            margin: EdgeInsets.only(
+                                                bottom: 10.0, top: 10.0),
+                                            child: TextField(
+                                              textAlignVertical:
+                                                  TextAlignVertical.center,
+                                              decoration: InputDecoration(
+                                                  contentPadding:
+                                                      EdgeInsets.only(
+                                                          top: 2,
+                                                          bottom: 2,
+                                                          left: 10,
+                                                          right: 10),
+                                                  border: OutlineInputBorder(),
+                                                  hintText: 'Nama Project',
+                                                  hintStyle: TextStyle(
+                                                      fontSize: 12,
+                                                      color: Colors.black)),
+                                              controller:
+                                                  _titleProjectController,
+                                            )),
+                                        Container(
+                                          margin: EdgeInsets.only(bottom: 10.0),
+                                          child: DateTimeField(
+                                            controller: _dateStartController,
+                                            readOnly: true,
+                                            format: DateFormat("dd-MM-yyyy"),
+                                            decoration: InputDecoration(
+                                              contentPadding: EdgeInsets.only(
+                                                  top: 2,
+                                                  bottom: 2,
+                                                  left: 10,
+                                                  right: 10),
+                                              border: OutlineInputBorder(),
+                                              hintText:
+                                                  'Tanggal Dimulainya Project',
+                                              hintStyle: TextStyle(
+                                                  fontSize: 12,
+                                                  color: Colors.black),
+                                            ),
+                                            onShowPicker:
+                                                (context, currentValue) {
+                                              return showDatePicker(
+                                                  context: context,
+                                                  firstDate: DateTime(2000),
+                                                  initialDate: DateTime.now(),
+                                                  lastDate: DateTime(2100));
+                                            },
+                                            onChanged: (ini) {
+                                              setState(() {
+                                                _dateEndController.text = '';
+                                              });
+                                            },
+                                          ),
+                                        ),
+                                        Container(
+                                          margin: EdgeInsets.only(bottom: 10.0),
+                                          child: DateTimeField(
+                                            controller: _dateEndController,
+                                            readOnly: true,
+                                            format: DateFormat("dd-MM-yyyy"),
+                                            decoration: InputDecoration(
+                                              contentPadding: EdgeInsets.only(
+                                                  top: 2,
+                                                  bottom: 2,
+                                                  left: 10,
+                                                  right: 10),
+                                              border: OutlineInputBorder(),
+                                              hintText:
+                                                  'Tanggal Berakhirnya Project',
+                                              hintStyle: TextStyle(
+                                                  fontSize: 12,
+                                                  color: Colors.black),
+                                            ),
+                                            onShowPicker:
+                                                (context, currentValue) {
+                                              DateFormat inputFormat =
+                                                  DateFormat("dd-MM-yyyy");
+                                              DateTime dateTime = inputFormat.parse(
+                                                  "${_dateStartController.text}");
+                                              return showDatePicker(
+                                                  context: context,
+                                                  firstDate:
+                                                      _dateStartController
+                                                                  .text ==
+                                                              ''
+                                                          ? DateTime(2000)
+                                                          : dateTime,
+                                                  initialDate:
+                                                      _dateStartController
+                                                                  .text ==
+                                                              ''
+                                                          ? DateTime.now()
+                                                          : dateTime,
+                                                  lastDate: DateTime(2100));
+                                            },
+                                          ),
+                                        ),
+                                        Container(
+                                            margin: EdgeInsets.only(
+                                              bottom: 10.0,
+                                            ),
+                                            child: TextField(
+                                              maxLines: 5,
+                                              textAlignVertical:
+                                                  TextAlignVertical.center,
+                                              decoration: InputDecoration(
+                                                  contentPadding:
+                                                      EdgeInsets.only(
+                                                          top: 5,
+                                                          bottom: 5,
+                                                          left: 10,
+                                                          right: 10),
+                                                  border: OutlineInputBorder(),
+                                                  hintText: 'Deskripsi Project',
+                                                  hintStyle: TextStyle(
+                                                      fontSize: 12,
+                                                      color: Colors.black)),
+                                              controller:
+                                                  _deskripsiProjectController,
+                                            )),
+                                      ],
+                                    ),
+                        ],
+                      ),
+                    ),
+                  ),
                   Container(
                     child: SingleChildScrollView(
                       child: Column(
@@ -1299,7 +1483,16 @@ class _DetailProjectState extends State<DetailProject>
                                                                             ),
                                                                           ),
                                                                           trailing: item.roleid == '1'
-                                                                              ? null
+                                                                              ? ButtonTheme(
+                                                                                  minWidth: 0,
+                                                                                  height: 0.0,
+                                                                                  child: FlatButton(
+                                                                                    onPressed: null,
+                                                                                    disabledColor: Colors.white,
+                                                                                    color: Colors.white,
+                                                                                    child: Icon(Icons.lock),
+                                                                                  ),
+                                                                                )
                                                                               : Row(
                                                                                   mainAxisSize: MainAxisSize.min,
                                                                                   children: <Widget>[
@@ -1652,6 +1845,8 @@ class _DetailProjectState extends State<DetailProject>
                                                                           15.0,
                                                                       right:
                                                                           15.0,
+                                                                      bottom:
+                                                                          15.0,
                                                                     ),
                                                                     child:
                                                                         Center(
@@ -1681,95 +1876,92 @@ class _DetailProjectState extends State<DetailProject>
                                                                     MainAxisAlignment
                                                                         .center,
                                                                 children: listTodoProject
-                                                                    .map((Todo item) => Card(
-                                                                        elevation: 0.6,
-                                                                        child: ListTile(
-                                                                          leading:
-                                                                              Padding(
-                                                                            padding:
-                                                                                const EdgeInsets.all(0.0),
-                                                                            child:
-                                                                                ClipRRect(
-                                                                              borderRadius: BorderRadius.circular(100.0),
-                                                                              child: Container(
-                                                                                height: 40.0,
-                                                                                alignment: Alignment.center,
-                                                                                width: 40.0,
-                                                                                decoration: BoxDecoration(
-                                                                                  border: Border.all(color: Colors.white, width: 2.0),
-                                                                                  borderRadius: BorderRadius.all(Radius.circular(100.0) //                 <--- border radius here
+                                                                    .map((Todo item) => InkWell(
+                                                                        onTap: () async {
+                                                                          Navigator.push(
+                                                                              context,
+                                                                              MaterialPageRoute(
+                                                                                  builder: (context) => ManajemenDetailTodo(
+                                                                                        idtodo: item.id,
+                                                                                        namatodo: item.title,
+                                                                                      )));
+                                                                        },
+                                                                        child: Card(
+                                                                            elevation: 0.6,
+                                                                            child: ListTile(
+                                                                              leading: Padding(
+                                                                                padding: const EdgeInsets.all(0.0),
+                                                                                child: ClipRRect(
+                                                                                  borderRadius: BorderRadius.circular(100.0),
+                                                                                  child: Container(
+                                                                                    height: 40.0,
+                                                                                    alignment: Alignment.center,
+                                                                                    width: 40.0,
+                                                                                    decoration: BoxDecoration(
+                                                                                      border: Border.all(color: Colors.white, width: 2.0),
+                                                                                      borderRadius: BorderRadius.all(Radius.circular(100.0) //                 <--- border radius here
+                                                                                          ),
+                                                                                      color: primaryAppBarColor,
+                                                                                    ),
+                                                                                    child: Text(
+                                                                                      '${item.title[0]}',
+                                                                                      style: TextStyle(
+                                                                                        color: Colors.white,
                                                                                       ),
-                                                                                  color: primaryAppBarColor,
-                                                                                ),
-                                                                                child: Text(
-                                                                                  '${item.title[0]}',
-                                                                                  style: TextStyle(
-                                                                                    color: Colors.white,
+                                                                                    ),
                                                                                   ),
                                                                                 ),
                                                                               ),
-                                                                            ),
-                                                                          ),
-                                                                          title: Text(
-                                                                              item.title == '' || item.title == null ? 'To Do Tidak Diketahui' : item.title,
-                                                                              overflow: TextOverflow.ellipsis,
-                                                                              softWrap: true,
-                                                                              maxLines: 1,
-                                                                              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
-                                                                          subtitle:
-                                                                              Padding(
-                                                                            padding:
-                                                                                const EdgeInsets.only(top: 15.0),
-                                                                            child:
-                                                                                Column(
-                                                                              crossAxisAlignment: CrossAxisAlignment.start,
-                                                                              mainAxisAlignment: MainAxisAlignment.start,
-                                                                              children: <Widget>[
-                                                                                Text(item.status == '' || item.status == null ? 'Status Tidak Diketahui' : item.status,
-                                                                                    style: TextStyle(
-                                                                                      fontWeight: FontWeight.w500,
-                                                                                    )),
-                                                                              ],
-                                                                            ),
-                                                                          ),
-                                                                          trailing:
-                                                                              Row(
-                                                                            mainAxisSize:
-                                                                                MainAxisSize.min,
-                                                                            children: <Widget>[
-                                                                              PopupMenuButton<PageTodo>(
-                                                                                onSelected: (PageTodo value) {
-                                                                                  switch (value) {
-                                                                                    case PageTodo.hapusTodo:
-                                                                                      hapusTodo(item.id.toString());
-                                                                                      break;
-                                                                                    case PageTodo.gantistatusTodo:
-                                                                                      gantiStatusTodo(item.id, item.status);
-                                                                                      break;
+                                                                              title: Text(item.title == '' || item.title == null ? 'To Do Tidak Diketahui' : item.title, overflow: TextOverflow.ellipsis, softWrap: true, maxLines: 1, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
+                                                                              subtitle: Padding(
+                                                                                padding: const EdgeInsets.only(top: 15.0),
+                                                                                child: Column(
+                                                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                                                  mainAxisAlignment: MainAxisAlignment.start,
+                                                                                  children: <Widget>[
+                                                                                    Text(item.status == '' || item.status == null ? 'Status Tidak Diketahui' : item.status,
+                                                                                        style: TextStyle(
+                                                                                          fontWeight: FontWeight.w500,
+                                                                                        )),
+                                                                                  ],
+                                                                                ),
+                                                                              ),
+                                                                              trailing: Row(
+                                                                                mainAxisSize: MainAxisSize.min,
+                                                                                children: <Widget>[
+                                                                                  PopupMenuButton<PageTodo>(
+                                                                                    onSelected: (PageTodo value) {
+                                                                                      switch (value) {
+                                                                                        case PageTodo.hapusTodo:
+                                                                                          hapusTodo(item.id.toString());
+                                                                                          break;
+                                                                                        case PageTodo.gantistatusTodo:
+                                                                                          gantiStatusTodo(item.id, item.status);
+                                                                                          break;
 
-                                                                                    default:
-                                                                                      break;
-                                                                                  }
-                                                                                },
-                                                                                icon: Icon(Icons.more_vert),
-                                                                                itemBuilder: (context) => [
-                                                                                  PopupMenuItem(
-                                                                                    value: PageTodo.gantistatusTodo,
-                                                                                    child: Text("Ganti Status To Do"),
-                                                                                  ),
-                                                                                  // PopupMenuItem(
-                                                                                  //   // value: PageEnum.deletePeserta,
-                                                                                  //   child: Text("Atur Member To Do"),
-                                                                                  // ),
-                                                                                  PopupMenuItem(
-                                                                                    value: PageTodo.hapusTodo,
-                                                                                    child: Text("Hapus To Do"),
+                                                                                        default:
+                                                                                          break;
+                                                                                      }
+                                                                                    },
+                                                                                    icon: Icon(Icons.more_vert),
+                                                                                    itemBuilder: (context) => [
+                                                                                      PopupMenuItem(
+                                                                                        value: PageTodo.gantistatusTodo,
+                                                                                        child: Text("Ganti Status To Do"),
+                                                                                      ),
+                                                                                      // PopupMenuItem(
+                                                                                      //   // value: PageEnum.deletePeserta,
+                                                                                      //   child: Text("Atur Member To Do"),
+                                                                                      // ),
+                                                                                      PopupMenuItem(
+                                                                                        value: PageTodo.hapusTodo,
+                                                                                        child: Text("Hapus To Do"),
+                                                                                      ),
+                                                                                    ],
                                                                                   ),
                                                                                 ],
                                                                               ),
-                                                                            ],
-                                                                          ),
-                                                                        )))
+                                                                            ))))
                                                                     .toList(),
                                                               ),
                                                             ),
@@ -1786,8 +1978,71 @@ class _DetailProjectState extends State<DetailProject>
           ],
         ),
       ),
-      // floatingActionButton: _bottomButtons(),
+      floatingActionButton: _bottomButtons(),
     );
+  }
+
+  void updateproject() async {
+    await progressApiAction.show();
+    try {
+      dynamic body = {
+        'project': widget.idproject.toString(),
+        'nama_project': _titleProjectController.text,
+        'tanggal_awal': _dateStartController.text,
+        'tanggal_akhir': _dateEndController.text,
+        'deskripsi_project': _deskripsiProjectController.text,
+      };
+      final updateProjectUrl = await http.post(url('api/update_data_project'),
+          body: body, headers: requestHeaders);
+
+      if (updateProjectUrl.statusCode == 200) {
+        var updateProjectJson = json.decode(updateProjectUrl.body);
+        if (updateProjectJson['status'] == 'success') {}
+        progressApiAction.hide().then((isHidden) => null);
+        Fluttertoast.showToast(msg: 'Berhasil');
+        getHeaderHTTP();
+      } else {
+        progressApiAction.hide().then((isHidden) => null);
+        Fluttertoast.showToast(msg: 'Gagal, Silahkan Coba kembali');
+      }
+    } on TimeoutException catch (_) {
+      progressApiAction.hide().then((isHidden) => null);
+      Fluttertoast.showToast(msg: 'Time Out, Try Again');
+    } catch (e) {
+      Fluttertoast.showToast(msg: 'Gagal, Silahkan Coba Kembali');
+      progressApiAction.hide().then((isHidden) => null);
+      print(e.toString());
+    }
+  }
+
+  Widget _bottomButtons() {
+    return _tabController.index == 0
+        ? DraggableFab(
+            child: FloatingActionButton(
+                shape: StadiumBorder(),
+                onPressed: () async {
+                  if (_titleProjectController.text == '') {
+                    Fluttertoast.showToast(
+                        msg: 'Nama Project Tidak Boleh Kosong');
+                  } else if (_deskripsiProjectController.text == '') {
+                    Fluttertoast.showToast(
+                        msg: 'Deskripsi Project Tidak Boleh Kosong');
+                  } else if (_dateStartController.text == '') {
+                    Fluttertoast.showToast(
+                        msg: 'Tanggal Dimulainya Project Tidak Boleh Kosong');
+                  } else if (_dateEndController.text == '') {
+                    Fluttertoast.showToast(
+                        msg: 'Tanggal Berakhirnya Project Tidak Boleh Kosong');
+                  } else {
+                    updateproject();
+                  }
+                },
+                backgroundColor: Color.fromRGBO(254, 86, 14, 1),
+                child: Icon(
+                  Icons.check,
+                  size: 20.0,
+                )))
+        : _tabController.index == 1 ? null : null;
   }
 
   Widget _loadingview() {
@@ -1994,68 +2249,72 @@ class _DetailProjectState extends State<DetailProject>
           backgroundColor: primaryAppBarColor,
           automaticallyImplyLeading: actionBackAppBar,
           actions: <Widget>[
-            Container(
-              color: iconButtonAppbarColor == true
-                  ? primaryAppBarColor
-                  : Colors.white,
-              child: IconButton(
-                icon: actionIcon,
-                onPressed: isLoading == true || isError == true
-                    ? null
-                    : () {
-                        setState(() {
-                          if (this.actionIcon.icon == Icons.search) {
-                            actionBackAppBar = false;
-                            iconButtonAppbarColor = false;
-                            this.actionIcon = new Icon(
-                              Icons.close,
-                              color: Colors.black87,
-                            );
-                            this.appBarTitle = Container(
-                              height: 50.0,
-                              alignment: Alignment.center,
-                              padding: EdgeInsets.all(0),
-                              margin: EdgeInsets.all(0),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                              ),
-                              child: TextField(
-                                autofocus: true,
-                                textInputAction: TextInputAction.search,
-                                controller: _searchQuery,
-                                onSubmitted: (string) {
-                                  if (string != null || string != '') {
-                                    if (_tabController.index == 1) {
-                                      filterMemberproject();
-                                    } else if (_tabController.index == 2) {
-                                      filterTodoProject();
-                                    }
-                                  }
-                                },
-                                style: TextStyle(
-                                  color: Colors.black87,
-                                  fontSize: 14,
-                                ),
-                                textAlignVertical: TextAlignVertical.center,
-                                decoration: InputDecoration(
-                                  border: InputBorder.none,
-                                  prefixIcon: new Icon(Icons.search,
-                                      color: Colors.black87),
-                                  hintText: "Cari...",
-                                  hintStyle: TextStyle(
+            _tabController.index == 0
+                ? Container()
+                : Container(
+                    color: iconButtonAppbarColor == true
+                        ? primaryAppBarColor
+                        : Colors.white,
+                    child: IconButton(
+                      icon: actionIcon,
+                      onPressed: isLoading == true || isError == true
+                          ? null
+                          : () {
+                              setState(() {
+                                if (this.actionIcon.icon == Icons.search) {
+                                  actionBackAppBar = false;
+                                  iconButtonAppbarColor = false;
+                                  this.actionIcon = new Icon(
+                                    Icons.close,
                                     color: Colors.black87,
-                                    fontSize: 14,
-                                  ),
-                                ),
-                              ),
-                            );
-                          } else {
-                            _handleSearchEnd();
-                          }
-                        });
-                      },
-              ),
-            ),
+                                  );
+                                  this.appBarTitle = Container(
+                                    height: 50.0,
+                                    alignment: Alignment.center,
+                                    padding: EdgeInsets.all(0),
+                                    margin: EdgeInsets.all(0),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                    ),
+                                    child: TextField(
+                                      autofocus: true,
+                                      textInputAction: TextInputAction.search,
+                                      controller: _searchQuery,
+                                      onSubmitted: (string) {
+                                        if (string != null || string != '') {
+                                          if (_tabController.index == 1) {
+                                            filterMemberproject();
+                                          } else if (_tabController.index ==
+                                              2) {
+                                            filterTodoProject();
+                                          }
+                                        }
+                                      },
+                                      style: TextStyle(
+                                        color: Colors.black87,
+                                        fontSize: 14,
+                                      ),
+                                      textAlignVertical:
+                                          TextAlignVertical.center,
+                                      decoration: InputDecoration(
+                                        border: InputBorder.none,
+                                        prefixIcon: new Icon(Icons.search,
+                                            color: Colors.black87),
+                                        hintText: "Cari...",
+                                        hintStyle: TextStyle(
+                                          color: Colors.black87,
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                } else {
+                                  _handleSearchEnd();
+                                }
+                              });
+                            },
+                    ),
+                  ),
           ],
         ));
   }
