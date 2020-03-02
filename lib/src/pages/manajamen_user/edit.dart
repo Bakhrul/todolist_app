@@ -1,3 +1,4 @@
+import 'package:todolist_app/src/pages/manajamen_user/edit_photo_profile.dart';
 import 'package:todolist_app/src/routes/env.dart';
 import 'package:todolist_app/src/utils/utils.dart';
 import 'package:flutter/material.dart';
@@ -333,10 +334,10 @@ class _ProfileUserEdit extends State<ProfileUserEdit> {
               child: Column(
             children: <Widget>[
               GestureDetector(
-                // onTap: () {
-                //   Navigator.push(context,
-                //       MaterialPageRoute(builder: (context) => ImageEdit()));
-                // },
+                onTap: () {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => EditPhoto()));
+                },
                 child: imageStore == '-'
                     ? Container(
                         margin: EdgeInsets.only(top: 20),
