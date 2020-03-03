@@ -16,6 +16,7 @@ class Todo {
     dynamic status;
     int category;
     int progress;
+    int allday;
 
     Todo({
         this.id,
@@ -24,7 +25,8 @@ class Todo {
         this.end,
         this.status,
         this.category,
-        this.progress
+        this.progress,
+        this.allday,
     });
 
     factory Todo.fromJson(Map<String, dynamic> json) => Todo(

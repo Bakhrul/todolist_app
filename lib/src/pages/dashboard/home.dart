@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:todolist_app/src/pages/dashboard.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
-import 'package:random_color/random_color.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:todolist_app/src/model/Todo.dart';
 import 'package:todolist_app/src/model/Project.dart';
@@ -25,7 +24,7 @@ String emailStore, imageStore, namaStore, phoneStore, locationStore;
 TextEditingController _tanggalawalProjectController = TextEditingController();
 String _tanggalawalProject, _tanggalakhirProject;
 TextEditingController _tanggalakhirProjectController = TextEditingController();
-
+String imageData;
 List<T> map<T>(List list, Function handler) {
   List<T> result = [];
   for (var i = 0; i < list.length; i++) {
@@ -43,7 +42,6 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   ProgressDialog progressApiAction;
   final List<Color> listColor = [Colors.grey, Colors.red, Colors.blue];
-  RandomColor _randomColor = RandomColor();
   List<Project> listProject = [];
   bool isFilter, isErrorFilter, isLoading, isError;
   String tokenType, accessToken;
@@ -54,13 +52,15 @@ class _HomeState extends State<Home> {
   void getDataUser() async {
     DataStore user = new DataStore();
     String namaRawUser = await user.getDataString('name');
+    String imageStore = await user.getDataString('photo');
     setState(() {
+      imageData = imageStore;
       namaUser = namaRawUser;
     });
   }
 
   List listFilter = [
-    {'index': "1", 'name': "Belum Selesai"},
+    {'index': "1", 'name': "Molor"},
     {'index': "2", 'name': "Hari Ini"},
     {'index': "3", 'name': "Besok"},
     {'index': "4", 'name': "Lusa"},
@@ -232,8 +232,8 @@ class _HomeState extends State<Home> {
       isLoading = true;
     });
     try {
-      final participant =
-          await http.get(url('api/todo/$currentFilter'), headers: requestHeaders);
+      final participant = await http.get(url('api/todo/$currentFilter'),
+          headers: requestHeaders);
 
       if (participant.statusCode == 200) {
         var listParticipantToJson = json.decode(participant.body);
@@ -245,7 +245,15 @@ class _HomeState extends State<Home> {
               timeend: i['end'].toString(),
               timestart: i['start'].toString(),
               statuspinned: i['statuspinned'].toString(),
-              colored: _randomColor.randomColor());
+              allday: i['allday'],
+              statusProgress: i['statusprogress'],
+              coloredProgress: i['statusprogress'] == 'compleshed'
+                  ? Colors.green
+                  : i['statusprogress'] == 'overdue'
+                      ? Colors.red
+                      : i['statusprogress'] == 'pending'
+                          ? Colors.grey
+                          : Colors.white);
 
           listTodo.add(todo);
         }
@@ -317,7 +325,7 @@ class _HomeState extends State<Home> {
       if (participant.statusCode == 200) {
         var listParticipantToJson = json.decode(participant.body);
         var todos = listParticipantToJson;
-        print(todos);
+        // print(todos);
         for (var i in todos) {
           Todo todo = Todo(
               id: i['id'],
@@ -325,7 +333,14 @@ class _HomeState extends State<Home> {
               timeend: i['end'].toString(),
               timestart: i['start'].toString(),
               statuspinned: i['statuspinned'].toString(),
-              colored: _randomColor.randomColor());
+              allday: i['allday'],
+              coloredProgress: i['statusprogress'] == 'compleshed'
+                  ? Colors.green
+                  : i['statusprogress'] == 'overdue'
+                      ? Colors.red
+                      : i['statusprogress'] == 'pending'
+                          ? Colors.grey
+                          : Colors.white);
 
           listTodo.add(todo);
         }
@@ -570,22 +585,20 @@ class _HomeState extends State<Home> {
                               ),
                             ),
                             Container(
-                                height: 40.0,
-                                width: 40.0,
-                                margin: EdgeInsets.only(left:15.0),
-                                decoration: BoxDecoration(
-                                  border: Border.all(
-                                    color: Colors.white,
-                                    width: 1.5,
-                                  ),
-                                  borderRadius: BorderRadius.circular(100.0),
-                                ),
+                                margin: EdgeInsets.only(left: 20),
+                                height: 40,
+                                width: 40,
                                 child: ClipOval(
-                                  child: FadeInImage.assetNetwork(
-                                      placeholder: 'images/loading.gif',
-                                      image:
-                                          url('assets/images/imgavatar.png')),
-                                )),
+                                    child: FadeInImage.assetNetwork(
+                                        fit: BoxFit.cover,
+                                        placeholder: 'images/imgavatar.png',
+                                        image: imageData == null ||
+                                                imageData == ''
+                                            ? url('assets/images/imgavatar.png')
+                                            : url(
+                                                'storage/profile/$imageData'))))
+
+                            // :Text("uyee"),
                           ],
                         ),
                       ),
@@ -1149,7 +1162,7 @@ class _HomeState extends State<Home> {
                             : Container(
                                 margin: EdgeInsets.only(bottom: 16.0),
                                 child: Padding(
-                                  padding: const EdgeInsets.all(0.0),
+                                  padding: const EdgeInsets.all(8.0),
                                   child: Column(
                                     children: <Widget>[
                                       for (var x in listTodo)
@@ -1172,150 +1185,175 @@ class _HomeState extends State<Home> {
                                                     bottom: 5.0,
                                                     left: 0.0,
                                                     right: 0.0),
-                                                child: ListTile(
-                                                  leading: Padding(
-                                                    padding:
-                                                        const EdgeInsets.all(
-                                                            0.0),
-                                                    child: ClipRRect(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              100.0),
-                                                      child: Container(
-                                                          height: 40.0,
-                                                          alignment:
-                                                              Alignment.center,
-                                                          width: 40.0,
-                                                          decoration:
-                                                              BoxDecoration(
-                                                            border: Border.all(
-                                                                color: Colors
-                                                                    .white,
-                                                                width: 2.0),
-                                                            borderRadius:
-                                                                BorderRadius.all(
-                                                                    Radius.circular(
-                                                                        100.0) //                 <--- border radius here
-                                                                    ),
-                                                            color:
-                                                                primaryAppBarColor,
-                                                          ),
-                                                          child: Text(
-                                                            '${x.title[0].toUpperCase()}',
-                                                            style: TextStyle(
-                                                                color: Colors
-                                                                    .white,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .bold),
-                                                          )),
-                                                    ),
-                                                  ),
-                                                  trailing: Row(
-                                                    mainAxisSize:
-                                                        MainAxisSize.min,
-                                                    children: <Widget>[
-                                                      ButtonTheme(
-                                                        minWidth: 0.0,
-                                                        child: FlatButton(
-                                                            onPressed:
-                                                                () async {
-                                                              try {
-                                                                final actionPinnedTodo =
-                                                                    await http.post(
+                                                child: ClipPath(
+                                                  clipper: ShapeBorderClipper(
+                                                      shape:
+                                                          RoundedRectangleBorder(
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                          3))),
+                                                  child: Container(
+                                                    decoration: BoxDecoration(
+                                                        border: Border(
+                                                            right: BorderSide(
+                                                                color: x
+                                                                    .coloredProgress,
+                                                                width: 5))),
+                                                    child: ListTile(
+                                                      leading: Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .all(0.0),
+                                                        child: ClipRRect(
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(
+                                                                      100.0),
+                                                          child: Container(
+                                                              height: 40.0,
+                                                              alignment:
+                                                                  Alignment
+                                                                      .center,
+                                                              width: 40.0,
+                                                              decoration:
+                                                                  BoxDecoration(
+                                                                border: Border.all(
+                                                                    color: Colors
+                                                                        .white,
+                                                                    width: 2.0),
+                                                                borderRadius:
+                                                                    BorderRadius.all(
+                                                                        Radius.circular(
+                                                                            100.0) //                 <--- border radius here
+                                                                        ),
+                                                                color:
+                                                                    primaryAppBarColor,
+                                                              ),
+                                                              child: Text(
+                                                                '${x.title[0].toUpperCase()}',
+                                                                style: TextStyle(
+                                                                    color: Colors
+                                                                        .white,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .bold),
+                                                              )),
+                                                        ),
+                                                      ),
+                                                      trailing: Row(
+                                                        mainAxisSize:
+                                                            MainAxisSize.min,
+                                                        children: <Widget>[
+                                                          ButtonTheme(
+                                                            minWidth: 0.0,
+                                                            child: FlatButton(
+                                                                onPressed:
+                                                                    () async {
+                                                                  try {
+                                                                    final actionPinnedTodo = await http.post(
                                                                         url(
                                                                             'api/actionpinned_todo'),
                                                                         headers:
                                                                             requestHeaders,
                                                                         body: {
-                                                                      'todolist': x
-                                                                          .id
-                                                                          .toString(),
-                                                                    });
+                                                                          'todolist': x
+                                                                              .id
+                                                                              .toString(),
+                                                                        });
 
-                                                                if (actionPinnedTodo
-                                                                        .statusCode ==
-                                                                    200) {
-                                                                  var actionPinnedTodoJson =
-                                                                      json.decode(
-                                                                          actionPinnedTodo
-                                                                              .body);
-                                                                  if (actionPinnedTodoJson[
-                                                                          'status'] ==
-                                                                      'tambah') {
-                                                                    setState(
-                                                                        () {
-                                                                      x.statuspinned = x
-                                                                          .id
-                                                                          .toString();
-                                                                    });
-                                                                  } else if (actionPinnedTodoJson[
-                                                                          'status'] ==
-                                                                      'hapus') {
-                                                                    setState(
-                                                                        () {
-                                                                      x.statuspinned =
-                                                                          null;
-                                                                    });
-                                                                  }
-                                                                } else {
-                                                                  print(
-                                                                      actionPinnedTodo
+                                                                    if (actionPinnedTodo
+                                                                            .statusCode ==
+                                                                        200) {
+                                                                      var actionPinnedTodoJson =
+                                                                          json.decode(
+                                                                              actionPinnedTodo.body);
+                                                                      if (actionPinnedTodoJson[
+                                                                              'status'] ==
+                                                                          'tambah') {
+                                                                        setState(
+                                                                            () {
+                                                                          x.statuspinned = x
+                                                                              .id
+                                                                              .toString();
+                                                                        });
+                                                                      } else if (actionPinnedTodoJson[
+                                                                              'status'] ==
+                                                                          'hapus') {
+                                                                        setState(
+                                                                            () {
+                                                                          x.statuspinned =
+                                                                              null;
+                                                                        });
+                                                                      }
+                                                                    } else {
+                                                                      print(actionPinnedTodo
                                                                           .body);
-                                                                }
-                                                              } on TimeoutException catch (_) {
-                                                                Fluttertoast
-                                                                    .showToast(
-                                                                        msg:
-                                                                            "Timed out, Try again");
-                                                              } catch (e) {
-                                                                print(e);
-                                                              }
-                                                            },
-                                                            color: Colors.white,
-                                                            child: Icon(
-                                                              Icons.star_border,
-                                                              color: x.statuspinned ==
-                                                                          null ||
-                                                                      x.statuspinned ==
-                                                                          'null'
-                                                                  ? Colors.grey
-                                                                  : Colors
-                                                                      .orange,
-                                                            )),
+                                                                    }
+                                                                  } on TimeoutException catch (_) {
+                                                                    Fluttertoast
+                                                                        .showToast(
+                                                                            msg:
+                                                                                "Timed out, Try again");
+                                                                  } catch (e) {
+                                                                    print(e);
+                                                                  }
+                                                                },
+                                                                color: Colors
+                                                                    .white,
+                                                                child: Icon(
+                                                                  Icons
+                                                                      .star_border,
+                                                                  color: x.statuspinned == null ||
+                                                                          x.statuspinned ==
+                                                                              'null'
+                                                                      ? Colors
+                                                                          .grey
+                                                                      : Colors
+                                                                          .orange,
+                                                                )),
+                                                          ),
+                                                        ],
                                                       ),
-                                                    ],
+                                                      title: Text(
+                                                          x.title == '' ||
+                                                                  x.title ==
+                                                                      null
+                                                              ? 'To Do Tidak Diketahui'
+                                                              : x.title,
+                                                          overflow: TextOverflow
+                                                              .ellipsis,
+                                                          softWrap: true,
+                                                          maxLines: 1,
+                                                          style: TextStyle(
+                                                              fontSize: 14,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w500)),
+                                                      subtitle: Text(
+                                                          DateFormat(x.allday >
+                                                                          0
+                                                                      ? 'd/MM/y'
+                                                                      : 'd/MM/y HH:mm')
+                                                                  .format(DateTime
+                                                                      .parse(
+                                                                          "${x.timestart}"))
+                                                                  .toString() +
+                                                              ' - ' +
+                                                              DateFormat(x.allday >
+                                                                          0
+                                                                      ? 'd/MM/y'
+                                                                      : 'd/MM/y HH:mm')
+                                                                  .format(DateTime
+                                                                      .parse(
+                                                                          "${x.timeend}"))
+                                                                  .toString(),
+                                                          softWrap: true,
+                                                          overflow: TextOverflow
+                                                              .ellipsis,
+                                                          maxLines: 1),
+                                                    ),
                                                   ),
-                                                  title: Text(
-                                                      x.title == '' ||
-                                                              x.title == null
-                                                          ? 'To Do Tidak Diketahui'
-                                                          : x.title,
-                                                      overflow:
-                                                          TextOverflow.ellipsis,
-                                                      softWrap: true,
-                                                      maxLines: 1,
-                                                      style: TextStyle(
-                                                          fontSize: 14,
-                                                          fontWeight:
-                                                              FontWeight.w500)),
-                                                  subtitle: Text(
-                                                      DateFormat('d/MM/y HH:mm:ss')
-                                                              .format(DateTime
-                                                                  .parse(
-                                                                      "${x.timestart}"))
-                                                              .toString() +
-                                                          ' - ' +
-                                                          DateFormat(
-                                                                  'd/MM/y H:mm:ss')
-                                                              .format(DateTime
-                                                                  .parse(
-                                                                      "${x.timeend}"))
-                                                              .toString(),
-                                                      softWrap: true,
-                                                      overflow:
-                                                          TextOverflow.ellipsis,
-                                                      maxLines: 1),
                                                 )),
                                           ),
                                         ),

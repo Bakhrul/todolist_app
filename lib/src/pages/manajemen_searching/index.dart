@@ -37,7 +37,7 @@ class _ManajemenSerachTodoState extends State<ManajemenSerachTodo>
   TabController _tabController;
   int jumlahTodosearch, jumlahProjectsearch;
   List listFilter = [
-    {'index': "1", 'name': "Belum Selesai"},
+    {'index': "1", 'name': "Molor"},
     {'index': "2", 'name': "Hari Ini"},
     {'index': "3", 'name': "Besok"},
     {'index': "4", 'name': "Lusa"},
@@ -115,13 +115,22 @@ class _ManajemenSerachTodoState extends State<ManajemenSerachTodo>
         });
         for (var i in todos) {
           Todo todo = Todo(
-            id: i['tl_id'],
-            title: i['tl_title'],
-            desc: i['tl_desc'],
-            timestart: i['tl_planstart'],
-            timeend: i['tl_planend'],
-            statuspinned: i['tli_todolist'].toString(),
-          );
+              id: i['id'],
+              title: i['title'].toString(),
+              timeend: i['end'].toString(),
+              timestart: i['start'].toString(),
+              statuspinned: i['statuspinned'].toString(),
+              allday: i['allday'],
+              statusProgress: i['statusprogress'],
+              coloredProgress: i['statusprogress'] == 'compleshed' 
+              ? Colors.green 
+              : i['statusprogress'] == 'overdue' 
+              ? Colors.red
+              :  i['statusprogress'] == 'pending' 
+              ? Colors.grey
+              : Colors.white
+              );
+
           listTodoSearch.add(todo);
         }
 
@@ -490,75 +499,89 @@ class _ManajemenSerachTodoState extends State<ManajemenSerachTodo>
                                                                           child: Card(
                                                                               elevation: 0.5,
                                                                               margin: EdgeInsets.only(top: 5.0, bottom: 5.0, left: 0.0, right: 0.0),
-                                                                              child: ListTile(
-                                                                                leading: Padding(
-                                                                                  padding: const EdgeInsets.all(0.0),
-                                                                                  child: ClipRRect(
-                                                                                    borderRadius: BorderRadius.circular(100.0),
-                                                                                    child: Container(
-                                                                                        height: 40.0,
-                                                                                        alignment: Alignment.center,
-                                                                                        width: 40.0,
-                                                                                        decoration: BoxDecoration(
-                                                                                          border: Border.all(color: Colors.white, width: 2.0),
-                                                                                          borderRadius: BorderRadius.all(Radius.circular(100.0) //                 <--- border radius here
-                                                                                              ),
-                                                                                          color: primaryAppBarColor,
+                                                                              child: ClipPath(
+                                                                                clipper: ShapeBorderClipper(
+                                                                                  shape: RoundedRectangleBorder(
+                                                                                    borderRadius: BorderRadius.circular(3)
+
+                                                                                  )
+                                                                                ),
+                                                                                child: Container(
+                                                                                  decoration: BoxDecoration(
+                                                                                    border: Border(right: BorderSide(color: item.coloredProgress,width: 5))
+
+                                                                                  ),
+                                                                                  child: ListTile(
+                                                                                    leading: Padding(
+                                                                                      padding: const EdgeInsets.all(0.0),
+                                                                                      child: ClipRRect(
+                                                                                        borderRadius: BorderRadius.circular(100.0),
+                                                                                        child: Container(
+                                                                                            height: 40.0,
+                                                                                            alignment: Alignment.center,
+                                                                                            width: 40.0,
+                                                                                            decoration: BoxDecoration(
+                                                                                              border: Border.all(color: Colors.white, width: 2.0),
+                                                                                              borderRadius: BorderRadius.all(Radius.circular(100.0) //                 <--- border radius here
+                                                                                                  ),
+                                                                                              color: primaryAppBarColor,
+                                                                                            ),
+                                                                                            child: Text(
+                                                                                              '${item.title[0].toUpperCase()}',
+                                                                                              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                                                                                            )),
+                                                                                      ),
+                                                                                    ),
+                                                                                    trailing: Row(
+                                                                                      mainAxisSize: MainAxisSize.min,
+                                                                                      children: <Widget>[
+                                                                                        ButtonTheme(
+                                                                                          minWidth: 0.0,
+                                                                                          child: FlatButton(
+                                                                                              onPressed: () async {
+                                                                                                try {
+                                                                                                  final actionPinnedTodo = await http.post(url('api/actionpinned_todo'), headers: requestHeaders, body: {
+                                                                                                    'todolist': item.id.toString(),
+                                                                                                  });
+
+                                                                                                  if (actionPinnedTodo.statusCode == 200) {
+                                                                                                    var actionPinnedTodoJson = json.decode(actionPinnedTodo.body);
+                                                                                                    if (actionPinnedTodoJson['status'] == 'tambah') {
+                                                                                                      setState(() {
+                                                                                                        item.statuspinned = item.id.toString();
+                                                                                                      });
+                                                                                                    } else if (actionPinnedTodoJson['status'] == 'hapus') {
+                                                                                                      setState(() {
+                                                                                                        item.statuspinned = null;
+                                                                                                      });
+                                                                                                    }
+                                                                                                  } else {
+                                                                                                    print(actionPinnedTodo.body);
+                                                                                                  }
+                                                                                                } on TimeoutException catch (_) {
+                                                                                                  Fluttertoast.showToast(msg: "Timed out, Try again");
+                                                                                                } catch (e) {
+                                                                                                  print(e);
+                                                                                                }
+                                                                                              },
+                                                                                              color: Colors.white,
+                                                                                              child: Icon(
+                                                                                                Icons.star_border,
+                                                                                                color: item.statuspinned == null || item.statuspinned == 'null' ? Colors.grey : Colors.orange,
+                                                                                              )),
                                                                                         ),
-                                                                                        child: Text(
-                                                                                          '${item.title[0].toUpperCase()}',
-                                                                                          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                                                                                        )),
+                                                                                      ],
+                                                                                    ),
+                                                                                    title: Text(
+                                                                                      item.title == '' || item.title == null ? 'To Do Tidak Diketahui' : item.title,
+                                                                                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                                                                                      overflow: TextOverflow.ellipsis,
+                                                                                      softWrap: true,
+                                                                                      maxLines: 1,
+                                                                                    ),
+                                                                                    subtitle: Text(DateFormat(item.allday > 0 ? 'dd/MM/yyyy' : 'dd/MM/yyyy HH:mm:ss').format(DateTime.parse("${item.timestart}")).toString() + ' - ' + DateFormat(item.allday > 0 ? 'dd/MM/yyyy' : 'dd/MM/yyyy HH:mm:ss').format(DateTime.parse("${item.timeend}")).toString(), overflow: TextOverflow.ellipsis, maxLines: 1),
                                                                                   ),
                                                                                 ),
-                                                                                trailing: Row(
-                                                                                  mainAxisSize: MainAxisSize.min,
-                                                                                  children: <Widget>[
-                                                                                    ButtonTheme(
-                                                                                      minWidth: 0.0,
-                                                                                      child: FlatButton(
-                                                                                          onPressed: () async {
-                                                                                            try {
-                                                                                              final actionPinnedTodo = await http.post(url('api/actionpinned_todo'), headers: requestHeaders, body: {
-                                                                                                'todolist': item.id.toString(),
-                                                                                              });
-
-                                                                                              if (actionPinnedTodo.statusCode == 200) {
-                                                                                                var actionPinnedTodoJson = json.decode(actionPinnedTodo.body);
-                                                                                                if (actionPinnedTodoJson['status'] == 'tambah') {
-                                                                                                  setState(() {
-                                                                                                    item.statuspinned = item.id.toString();
-                                                                                                  });
-                                                                                                } else if (actionPinnedTodoJson['status'] == 'hapus') {
-                                                                                                  setState(() {
-                                                                                                    item.statuspinned = null;
-                                                                                                  });
-                                                                                                }
-                                                                                              } else {
-                                                                                                print(actionPinnedTodo.body);
-                                                                                              }
-                                                                                            } on TimeoutException catch (_) {
-                                                                                              Fluttertoast.showToast(msg: "Timed out, Try again");
-                                                                                            } catch (e) {
-                                                                                              print(e);
-                                                                                            }
-                                                                                          },
-                                                                                          color: Colors.white,
-                                                                                          child: Icon(
-                                                                                            Icons.star_border,
-                                                                                            color: item.statuspinned == null || item.statuspinned == 'null' ? Colors.grey : Colors.orange,
-                                                                                          )),
-                                                                                    ),
-                                                                                  ],
-                                                                                ),
-                                                                                title: Text(
-                                                                                  item.title == '' || item.title == null ? 'To Do Tidak Diketahui' : item.title,
-                                                                                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
-                                                                                  overflow: TextOverflow.ellipsis,
-                                                                                  softWrap: true,
-                                                                                  maxLines: 1,
-                                                                                ),
-                                                                                subtitle: Text(DateFormat('d/M/y HH:mm:ss').format(DateTime.parse("${item.timestart}")).toString() + ' - ' + DateFormat('d/M/y H:mm:ss').format(DateTime.parse("${item.timeend}")).toString(), overflow: TextOverflow.ellipsis, maxLines: 1),
                                                                               )),
                                                                         ),
                                                                       ))
