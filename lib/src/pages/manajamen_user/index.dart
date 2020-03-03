@@ -106,8 +106,8 @@ class _ManajemenUser extends State<ManajemenUser> {
                                               fit: BoxFit.cover,
                                               placeholder:
                                                   'images/imgavatar.png',
-                                              image: url(
-                                                  'storage/profile/$imageData'))))
+                                              image: imageData != '' ? url(
+                                                  'storage/profile/$imageData') : url('assets/images/noimage.jpg')  )))
                                   : Container(
                                       margin: EdgeInsets.only(top: 20),
                                       height: 40,
