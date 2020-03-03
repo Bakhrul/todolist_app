@@ -24,13 +24,23 @@ class ManajemenUser extends StatefulWidget {
 }
 
 class _ManajemenUser extends State<ManajemenUser> {
+  String imageData;
   Future<Null> removeSharedPrefs() async {
     DataStore dataStore = new DataStore();
     dataStore.clearData();
   }
 
+  void getDataUser() async {
+    DataStore user = new DataStore();
+    String imageStore = await user.getDataString('photo');
+    setState(() {
+      imageData = imageStore;
+    });
+  }
+
   @override
   void initState() {
+    getDataUser();
     super.initState();
   }
 
@@ -54,186 +64,193 @@ class _ManajemenUser extends State<ManajemenUser> {
         //       //     })
         //     ]),
         body: Container(
-          child: SingleChildScrollView(
-              child: Stack(
-            children: <Widget>[
-              Container(
-                height: 150,
-                width: double.infinity,
-                color: primaryAppBarColor,
-              ),
-              Container(
-                  margin: EdgeInsets.symmetric(horizontal: 8.0,vertical: 40.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+      child: SingleChildScrollView(
+          child: Stack(
+        children: <Widget>[
+          Container(
+            height: 150,
+            width: double.infinity,
+            color: primaryAppBarColor,
+          ),
+          Container(
+              margin: EdgeInsets.symmetric(horizontal: 8.0, vertical: 40.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Row(
                     children: <Widget>[
-                      Row(
-                        children: <Widget>[
-                          imageStore == '-'
-                              ? Container(
-                                  // margin: EdgeInsets.only(top: 20),
-                                  height: 60,
-                                  width: 60,
-                                  child: ClipOval(
-                                      child: Image.asset('images/imgavatar.png',
-                                          fit: BoxFit.fill)))
-                              : GestureDetector(
-                                  onTap: () {
-                                    Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) =>
-                                                ProfileUserEdit()));
-                                  },
-                                  child: Container(
-                                      // margin: EdgeInsets.only(top: 20),
-                                      height: 60,
-                                      width: 60,
+                      imageStore == '-'
+                          ? Container(
+                              // margin: EdgeInsets.only(top: 20),
+                              height: 60,
+                              width: 60,
+                              child: ClipOval(
+                                  child: Image.asset('images/imgavatar.png',
+                                      fit: BoxFit.fill)))
+                          : GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            ProfileUserEdit()));
+                              },
+                              child: imageData != ''
+                                  ? Container(
+                                      margin: EdgeInsets.only(top: 20),
+                                      height: 40,
+                                      width: 40,
                                       child: ClipOval(
-                                          child: imageProfile == null
-                                              ? FadeInImage.assetNetwork(
-                                                  fit: BoxFit.cover,
-                                                  placeholder:
-                                                      'images/imgavatar.png',
-                                                  image: url(
-                                                      'storage/image/profile/$imageStore'))
-                                              : Image.file(imageProfile))),
-                                ),
-                          Container(
-                            margin: EdgeInsets.symmetric(horizontal: 8.0),
-                            child:
-                                Text(namaStore == null ? 'memuat..' : namaStore,
-                                    style: TextStyle(
-                                      fontSize: 20.0,
-                                      color: Colors.white,
-                                    )),
-                          ),
-                        ],
-                      ),
+                                        
+                                          child: FadeInImage.assetNetwork(
+                                              fit: BoxFit.cover,
+                                              placeholder:
+                                                  'images/imgavatar.png',
+                                              image: url(
+                                                  'storage/profile/$imageData'))))
+                                  : Container(
+                                      margin: EdgeInsets.only(top: 20),
+                                      height: 40,
+                                      width: 40,
+                                      child: ClipOval(
+                                          child: Image.asset(
+                                              'images/imgavatar.png',
+                                              fit: BoxFit.fill))),
+                            ),
                       Container(
-                        decoration: new BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: new BorderRadius.only(
-                              topLeft: const Radius.circular(40.0),
-                              topRight: const Radius.circular(40.0),
+                        margin: EdgeInsets.symmetric(horizontal: 8.0),
+                        child: Text(namaStore == null ? 'memuat..' : namaStore,
+                            style: TextStyle(
+                              fontSize: 20.0,
+                              color: Colors.white,
                             )),
-                        margin: EdgeInsets.only(top: 20),
-                        width: double.infinity,
-                        padding: EdgeInsets.only(
-                          top: 20.0,
-                        ),
-                        // color: Colors.white,
-
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            InkWell(
-                              onTap: () {
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => ListProject()));
-                              },
-                              child: Container(
-                                  margin: EdgeInsets.only(bottom: 8.0),
-                                  child: ListTile(
-                                    leading: Icon(Icons.tab),
-                                    title: Text("Project"),
-                                  )),
-                            ),
-                            InkWell(
-                              onTap: () {
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => History()));
-                              },
-                              child: Container(
-                                  margin: EdgeInsets.only(bottom: 8.0),
-                                  child: ListTile(
-                                    leading: Icon(Icons.history),
-                                    title: Text("Riwayat"),
-                                  )),
-                            ),
-                            // InkWell(
-                            //   onTap: () {
-                            //     Navigator.push(
-                            //         context,
-                            //         MaterialPageRoute(
-                            //             builder: (context) => ActionTodo()));
-                            //   },
-                            //   child: Container(
-                            //       margin: EdgeInsets.only(bottom: 8.0),
-                            //       child: ListTile(
-                            //         leading: Icon(Icons.history),
-                            //         title: Text("Action"),
-                            //       )),
-                            // ),
-                            InkWell(
-                              onTap: () {
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => About()));
-                              },
-                              child: Container(
-                                  margin: EdgeInsets.only(bottom: 8.0),
-                                  child: ListTile(
-                                    leading: Icon(Icons.info_outline),
-                                    title: Text("Tentang"),
-                                  )),
-                            ),
-                            Container()
-                          ],
-                        ),
                       ),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 15, bottom: 20),
-                        child: Center(
-                            child: FlatButton(
-                          color: Colors.white,
-                          onPressed: () {
-                            showDialog(
-                              context: context,
-                              builder: (BuildContext context) => AlertDialog(
-                                title: Text('Peringatan!'),
-                                content: Text('Apa anda yakin ingin logout?'),
-                                actions: <Widget>[
-                                  FlatButton(
-                                    child: Text(
-                                      'Tidak',
-                                      style: TextStyle(color: Colors.black54),
-                                    ),
-                                    onPressed: () {
-                                      Navigator.pop(context);
-                                    },
-                                  ),
-                                  FlatButton(
-                                    child: Text(
-                                      'Ya',
-                                      style: TextStyle(color: Colors.cyan),
-                                    ),
-                                    onPressed: () {
-                                      removeSharedPrefs();
-                                      Navigator.pop(context);
-                                      Navigator.pushReplacement(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (BuildContext context) =>
-                                                  LoginPage()));
-                                    },
-                                  )
-                                ],
-                              ),
-                            );
-                          },
-                          child: Text("Logout"),
-                        )),
-                      )
                     ],
-                  ))
-            ],
-          )),
-        ));
+                  ),
+                  Container(
+                    decoration: new BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: new BorderRadius.only(
+                          topLeft: const Radius.circular(40.0),
+                          topRight: const Radius.circular(40.0),
+                        )),
+                    margin: EdgeInsets.only(top: 20),
+                    width: double.infinity,
+                    padding: EdgeInsets.only(
+                      top: 20.0,
+                    ),
+                    // color: Colors.white,
+
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        InkWell(
+                          onTap: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => ListProject()));
+                          },
+                          child: Container(
+                              margin: EdgeInsets.only(bottom: 8.0),
+                              child: ListTile(
+                                leading: Icon(Icons.tab),
+                                title: Text("Project"),
+                              )),
+                        ),
+                        InkWell(
+                          onTap: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => History()));
+                          },
+                          child: Container(
+                              margin: EdgeInsets.only(bottom: 8.0),
+                              child: ListTile(
+                                leading: Icon(Icons.history),
+                                title: Text("Riwayat"),
+                              )),
+                        ),
+                        // InkWell(
+                        //   onTap: () {
+                        //     Navigator.push(
+                        //         context,
+                        //         MaterialPageRoute(
+                        //             builder: (context) => ActionTodo()));
+                        //   },
+                        //   child: Container(
+                        //       margin: EdgeInsets.only(bottom: 8.0),
+                        //       child: ListTile(
+                        //         leading: Icon(Icons.history),
+                        //         title: Text("Action"),
+                        //       )),
+                        // ),
+                        InkWell(
+                          onTap: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => About()));
+                          },
+                          child: Container(
+                              margin: EdgeInsets.only(bottom: 8.0),
+                              child: ListTile(
+                                leading: Icon(Icons.info_outline),
+                                title: Text("Tentang"),
+                              )),
+                        ),
+                        Container()
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 15, bottom: 20),
+                    child: Center(
+                        child: FlatButton(
+                      color: Colors.white,
+                      onPressed: () {
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) => AlertDialog(
+                            title: Text('Peringatan!'),
+                            content: Text('Apa anda yakin ingin logout?'),
+                            actions: <Widget>[
+                              FlatButton(
+                                child: Text(
+                                  'Tidak',
+                                  style: TextStyle(color: Colors.black54),
+                                ),
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                },
+                              ),
+                              FlatButton(
+                                child: Text(
+                                  'Ya',
+                                  style: TextStyle(color: Colors.cyan),
+                                ),
+                                onPressed: () {
+                                  removeSharedPrefs();
+                                  Navigator.pop(context);
+                                  Navigator.pushReplacement(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (BuildContext context) =>
+                                              LoginPage()));
+                                },
+                              )
+                            ],
+                          ),
+                        );
+                      },
+                      child: Text("Logout"),
+                    )),
+                  )
+                ],
+              ))
+        ],
+      )),
+    ));
   }
 }

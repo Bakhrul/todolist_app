@@ -32,6 +32,7 @@ class _ProfileUserEdit extends State<ProfileUserEdit> {
   String phoneData;
   String locationData;
   File profileImageData;
+  String imageData;
   bool load = false;
   var storageApp = new DataStore();
   TextEditingController _controllerNama = new TextEditingController();
@@ -102,11 +103,14 @@ class _ProfileUserEdit extends State<ProfileUserEdit> {
     String emailUser = await user.getDataString('email');
     String phoneUser = await user.getDataString('phone');
     String locationUser = await user.getDataString('location');
+    String imageStored = await user.getDataString('photo');
+
 
     setState(() {
       namaData = namaUser;
       emailData = emailUser;
       phoneData = phoneUser;
+      imageData = imageStored ;
       locationData = locationUser;
       _controllerNama.text = namaUser;
       _controllerEmail.text = emailUser;
@@ -336,9 +340,9 @@ class _ProfileUserEdit extends State<ProfileUserEdit> {
               GestureDetector(
                 onTap: () {
                   Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => EditPhoto()));
+                      MaterialPageRoute(builder: (context) => EditPhoto(fileName: imageData,)));
                 },
-                child: imageStore == '-'
+                child: imageData == null
                     ? Container(
                         margin: EdgeInsets.only(top: 20),
                         height: 90,
@@ -351,13 +355,13 @@ class _ProfileUserEdit extends State<ProfileUserEdit> {
                         height: 90,
                         width: 90,
                         child: ClipOval(
-                            child: imageProfileEdit == null
-                                ? FadeInImage.assetNetwork(
+                            child: 
+                                 FadeInImage.assetNetwork(
                                     fit: BoxFit.cover,
                                     placeholder: 'images/imgavatar.png',
                                     image: url(
-                                        'storage/image/profile/$imageStore'))
-                                : Image.file(imageProfileEdit))),
+                                        'storage/profile/$imageData'))
+                                )),
               ),
               Container(
                 margin: EdgeInsets.only(bottom: 5.0, top: 10.0),

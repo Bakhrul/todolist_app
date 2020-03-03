@@ -176,7 +176,7 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
               activity: t['tlt_activity'],
               progress: t['tlt_progress'].toString(),
               note: t['tlt_note'],
-              updateat: DateFormat("dd MMMM yyyy")
+              updateat: DateFormat("dd MMM yyyy hh:mm:ss")
                   .format(DateTime.parse(t['tlt_created'])));
           todoActivityDetail.add(todo);
         }
@@ -850,8 +850,7 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
                                                   ? Row(
                                                       children: <Widget>[
                                                         Text(
-                                                          DateFormat(
-                                                                  'dd-MM-yyyy')
+                                                          DateFormat(dataTodo['tl_allday'] > 0 ? 'dd-MM-yyyy' : 'dd-MM-yyyy HH:MM')
                                                               .format(DateTime
                                                                   .parse(dataTodo[
                                                                       'tl_planstart'])),
@@ -868,8 +867,7 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
                                                   : Row(
                                                       children: <Widget>[
                                                         Text(
-                                                          DateFormat(
-                                                                  'dd-MM-yyyy')
+                                                          DateFormat(dataTodo['tl_allday'] > 0 ? 'dd-MM-yyyy' : 'dd-MM-yyyy HH:MM')
                                                               .format(DateTime
                                                                   .parse(dataTodo[
                                                                       'tl_planstart'])),

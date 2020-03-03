@@ -8,8 +8,10 @@ class Todo{
   String timeend;
   String status;
   String progress;
-  Color colored;
+  Color coloredProgress;
   String statuspinned;
+  int allday;
+  String statusProgress;
 
-  Todo({this.id,this.title, this.desc, this.timestart, this.timeend, this.status, this.progress,this.colored,this.statuspinned});
+  Todo({this.id,this.title, this.desc, this.timestart, this.timeend, this.status, this.progress,this.coloredProgress,this.statuspinned, this.allday, this.statusProgress});
 }
