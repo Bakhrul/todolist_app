@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:async';
 import 'dart:io';
 import 'package:flutter/services.dart';
-import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -14,6 +13,7 @@ import 'package:todolist_app/src/routes/env.dart';
 import 'package:todolist_app/src/storage/storage.dart';
 import 'package:todolist_app/src/utils/utils.dart';
 import 'package:http/http.dart' as http;
+import 'package:todolist_app/src/pages/dashboard.dart';
 
 String radioItem = 'Admin';
 enum PageEnum { editPeserta, hapusPeserta }
@@ -553,6 +553,12 @@ class _AddUserFileTodoState extends State<AddUserFileTodo>
     super.dispose();
   }
 
+  Future<bool> _willPopCallback() async {
+    // await showDialog or Show add banners or whatever
+    // then
+    return false; // return true if the route to be popped
+  }
+
   @override
   Widget build(BuildContext context) {
     progressApiAction = new ProgressDialog(context,
@@ -566,403 +572,390 @@ class _AddUserFileTodoState extends State<AddUserFileTodo>
         insetAnimCurve: Curves.easeInOut,
         messageTextStyle: TextStyle(
             color: Colors.black, fontSize: 12.0, fontWeight: FontWeight.w600));
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: primaryAppBarColor,
-        title: Text('Tambah Peserta Dan Document',
-            style: TextStyle(
-              fontSize: 14,
-            )),
-        actions: <Widget>[
-          IconButton(
-            onPressed: () async {
-              Navigator.pop(context);
-            },
-            icon: Icon(Icons.check),
-          )
-        ],
-      ),
-      body: Container(
-        child: Stack(
-          children: <Widget>[
-            Container(
-              width: double.infinity,
-              color: Colors.white,
-              child: TabBar(
-                controller: _tabController,
-                indicatorColor: primaryAppBarColor,
-                indicatorWeight: 2.0,
-                tabs: [
-                  Tab(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        Padding(
-                          padding: const EdgeInsets.only(top: 5.0, bottom: 5.0),
-                          child: Text('Peserta',
-                              style: TextStyle(
-                                  fontSize: 14, color: Colors.black38)),
+    return WillPopScope(
+        onWillPop: () => _willPopCallback(),
+        child: Scaffold(
+          appBar: AppBar(
+            backgroundColor: primaryAppBarColor,
+            title: Text('Tambah Peserta Dan Document',
+                style: TextStyle(
+                  fontSize: 14,
+                )),
+            automaticallyImplyLeading: false,
+            actions: <Widget>[
+              IconButton(
+                onPressed: () async {
+                  Navigator.pushReplacement(context,
+                      MaterialPageRoute(builder: (context) => Dashboard()));
+                },
+                icon: Icon(Icons.check),
+              )
+            ],
+          ),
+          body: Container(
+            child: Stack(
+              children: <Widget>[
+                Container(
+                  width: double.infinity,
+                  color: Colors.white,
+                  child: TabBar(
+                    controller: _tabController,
+                    indicatorColor: primaryAppBarColor,
+                    indicatorWeight: 2.0,
+                    tabs: [
+                      Tab(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            Padding(
+                              padding:
+                                  const EdgeInsets.only(top: 5.0, bottom: 5.0),
+                              child: Text('Peserta',
+                                  style: TextStyle(
+                                      fontSize: 14, color: Colors.black38)),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                  ),
-                  Tab(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        Padding(
-                          padding: const EdgeInsets.only(top: 5.0, bottom: 5.0),
-                          child: Text('Tambah Attachment',
-                              style: TextStyle(
-                                  fontSize: 14, color: Colors.black38)),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Container(
-              width: double.infinity,
-              margin: EdgeInsets.only(top: 60.0),
-              child: TabBarView(
-                controller: _tabController,
-                children: [
-                  Container(
-                    child: SingleChildScrollView(
-                      child: Column(
-                        children: <Widget>[
-                          isLoading == true
-                              ? _loadingview()
-                              : Column(
-                                  children: <Widget>[
-                                    isError == true
-                                        ? Container(
-                                            color: Colors.white,
-                                            margin: EdgeInsets.only(
-                                                top: 0.0,
-                                                left: 10.0,
-                                                right: 10.0),
-                                            padding: const EdgeInsets.only(
-                                                top: 10.0, bottom: 15.0),
-                                            child: RefreshIndicator(
-                                              onRefresh: () => getHeaderHTTP(),
-                                              child: Column(children: <Widget>[
-                                                new Container(
-                                                  width: 100.0,
-                                                  height: 100.0,
-                                                  child: Image.asset(
-                                                      "images/system-eror.png"),
-                                                ),
-                                                Padding(
-                                                  padding:
-                                                      const EdgeInsets.only(
-                                                    top: 30.0,
-                                                    left: 15.0,
-                                                    right: 15.0,
-                                                  ),
-                                                  child: Center(
-                                                    child: Text(
-                                                      "Gagal memuat halaman, tekan tombol muat ulang halaman untuk refresh halaman",
-                                                      style: TextStyle(
-                                                        fontSize: 16,
-                                                        color: Colors.black54,
-                                                        height: 1.5,
-                                                      ),
-                                                      textAlign:
-                                                          TextAlign.center,
-                                                    ),
-                                                  ),
-                                                ),
-                                                Padding(
-                                                  padding:
-                                                      const EdgeInsets.only(
-                                                          top: 15.0,
-                                                          left: 15.0,
-                                                          right: 15.0,
-                                                          bottom: 15.0),
-                                                  child: SizedBox(
-                                                    width: double.infinity,
-                                                    child: RaisedButton(
-                                                      color: Colors.white,
-                                                      textColor:
-                                                          primaryAppBarColor,
-                                                      disabledColor:
-                                                          Colors.grey,
-                                                      disabledTextColor:
-                                                          Colors.black,
-                                                      padding:
-                                                          EdgeInsets.all(15.0),
-                                                      onPressed: () async {
-                                                        // getDataProject();
-                                                      },
-                                                      child: Text(
-                                                        "Muat Ulang Halaman",
-                                                        style: TextStyle(
-                                                            fontSize: 14.0,
-                                                            fontWeight:
-                                                                FontWeight
-                                                                    .w500),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                              ]),
-                                            ),
-                                          )
-                                        : Container(
-                                            color: Colors.white,
-                                            margin: EdgeInsets.only(
-                                              top: 0.0,
-                                            ),
-                                            child: SingleChildScrollView(
-                                              child: Container(
-                                                child: Column(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .center,
-                                                    children: <Widget>[
-                                                      for (int item = 0;
-                                                          item <
-                                                              listUserItem
-                                                                  .length;
-                                                          item++)
-                                                        Card(
-                                                            elevation: 0.6,
-                                                            child: ListTile(
-                                                                title: Text(
-                                                                    listUserItem[item].name ==
-                                                                                '' ||
-                                                                            listUserItem[item].name ==
-                                                                                null
-                                                                        ? 'Nama Peserta Tidak Diketahui'
-                                                                        : listUserItem[item]
-                                                                            .name,
-                                                                    overflow:
-                                                                        TextOverflow
-                                                                            .ellipsis,
-                                                                    softWrap:
-                                                                        true,
-                                                                    maxLines: 1,
-                                                                    style: TextStyle(
-                                                                        fontSize:
-                                                                            14,
-                                                                        fontWeight:
-                                                                            FontWeight
-                                                                                .w500)),
-                                                                trailing: isAccess ==
-                                                                        false
-                                                                    ? Icon(Icons
-                                                                        .lock)
-                                                                    : PopupMenuButton<
-                                                                        PageEnum>(
-                                                                        onSelected:
-                                                                            (PageEnum
-                                                                                value) {
-                                                                          switch (
-                                                                              value) {
-                                                                            case PageEnum.editPeserta:
-                                                                              dialogAddPermision(item);
-                                                                              break;
-
-                                                                            case PageEnum.hapusPeserta:
-                                                                              showDialog(
-                                                                                context: context,
-                                                                                builder: (BuildContext context) => AlertDialog(
-                                                                                  title: Text('Peringatan!'),
-                                                                                  content: Text("Apakah Anda Yakin?"),
-                                                                                  actions: <Widget>[
-                                                                                    FlatButton(
-                                                                                      child: Text('Tidak'),
-                                                                                      onPressed: () {
-                                                                                        Navigator.pop(context);
-                                                                                      },
-                                                                                    ),
-                                                                                    FlatButton(
-                                                                                      textColor: Colors.green,
-                                                                                      child: Text('Ya'),
-                                                                                      onPressed: () async {
-                                                                                        setState(() {
-                                                                                          isCreate = true;
-                                                                                        });
-                                                                                        Navigator.pop(context);
-                                                                                        deletePeserta(item);
-                                                                                      },
-                                                                                    )
-                                                                                  ],
-                                                                                ),
-                                                                              );
-
-                                                                              break;
-                                                                            default:
-                                                                          }
-                                                                        },
-                                                                        itemBuilder:
-                                                                            (context) =>
-                                                                                [
-                                                                          PopupMenuItem(
-                                                                            value:
-                                                                                PageEnum.editPeserta,
-                                                                            child:
-                                                                                Text("Edit"),
-                                                                          ),
-                                                                          PopupMenuItem(
-                                                                            value:
-                                                                                PageEnum.hapusPeserta,
-                                                                            child:
-                                                                                Text("Hapus"),
-                                                                          ),
-                                                                        ],
-                                                                      )
-
-                                                                // subtitle:
-                                                                //     Text(
-                                                                //   '${item.start} - ${item.end}',
-                                                                //   style: TextStyle(fontSize:12),
-                                                                //   overflow:
-                                                                //       TextOverflow
-                                                                //           .ellipsis,
-                                                                //   softWrap:
-                                                                //       true,
-                                                                //   maxLines:
-                                                                //       1,
-                                                                // ),
-                                                                ))
-                                                    ]),
-                                              ),
-                                            )),
-                                  ],
-                                ),
-                        ],
                       ),
-                    ),
+                      Tab(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            Padding(
+                              padding:
+                                  const EdgeInsets.only(top: 5.0, bottom: 5.0),
+                              child: Text('Tambah Attachment',
+                                  style: TextStyle(
+                                      fontSize: 14, color: Colors.black38)),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
-                  Container(
-                    child: SingleChildScrollView(
-                      child: Column(
-                        children: <Widget>[
-                          isLoading == true
-                              ? _loadingview()
-                              : Column(
-                                  children: <Widget>[
-                                    Container(
-                                      padding: EdgeInsets.all(15.0),
-                                      color: Colors.white,
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.start,
-                                        children: <Widget>[
-                                          for (int item = 0;
-                                              item < listAttachmentItem.length;
-                                              item++)
-                                            Container(
+                ),
+                Container(
+                  width: double.infinity,
+                  margin: EdgeInsets.only(top: 60.0),
+                  child: TabBarView(
+                    controller: _tabController,
+                    children: [
+                      Container(
+                        child: SingleChildScrollView(
+                          child: Column(
+                            children: <Widget>[
+                              isLoading == true
+                                  ? _loadingview()
+                                  : Column(
+                                      children: <Widget>[
+                                        isError == true
+                                            ? Container(
+                                                color: Colors.white,
                                                 margin: EdgeInsets.only(
-                                                    bottom: 10.0),
-                                                child: Card(
-                                                  child: ListTile(
-                                                    leading: Icon(
-                                                      Icons.insert_drive_file,
-                                                      color: Colors.red,
+                                                    top: 0.0,
+                                                    left: 10.0,
+                                                    right: 10.0),
+                                                padding: const EdgeInsets.only(
+                                                    top: 10.0, bottom: 15.0),
+                                                child: RefreshIndicator(
+                                                  onRefresh: () =>
+                                                      getHeaderHTTP(),
+                                                  child:
+                                                      Column(children: <Widget>[
+                                                    new Container(
+                                                      width: 100.0,
+                                                      height: 100.0,
+                                                      child: Image.asset(
+                                                          "images/system-eror.png"),
                                                     ),
-                                                    title: Text(
-                                                      "${listAttachmentItem[item].path}",
-                                                      overflow:
-                                                          TextOverflow.ellipsis,
-                                                      softWrap: true,
-                                                      maxLines: 1,
-                                                      style: TextStyle(
-                                                          fontSize: 14),
+                                                    Padding(
+                                                      padding:
+                                                          const EdgeInsets.only(
+                                                        top: 30.0,
+                                                        left: 15.0,
+                                                        right: 15.0,
+                                                      ),
+                                                      child: Center(
+                                                        child: Text(
+                                                          "Gagal memuat halaman, tekan tombol muat ulang halaman untuk refresh halaman",
+                                                          style: TextStyle(
+                                                            fontSize: 16,
+                                                            color:
+                                                                Colors.black54,
+                                                            height: 1.5,
+                                                          ),
+                                                          textAlign:
+                                                              TextAlign.center,
+                                                        ),
+                                                      ),
                                                     ),
-                                                    trailing: isAccess == false
-                                                        ? Icon(Icons.lock)
-                                                        : ButtonTheme(
-                                                          minWidth: 0,
-                                                          height: 0,
-                                                          child: FlatButton(
-                                                            padding: EdgeInsets.all(0),
-                                                            onPressed: () {
-                                                              showDialog(
-                                                                context:
-                                                                    context,
-                                                                builder: (BuildContext
-                                                                        context) =>
-                                                                    AlertDialog(
-                                                                  title: Text(
-                                                                      'Peringatan!'),
-                                                                  content: Text(
-                                                                      "Apakah Anda Yakin?"),
-                                                                  actions: <
-                                                                      Widget>[
-                                                                    FlatButton(
-                                                                      child: Text(
-                                                                          'Tidak'),
-                                                                      onPressed:
-                                                                          () {
-                                                                        Navigator.pop(
-                                                                            context);
-                                                                      },
-                                                                    ),
-                                                                    FlatButton(
-                                                                      textColor:
-                                                                          Colors
-                                                                              .green,
-                                                                      child: Text(
-                                                                          'Ya'),
-                                                                      onPressed:
-                                                                          () async {
-                                                                        setState(
-                                                                            () {
-                                                                          isCreate =
-                                                                              true;
-                                                                        });
-                                                                        Navigator.pop(
-                                                                            context);
-                                                                        deleteFile(
-                                                                            item,
-                                                                            listAttachmentItem[item].id);
-                                                                      },
-                                                                    )
-                                                                  ],
-                                                                ),
-                                                              );
-                                                            },
-                                                            child: Icon(
-                                                                Icons.delete,color:Colors.red)),
-                                                  ),
+                                                    Padding(
+                                                      padding:
+                                                          const EdgeInsets.only(
+                                                              top: 15.0,
+                                                              left: 15.0,
+                                                              right: 15.0,
+                                                              bottom: 15.0),
+                                                      child: SizedBox(
+                                                        width: double.infinity,
+                                                        child: RaisedButton(
+                                                          color: Colors.white,
+                                                          textColor:
+                                                              primaryAppBarColor,
+                                                          disabledColor:
+                                                              Colors.grey,
+                                                          disabledTextColor:
+                                                              Colors.black,
+                                                          padding:
+                                                              EdgeInsets.all(
+                                                                  15.0),
+                                                          onPressed: () async {
+                                                            // getDataProject();
+                                                          },
+                                                          child: Text(
+                                                            "Muat Ulang Halaman",
+                                                            style: TextStyle(
+                                                                fontSize: 14.0,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w500),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ]),
+                                                ),
+                                              )
+                                            : Container(
+                                                color: Colors.white,
+                                                margin: EdgeInsets.only(
+                                                  top: 0.0,
+                                                ),
+                                                child: SingleChildScrollView(
+                                                  child: Container(
+                                                    child: Column(
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .center,
+                                                        children: <Widget>[
+                                                          for (int item = 0;
+                                                              item <
+                                                                  listUserItem
+                                                                      .length;
+                                                              item++)
+                                                            Card(
+                                                                elevation: 0.6,
+                                                                child: ListTile(
+                                                                    title: Text(
+                                                                        listUserItem[item].name == '' || listUserItem[item].name == null
+                                                                            ? 'Nama Peserta Tidak Diketahui'
+                                                                            : listUserItem[item]
+                                                                                .name,
+                                                                        overflow:
+                                                                            TextOverflow
+                                                                                .ellipsis,
+                                                                        softWrap:
+                                                                            true,
+                                                                        maxLines:
+                                                                            1,
+                                                                        style: TextStyle(
+                                                                            fontSize:
+                                                                                14,
+                                                                            fontWeight: FontWeight
+                                                                                .w500)),
+                                                                    trailing: isAccess ==
+                                                                            false
+                                                                        ? Icon(Icons
+                                                                            .lock)
+                                                                        : PopupMenuButton<
+                                                                            PageEnum>(
+                                                                            onSelected:
+                                                                                (PageEnum value) {
+                                                                              switch (value) {
+                                                                                case PageEnum.editPeserta:
+                                                                                  dialogAddPermision(item);
+                                                                                  break;
+
+                                                                                case PageEnum.hapusPeserta:
+                                                                                  showDialog(
+                                                                                    context: context,
+                                                                                    builder: (BuildContext context) => AlertDialog(
+                                                                                      title: Text('Peringatan!'),
+                                                                                      content: Text("Apakah Anda Yakin?"),
+                                                                                      actions: <Widget>[
+                                                                                        FlatButton(
+                                                                                          child: Text('Tidak'),
+                                                                                          onPressed: () {
+                                                                                            Navigator.pop(context);
+                                                                                          },
+                                                                                        ),
+                                                                                        FlatButton(
+                                                                                          textColor: Colors.green,
+                                                                                          child: Text('Ya'),
+                                                                                          onPressed: () async {
+                                                                                            setState(() {
+                                                                                              isCreate = true;
+                                                                                            });
+                                                                                            Navigator.pop(context);
+                                                                                            deletePeserta(item);
+                                                                                          },
+                                                                                        )
+                                                                                      ],
+                                                                                    ),
+                                                                                  );
+
+                                                                                  break;
+                                                                                default:
+                                                                              }
+                                                                            },
+                                                                            itemBuilder: (context) =>
+                                                                                [
+                                                                              PopupMenuItem(
+                                                                                value: PageEnum.editPeserta,
+                                                                                child: Text("Edit"),
+                                                                              ),
+                                                                              PopupMenuItem(
+                                                                                value: PageEnum.hapusPeserta,
+                                                                                child: Text("Hapus"),
+                                                                              ),
+                                                                            ],
+                                                                          )
+
+                                                                    // subtitle:
+                                                                    //     Text(
+                                                                    //   '${item.start} - ${item.end}',
+                                                                    //   style: TextStyle(fontSize:12),
+                                                                    //   overflow:
+                                                                    //       TextOverflow
+                                                                    //           .ellipsis,
+                                                                    //   softWrap:
+                                                                    //       true,
+                                                                    //   maxLines:
+                                                                    //       1,
+                                                                    // ),
+                                                                    ))
+                                                        ]),
                                                   ),
                                                 )),
-                                          Divider(),
-                                        ],
-                                      ),
-                                    )
-                                  ],
-                                ),
-                        ],
+                                      ],
+                                    ),
+                            ],
+                          ),
+                        ),
                       ),
-                    ),
+                      Container(
+                        child: SingleChildScrollView(
+                          child: Column(
+                            children: <Widget>[
+                              isLoading == true
+                                  ? _loadingview()
+                                  : Column(
+                                      children: <Widget>[
+                                        Container(
+                                          padding: EdgeInsets.all(15.0),
+                                          color: Colors.white,
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.start,
+                                            children: <Widget>[
+                                              for (int item = 0;
+                                                  item <
+                                                      listAttachmentItem.length;
+                                                  item++)
+                                                Container(
+                                                    margin: EdgeInsets.only(
+                                                        bottom: 10.0),
+                                                    child: Card(
+                                                      child: ListTile(
+                                                        leading: Icon(
+                                                          Icons
+                                                              .insert_drive_file,
+                                                          color: Colors.red,
+                                                        ),
+                                                        title: Text(
+                                                          "${listAttachmentItem[item].path}",
+                                                          overflow: TextOverflow
+                                                              .ellipsis,
+                                                          softWrap: true,
+                                                          maxLines: 1,
+                                                          style: TextStyle(
+                                                              fontSize: 14),
+                                                        ),
+                                                        trailing:
+                                                            isAccess == false
+                                                                ? Icon(
+                                                                    Icons.lock)
+                                                                : ButtonTheme(
+                                                                    minWidth: 0,
+                                                                    height: 0,
+                                                                    child: FlatButton(
+                                                                        padding: EdgeInsets.all(0),
+                                                                        onPressed: () {
+                                                                          showDialog(
+                                                                            context:
+                                                                                context,
+                                                                            builder: (BuildContext context) =>
+                                                                                AlertDialog(
+                                                                              title: Text('Peringatan!'),
+                                                                              content: Text("Apakah Anda Yakin?"),
+                                                                              actions: <Widget>[
+                                                                                FlatButton(
+                                                                                  child: Text('Tidak'),
+                                                                                  onPressed: () {
+                                                                                    Navigator.pop(context);
+                                                                                  },
+                                                                                ),
+                                                                                FlatButton(
+                                                                                  textColor: Colors.green,
+                                                                                  child: Text('Ya'),
+                                                                                  onPressed: () async {
+                                                                                    setState(() {
+                                                                                      isCreate = true;
+                                                                                    });
+                                                                                    Navigator.pop(context);
+                                                                                    deleteFile(item, listAttachmentItem[item].id);
+                                                                                  },
+                                                                                )
+                                                                              ],
+                                                                            ),
+                                                                          );
+                                                                        },
+                                                                        child: Icon(Icons.delete, color: Colors.red)),
+                                                                  ),
+                                                      ),
+                                                    )),
+                                              Divider(),
+                                            ],
+                                          ),
+                                        )
+                                      ],
+                                    ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
-      floatingActionButton: isAccess == false
-          ? Container()
-          : FloatingActionButton(
-              backgroundColor: primaryAppBarColor,
-              onPressed: () {
-                _tabController.index == 0
-                    ? showModalAddPeserta()
-                    : showModalAddFile();
-              },
-              child: Icon(Icons.add),
-            ),
-    );
+          ),
+          floatingActionButton: isAccess == false
+              ? Container()
+              : FloatingActionButton(
+                  backgroundColor: primaryAppBarColor,
+                  onPressed: () {
+                    _tabController.index == 0
+                        ? showModalAddPeserta()
+                        : showModalAddFile();
+                  },
+                  child: Icon(Icons.add),
+                ),
+        ));
   }
 
   void _openFileExplorer() async {

@@ -5,10 +5,8 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
-import 'package:random_color/random_color.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:todolist_app/src/models/project.dart';
-import 'package:todolist_app/src/pages/manajemen_project/edit_project.dart';
 import 'package:todolist_app/src/routes/env.dart';
 import 'dart:async';
 
@@ -26,7 +24,6 @@ class _HistoryState extends State<History> {
   List<Project> listProject = [];
   bool isLoading = true;
   bool isError = true;
-  RandomColor _randomColor = RandomColor();
 
   @override
   void initState() {
@@ -78,7 +75,7 @@ class _HistoryState extends State<History> {
               status: i['status'].toString(),
               progress: i['progress'].toString(),
               isProject: i['isproject'],
-              colored: _randomColor.randomColor());
+              );
           listProject.add(participant);
         }
 

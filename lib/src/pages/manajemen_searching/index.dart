@@ -37,7 +37,7 @@ class _ManajemenSerachTodoState extends State<ManajemenSerachTodo>
   TabController _tabController;
   int jumlahTodosearch, jumlahProjectsearch;
   List listFilter = [
-    {'index': "1", 'name': "Belum Selesai"},
+    {'index': "1", 'name': "Molor"},
     {'index': "2", 'name': "Hari Ini"},
     {'index': "3", 'name': "Besok"},
     {'index': "4", 'name': "Lusa"},
@@ -907,41 +907,6 @@ class _ManajemenSerachTodoState extends State<ManajemenSerachTodo>
           ),
         ]),
       ),
-    );
-  }
-
-  Widget _errorFilter(BuildContext context) {
-    return Container(
-      color: Colors.white,
-      margin: EdgeInsets.only(
-        top: 15.0,
-      ),
-      padding: const EdgeInsets.only(top: 10.0, bottom: 15.0),
-      child: Column(children: <Widget>[
-        new Container(
-          width: 80.0,
-          height: 80.0,
-          child: Image.asset("images/system-eror.png"),
-        ),
-        Padding(
-          padding: const EdgeInsets.only(
-            top: 10.0,
-            left: 15.0,
-            right: 15.0,
-          ),
-          child: Center(
-            child: Text(
-              "Gagal Memuat Data, Silahkan Coba Kembali",
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.black54,
-                height: 1.5,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ),
-        ),
-      ]),
     );
   }
 }

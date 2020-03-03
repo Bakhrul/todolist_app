@@ -4,11 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
-import 'package:random_color/random_color.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:todolist_app/src/model/Project.dart';
 import 'package:todolist_app/src/pages/manajemen_project/detail_project.dart';
-import 'package:todolist_app/src/pages/manajemen_project/edit_project.dart';
 import 'package:todolist_app/src/routes/env.dart';
 import 'dart:async';
 
@@ -26,7 +24,6 @@ class _ListProjectState extends State<ListProject> {
   List<Project> listProject = [];
   bool isLoading = true;
   bool isError = true;
-  RandomColor _randomColor = RandomColor();
 
   @override
   void initState() {
@@ -75,7 +72,7 @@ class _ListProjectState extends State<ListProject> {
               title: i['title'].toString(),
               start: i['start'].toString(),
               end: i['end'].toString(),
-              colored: _randomColor.randomColor());
+    );
           listProject.add(participant);
         }
 

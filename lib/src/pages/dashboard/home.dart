@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:todolist_app/src/pages/dashboard.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
-import 'package:random_color/random_color.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:todolist_app/src/model/Todo.dart';
 import 'package:todolist_app/src/model/Project.dart';
@@ -43,7 +42,6 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   ProgressDialog progressApiAction;
   final List<Color> listColor = [Colors.grey, Colors.red, Colors.blue];
-  RandomColor _randomColor = RandomColor();
   List<Project> listProject = [];
   bool isFilter, isErrorFilter, isLoading, isError;
   String tokenType, accessToken;
@@ -62,7 +60,7 @@ class _HomeState extends State<Home> {
   }
 
   List listFilter = [
-    {'index': "1", 'name': "Belum Selesai"},
+    {'index': "1", 'name': "Molor"},
     {'index': "2", 'name': "Hari Ini"},
     {'index': "3", 'name': "Besok"},
     {'index': "4", 'name': "Lusa"},
@@ -178,7 +176,7 @@ class _HomeState extends State<Home> {
           listProject.add(participant);
         }
 
-        return getDataToDo(1);
+        return getDataToDo();
       } else if (participant.statusCode == 401) {
         Fluttertoast.showToast(
             msg: "Token Telah Kadaluwarsa, Silahkan Login Kembali");
@@ -218,7 +216,7 @@ class _HomeState extends State<Home> {
     return null;
   }
 
-  Future<List<List>> getDataToDo(index) async {
+  Future<List<List>> getDataToDo() async {
     var storage = new DataStore();
     var tokenTypeStorage = await storage.getDataString('token_type');
     var accessTokenStorage = await storage.getDataString('access_token');
@@ -234,8 +232,8 @@ class _HomeState extends State<Home> {
       isLoading = true;
     });
     try {
-      final participant =
-          await http.get(url('api/todo/$index'), headers: requestHeaders);
+      final participant = await http.get(url('api/todo/$currentFilter'),
+          headers: requestHeaders);
 
       if (participant.statusCode == 200) {
         var listParticipantToJson = json.decode(participant.body);
@@ -249,14 +247,13 @@ class _HomeState extends State<Home> {
               statuspinned: i['statuspinned'].toString(),
               allday: i['allday'],
               statusProgress: i['statusprogress'],
-              coloredProgress: i['statusprogress'] == 'compleshed' 
-              ? Colors.green 
-              : i['statusprogress'] == 'overdue' 
-              ? Colors.red
-              :  i['statusprogress'] == 'pending' 
-              ? Colors.grey
-              : Colors.white
-              );
+              coloredProgress: i['statusprogress'] == 'compleshed'
+                  ? Colors.green
+                  : i['statusprogress'] == 'overdue'
+                      ? Colors.red
+                      : i['statusprogress'] == 'pending'
+                          ? Colors.grey
+                          : Colors.white);
 
           listTodo.add(todo);
         }
@@ -337,14 +334,13 @@ class _HomeState extends State<Home> {
               timestart: i['start'].toString(),
               statuspinned: i['statuspinned'].toString(),
               allday: i['allday'],
-              coloredProgress: i['statusprogress'] == 'compleshed' 
-              ? Colors.green 
-              : i['statusprogress'] == 'overdue' 
-              ? Colors.red
-              :  i['statusprogress'] == 'pending' 
-              ? Colors.grey
-              : Colors.white
-              );
+              coloredProgress: i['statusprogress'] == 'compleshed'
+                  ? Colors.green
+                  : i['statusprogress'] == 'overdue'
+                      ? Colors.red
+                      : i['statusprogress'] == 'pending'
+                          ? Colors.grey
+                          : Colors.white);
 
           listTodo.add(todo);
         }
@@ -588,25 +584,19 @@ class _HomeState extends State<Home> {
                                 maxLines: 1,
                               ),
                             ),
-                            imageData != ''
-                                ? Container(
-                                    margin: EdgeInsets.only(top: 20),
-                                    height: 40,
-                                    width: 40,
-                                    child: ClipOval(
-                                        child: FadeInImage.assetNetwork(
-                                            fit: BoxFit.cover,
-                                            placeholder: 'images/imgavatar.png',
-                                            image: url(
+                            Container(
+                                margin: EdgeInsets.only(left: 20),
+                                height: 40,
+                                width: 40,
+                                child: ClipOval(
+                                    child: FadeInImage.assetNetwork(
+                                        fit: BoxFit.cover,
+                                        placeholder: 'images/imgavatar.png',
+                                        image: imageData == null ||
+                                                imageData == ''
+                                            ? url('assets/images/imgavatar.png')
+                                            : url(
                                                 'storage/profile/$imageData'))))
-                                : Container(
-                                    margin: EdgeInsets.only(top: 20),
-                                    height: 40,
-                                    width: 40,
-                                    child: ClipOval(
-                                        child: Image.asset(
-                                            'images/imgavatar.png',
-                                            fit: BoxFit.fill))),
 
                             // :Text("uyee"),
                           ],
@@ -1207,7 +1197,8 @@ class _HomeState extends State<Home> {
                                                     decoration: BoxDecoration(
                                                         border: Border(
                                                             right: BorderSide(
-                                                                color: x.coloredProgress,
+                                                                color: x
+                                                                    .coloredProgress,
                                                                 width: 5))),
                                                     child: ListTile(
                                                       leading: Padding(

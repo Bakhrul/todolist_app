@@ -43,6 +43,7 @@ class _DetailProjectState extends State<DetailProject>
   String tokenType, accessToken;
   var datepickerfirst, datepickerlast;
   bool focus;
+  String _alldayTipe;
   TextEditingController _controllerAddpeserta = TextEditingController();
   List<Todo> listTodoProject = [];
   List<Member> listMemberProject = [];
@@ -51,7 +52,6 @@ class _DetailProjectState extends State<DetailProject>
   String _urutkanvalue;
   Map<String, String> requestHeaders = Map();
   var datepickerlastTodo, datepickerfirstTodo;
-  String _tanggalawalTodo, _tanggalakhirTodo;
   bool actionBackAppBar, iconButtonAppbarColor;
   TextEditingController _searchQuery = TextEditingController();
   TextEditingController _controllerNamaTodo = TextEditingController();
@@ -69,14 +69,13 @@ class _DetailProjectState extends State<DetailProject>
   TabController _tabController;
   @override
   void initState() {
-    _tanggalawalTodo = 'kosong';
-    _tanggalakhirTodo = 'kosong';
     _controllerNamaTodo.text = '';
     _controllerdeskripsiTodo.text = '';
     _tanggalawalTodoController.text = '';
     _tanggalakhirTodoController.text = '';
     _controllerAddpeserta.text = '';
     actionBackAppBar = true;
+    _alldayTipe = '0';
     iconButtonAppbarColor = true;
     datepickerfirstTodo = FocusNode();
     getHeaderHTTP();
@@ -518,16 +517,15 @@ class _DetailProjectState extends State<DetailProject>
       final tambahtodoProject = await http
           .post(url('api/add_todo_project'), headers: requestHeaders, body: {
         'nama_todo': _controllerNamaTodo.text,
-        'tanggal_awal': _tanggalawalTodo == 'kosong'
+        'tanggal_awal': _tanggalawalTodoController.text == ''
             ? null
-            : DateFormat('dd-MM-y HH:mm:ss')
-                .format(DateTime.parse(_tanggalawalTodo)),
-        'tanggal_akhir': _tanggalakhirTodo == 'kosong'
+            : _tanggalawalTodoController.text,
+        'tanggal_akhir': _tanggalakhirTodoController.text == ''
             ? null
-            : DateFormat('dd-MM-y HH:mm:ss')
-                .format(DateTime.parse(_tanggalakhirTodo)),
+            : _tanggalakhirTodoController.text,
         'deskripsi': _controllerdeskripsiTodo.text,
         'project': widget.idproject.toString(),
+        'allday': _alldayTipe,
       });
 
       if (tambahtodoProject.statusCode == 200) {
@@ -538,8 +536,8 @@ class _DetailProjectState extends State<DetailProject>
             _controllerdeskripsiTodo.text = '';
             _tanggalawalTodoController.text = '';
             _tanggalakhirTodoController.text = '';
-            _tanggalawalTodo = 'kosong';
-            _tanggalakhirTodo = 'kosong';
+
+            _alldayTipe = '0';
           });
           progressApiAction.hide().then((isHidden) {
             print(isHidden);
@@ -553,8 +551,8 @@ class _DetailProjectState extends State<DetailProject>
           _controllerdeskripsiTodo.text = '';
           _tanggalawalTodoController.text = '';
           _tanggalakhirTodoController.text = '';
-          _tanggalawalTodo = 'kosong';
-          _tanggalakhirTodo = 'kosong';
+
+          _alldayTipe = '0';
         });
         print(tambahtodoProject.body);
         progressApiAction.hide().then((isHidden) {
@@ -568,8 +566,8 @@ class _DetailProjectState extends State<DetailProject>
         _controllerdeskripsiTodo.text = '';
         _tanggalawalTodoController.text = '';
         _tanggalakhirTodoController.text = '';
-        _tanggalawalTodo = 'kosong';
-        _tanggalakhirTodo = 'kosong';
+
+        _alldayTipe = '0';
       });
       progressApiAction.hide().then((isHidden) {
         print(isHidden);
@@ -581,14 +579,13 @@ class _DetailProjectState extends State<DetailProject>
         _controllerdeskripsiTodo.text = '';
         _tanggalawalTodoController.text = '';
         _tanggalakhirTodoController.text = '';
-        _tanggalawalTodo = 'kosong';
-        _tanggalakhirTodo = 'kosong';
+
+        _alldayTipe = '0';
       });
       progressApiAction.hide().then((isHidden) {
         print(isHidden);
       });
-      Fluttertoast.showToast(msg: "Gagal, Silahkan Coba Kembali");
-      print(e);
+      Fluttertoast.showToast(msg: "Gagal, silahkan coba kembali");
     }
   }
 
@@ -1589,6 +1586,50 @@ class _DetailProjectState extends State<DetailProject>
                                                           color: Colors.black,
                                                         )),
                                                   )),
+                                              Padding(
+                                                padding: const EdgeInsets.only(
+                                                    top: 10.0),
+                                                child: Text(
+                                                  "Pelaksanaan Kegiatan",
+                                                  style:
+                                                      TextStyle(fontSize: 14),
+                                                ),
+                                              ),
+                                              Row(
+                                                children: <Widget>[
+                                                  Container(
+                                                    margin: EdgeInsets.only(
+                                                        top: 10.0,
+                                                        bottom: 10.0),
+                                                    child: SizedBox(
+                                                      height: 24.0,
+                                                      width: 24.0,
+                                                      child: Checkbox(
+                                                        value:
+                                                            _alldayTipe == '0'
+                                                                ? false
+                                                                : true,
+                                                        activeColor:
+                                                            primaryAppBarColor,
+                                                        onChanged:
+                                                            (bool value) {
+                                                          setState(() {
+                                                            _alldayTipe =
+                                                                value == true
+                                                                    ? '1'
+                                                                    : '0';
+                                                            _tanggalawalTodoController
+                                                                .text = '';
+                                                            _tanggalakhirTodoController
+                                                                .text = '';
+                                                          });
+                                                        },
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  Text("All Day")
+                                                ],
+                                              ),
                                               Container(
                                                 height: 40.0,
                                                 alignment: Alignment.center,
@@ -1613,7 +1654,11 @@ class _DetailProjectState extends State<DetailProject>
                                                         color: Colors.black),
                                                   ),
                                                   readOnly: true,
-                                                  format: format,
+                                                  format: _alldayTipe == '0'
+                                                      ? DateFormat(
+                                                          "dd-MM-yyyy HH:mm:ss")
+                                                      : DateFormat(
+                                                          "dd-MM-yyyy "),
                                                   focusNode:
                                                       datepickerfirstTodo,
                                                   onShowPicker: (context,
@@ -1622,22 +1667,32 @@ class _DetailProjectState extends State<DetailProject>
                                                         await showDatePicker(
                                                             context: context,
                                                             firstDate:
-                                                                DateTime.now(),
+                                                                DateTime(2000),
                                                             initialDate:
                                                                 DateTime.now(),
                                                             lastDate:
                                                                 DateTime(2100));
                                                     if (date != null) {
-                                                      final time =
-                                                          await showTimePicker(
-                                                        context: context,
-                                                        initialTime: TimeOfDay
+                                                      if (_alldayTipe == '0') {
+                                                        final times =
+                                                            await showTimePicker(
+                                                          context: context,
+                                                          initialTime: TimeOfDay
+                                                              .fromDateTime(
+                                                                  currentValue ??
+                                                                      timeReplacement),
+                                                        );
+                                                        return DateTimeField
+                                                            .combine(
+                                                                date, times);
+                                                      } else {
+                                                        final time = TimeOfDay
                                                             .fromDateTime(
-                                                                currentValue ??
-                                                                    timeReplacement),
-                                                      );
-                                                      return DateTimeField
-                                                          .combine(date, time);
+                                                                timeReplacement);
+                                                        return DateTimeField
+                                                            .combine(
+                                                                date, time);
+                                                      }
                                                     } else {
                                                       return currentValue;
                                                     }
@@ -1646,12 +1701,6 @@ class _DetailProjectState extends State<DetailProject>
                                                     setState(() {
                                                       _tanggalakhirTodoController
                                                           .text = '';
-                                                      _tanggalakhirTodo =
-                                                          'kosong';
-                                                      _tanggalawalTodo =
-                                                          ini == null
-                                                              ? 'kosong'
-                                                              : ini.toString();
                                                     });
                                                   },
                                                 ),
@@ -1680,49 +1729,62 @@ class _DetailProjectState extends State<DetailProject>
                                                         color: Colors.black),
                                                   ),
                                                   readOnly: true,
-                                                  format: format,
+                                                  format: _alldayTipe == '0'
+                                                      ? DateFormat(
+                                                          "dd-MM-yyyy HH:mm:ss")
+                                                      : DateFormat(
+                                                          "dd-MM-yyyy "),
                                                   focusNode: datepickerlastTodo,
                                                   onShowPicker: (context,
                                                       currentValue) async {
+                                                    DateFormat inputFormat =
+                                                        DateFormat(
+                                                            "dd-MM-yyyy");
+                                                    DateTime dateTime =
+                                                        inputFormat.parse(
+                                                            "${_tanggalawalTodoController.text}");
                                                     final date = await showDatePicker(
                                                         context: context,
                                                         firstDate:
-                                                            _tanggalawalTodo ==
-                                                                    'kosong'
-                                                                ? DateTime.now()
-                                                                : DateTime.parse(
-                                                                    _tanggalawalTodo),
+                                                            _tanggalawalTodoController
+                                                                        .text ==
+                                                                    ''
+                                                                ? DateTime(2000)
+                                                                : dateTime,
                                                         initialDate:
-                                                            _tanggalawalTodo ==
-                                                                    'kosong'
+                                                            _tanggalawalTodoController
+                                                                        .text ==
+                                                                    ''
                                                                 ? DateTime.now()
-                                                                : DateTime.parse(
-                                                                    _tanggalawalTodo),
+                                                                : dateTime,
                                                         lastDate:
                                                             DateTime(2100));
                                                     if (date != null) {
-                                                      final time =
-                                                          await showTimePicker(
-                                                        context: context,
-                                                        initialTime: TimeOfDay
+                                                      if (_alldayTipe == '0') {
+                                                        final times =
+                                                            await showTimePicker(
+                                                          context: context,
+                                                          initialTime: TimeOfDay
+                                                              .fromDateTime(
+                                                                  currentValue ??
+                                                                      timeReplacement),
+                                                        );
+                                                        return DateTimeField
+                                                            .combine(
+                                                                date, times);
+                                                      } else {
+                                                        final time = TimeOfDay
                                                             .fromDateTime(
-                                                                currentValue ??
-                                                                    timeReplacement),
-                                                      );
-                                                      return DateTimeField
-                                                          .combine(date, time);
+                                                                timeReplacement);
+                                                        return DateTimeField
+                                                            .combine(
+                                                                date, time);
+                                                      }
                                                     } else {
                                                       return currentValue;
                                                     }
                                                   },
-                                                  onChanged: (ini) {
-                                                    setState(() {
-                                                      _tanggalakhirTodo =
-                                                          ini == null
-                                                              ? 'kosong'
-                                                              : ini.toString();
-                                                    });
-                                                  },
+                                                  onChanged: (ini) {},
                                                 ),
                                               ),
                                               Container(
@@ -1834,31 +1896,28 @@ class _DetailProjectState extends State<DetailProject>
                                                                         100.0,
                                                                     child: Image
                                                                         .asset(
-                                                                            "images/empty-white-box.png"),
+                                                                            "images/todo_icon2.png"),
                                                                   ),
                                                                   Padding(
-                                                                    padding:
-                                                                        const EdgeInsets
+                                                                    padding: const EdgeInsets
                                                                             .only(
-                                                                      top: 20.0,
-                                                                      left:
-                                                                          15.0,
-                                                                      right:
-                                                                          15.0,
-                                                                      bottom:
-                                                                          15.0,
-                                                                    ),
+                                                                        top:
+                                                                            20.0,
+                                                                        left:
+                                                                            25.0,
+                                                                        right:
+                                                                            25.0,
+                                                                        bottom:
+                                                                            35.0),
                                                                     child:
                                                                         Center(
                                                                       child:
                                                                           Text(
-                                                                        "To Do yang Anda Cari Tidak Ditemukan",
+                                                                        "To Do Yang Anda Cari Tidak Ditemukan",
                                                                         style:
                                                                             TextStyle(
                                                                           fontSize:
                                                                               16,
-                                                                          color:
-                                                                              Colors.black45,
                                                                           height:
                                                                               1.5,
                                                                         ),
