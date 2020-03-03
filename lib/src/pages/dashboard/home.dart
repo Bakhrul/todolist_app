@@ -176,7 +176,7 @@ class _HomeState extends State<Home> {
           listProject.add(participant);
         }
 
-        return getDataToDo(1);
+        return getDataToDo();
       } else if (participant.statusCode == 401) {
         Fluttertoast.showToast(
             msg: "Token Telah Kadaluwarsa, Silahkan Login Kembali");
@@ -216,7 +216,7 @@ class _HomeState extends State<Home> {
     return null;
   }
 
-  Future<List<List>> getDataToDo(index) async {
+  Future<List<List>> getDataToDo() async {
     var storage = new DataStore();
     var tokenTypeStorage = await storage.getDataString('token_type');
     var accessTokenStorage = await storage.getDataString('access_token');
@@ -233,7 +233,7 @@ class _HomeState extends State<Home> {
     });
     try {
       final participant =
-          await http.get(url('api/todo/$index'), headers: requestHeaders);
+          await http.get(url('api/todo/$currentFilter'), headers: requestHeaders);
 
       if (participant.statusCode == 200) {
         var listParticipantToJson = json.decode(participant.body);

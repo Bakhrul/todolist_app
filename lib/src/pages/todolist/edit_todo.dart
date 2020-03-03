@@ -1,9 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:todolist_app/src/routes/env.dart';
 import 'package:todolist_app/src/storage/storage.dart';
 import 'package:http/http.dart' as http;
@@ -66,7 +64,6 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
   TextEditingController _dateStartController = TextEditingController();
   TextEditingController _dateEndController = TextEditingController();
   TextEditingController _descController = TextEditingController();
-  TextEditingController _categoryController = TextEditingController();
   Map<String, String> requestHeaders = Map();
 
   void timeSetToMinute() {
@@ -268,7 +265,6 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
     super.initState();
     _loadingPath = false;
     isLoading = true;
-    _loadingPath = false;
   }
 
   @override
@@ -1699,6 +1695,7 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
                                                           .map(
                                                               (FileTodo item) =>
                                                                   Card(
+                                                                    elevation: 0.5,
                                                                     child:
                                                                         ListTile(
                                                                       leading:

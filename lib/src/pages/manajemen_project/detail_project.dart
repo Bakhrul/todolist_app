@@ -357,7 +357,7 @@ class _ManajemenDetailProjectAllState extends State<ManajemenDetailProjectAll> {
         headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
           return <Widget>[
             SliverAppBar(
-              expandedHeight: 200.0,
+              expandedHeight: 150.0,
               floating: false,
               pinned: true,
               centerTitle: false,

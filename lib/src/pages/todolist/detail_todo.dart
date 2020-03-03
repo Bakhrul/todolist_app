@@ -1,36 +1,36 @@
 import 'dart:io';
-
-import 'package:flutter_downloader/flutter_downloader.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:permission_handler/permission_handler.dart';
-import 'package:todolist_app/src/models/todo_action.dart';
-import 'package:todolist_app/src/pages/todolist/edit.dart';
-import 'package:todolist_app/src/routes/env.dart';
-import 'package:todolist_app/src/storage/storage.dart';
 import 'package:todolist_app/src/utils/utils.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
-import 'package:http/http.dart' as http;
 import 'dart:async';
-import 'package:unicorndial/unicorndial.dart';
-import 'package:percent_indicator/percent_indicator.dart';
 import 'dart:convert';
-import 'package:progress_dialog/progress_dialog.dart';
-import 'package:draggable_fab/draggable_fab.dart';
-import 'package:intl/intl.dart';
-import 'package:shimmer/shimmer.dart';
 
-//import element element detail todo
+//import file kebutuhan auth
+import 'package:todolist_app/src/routes/env.dart';
+import 'package:todolist_app/src/storage/storage.dart';
+
+//import model detail todo
 import 'package:todolist_app/src/model/TodoMember.dart';
 import 'package:todolist_app/src/model/TodoActivity.dart';
 import 'package:todolist_app/src/model/TodoAttachment.dart';
 import 'edit_todo.dart';
 
-//import  todo action, ready, done, normal
+//import model  todo action, ready, done, normal
 import 'package:todolist_app/src/model/TodoAction.dart';
 import 'package:todolist_app/src/model/TodoNormal.dart';
 import 'package:todolist_app/src/model/TodoReady.dart';
 import 'package:todolist_app/src/model/TodoDone.dart';
+
+//import package package pendukung
+import 'package:flutter_downloader/flutter_downloader.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:progress_dialog/progress_dialog.dart';
+import 'package:draggable_fab/draggable_fab.dart';
+import 'package:intl/intl.dart';
+import 'package:http/http.dart' as http;
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:percent_indicator/percent_indicator.dart';
+import 'package:shimmer/shimmer.dart';
 
 String tokenType, accessToken;
 String textValue;
@@ -50,7 +50,7 @@ class ManajemenDetailTodo extends StatefulWidget {
 
 class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
     with SingleTickerProviderStateMixin {
-  int _value = 6;
+  int _value;
   List<MemberTodo> todoMemberDetail = [];
   List<TodoActivity> todoActivityDetail = [];
   List<FileTodo> todoAttachmentDetail = [];
@@ -59,7 +59,12 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
   List<ToDoReady> listTodoReady = [];
   List<ToDoAction> listTodoAction = [];
   int minimalRealisasi;
-  bool isLoading, isError, isLoadingTodoAll, isErrorTodoAll;
+  bool isLoading,
+      isError,
+      isLoadingTodoAll,
+      isErrorTodoAll,
+      isLoadingActivity,
+      isErrorActivity;
   ProgressDialog progressApiAction;
   String projectPercent;
   TabController _tabController;
@@ -76,27 +81,28 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
     super.initState();
     getHeaderHTTP();
     textValue = null;
+    _value = 1;
     minimalRealisasi = 1;
     projectPercent = '0';
     _tabController = TabController(
-        length: 5, vsync: _ManajemenDetailTodoState(), initialIndex: 0);
+        length: 6, vsync: _ManajemenDetailTodoState(), initialIndex: 0);
     _tabController.addListener(_handleTabIndex);
   }
 
   void _handleTabIndex() {
-    if (_tabController.index == 2) {
+    if (_tabController.index == 3) {
       setState(() {
         listTodoReadyData();
       });
-    } else if (_tabController.index == 1) {
+    } else if (_tabController.index == 2) {
       setState(() {
         listTodoActionData();
       });
-    } else if (_tabController.index == 3) {
+    } else if (_tabController.index == 4) {
       setState(() {
         listTodoNormalData();
       });
-    } else if (_tabController.index == 4) {
+    } else if (_tabController.index == 5) {
       setState(() {
         listTodoDoneData();
       });
@@ -104,7 +110,8 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
       setState(() {
         getHeaderHTTP();
       });
-      return null;
+    } else if (_tabController.index == 1) {
+      todoActivity();
     }
   }
 
@@ -144,7 +151,6 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
         var getDetailProjectJson = json.decode(getDetailProject.body);
         print(getDetailProjectJson);
         var members = getDetailProjectJson['todo_member'];
-        var activitys = getDetailProjectJson['todo_activity'];
         var filetodos = getDetailProjectJson['todo_file'];
         Map rawTodo = getDetailProjectJson['todo'];
         Map rawStatusKita = getDetailProjectJson['status_kita'];
@@ -165,20 +171,6 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
             image: i['us_image'],
           );
           todoMemberDetail.add(member);
-        }
-
-        for (var t in activitys) {
-          TodoActivity todo = TodoActivity(
-              id: t['tll_id'],
-              name: t['us_name'],
-              email: t['us_email'],
-              image: t['us_image'],
-              activity: t['tlt_activity'],
-              progress: t['tlt_progress'].toString(),
-              note: t['tlt_note'],
-              updateat: DateFormat("dd MMMM yyyy")
-                  .format(DateTime.parse(t['tlt_created'])));
-          todoActivityDetail.add(todo);
         }
 
         for (var t in filetodos) {
@@ -214,6 +206,81 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
         isError = true;
       });
       Fluttertoast.showToast(msg: "Timed out, Try again");
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+        isError = true;
+      });
+      Fluttertoast.showToast(msg: "error, silahkan coba kembali");
+      debugPrint('$e');
+    }
+    return null;
+  }
+
+  Future<List<List>> todoActivity() async {
+    setState(() {
+      isLoadingActivity = true;
+    });
+    try {
+      final getDetailProject = await http
+          .post(url('api/todo_activity'), headers: requestHeaders, body: {
+        'todolist': widget.idtodo.toString(),
+      });
+
+      if (getDetailProject.statusCode == 200) {
+        setState(() {
+          todoActivityDetail.clear();
+          todoActivityDetail = [];
+        });
+        var getDetailProjectJson = json.decode(getDetailProject.body);
+
+        var activitys = getDetailProjectJson;
+
+        for (var t in activitys) {
+          TodoActivity todo = TodoActivity(
+              id: t['tll_id'],
+              name: t['us_name'],
+              email: t['us_email'],
+              image: t['us_image'],
+              activity: t['tlt_activity'],
+              progress: t['tlt_progress'].toString(),
+              note: t['tlt_note'],
+              updateat: DateFormat("dd MMM yyyy HH:mm:ss")
+                  .format(DateTime.parse(t['tlt_created'])));
+          todoActivityDetail.add(todo);
+        }
+        setState(() {
+          isLoadingActivity = false;
+          isErrorActivity = false;
+        });
+      } else if (getDetailProject.statusCode == 401) {
+        Fluttertoast.showToast(
+            msg: "Token Telah Kadaluwarsa, Silahkan Login Kembali");
+        setState(() {
+          isLoadingActivity = false;
+          isErrorActivity = true;
+        });
+      } else {
+        setState(() {
+          isLoadingActivity = false;
+          isErrorActivity = true;
+        });
+        print(getDetailProject.body);
+        return null;
+      }
+    } on TimeoutException catch (_) {
+      setState(() {
+        isLoadingActivity = false;
+        isErrorActivity = true;
+      });
+      Fluttertoast.showToast(msg: "Timed out, Try again");
+    } catch (e) {
+      setState(() {
+        isLoadingActivity = false;
+        isErrorActivity = true;
+      });
+      Fluttertoast.showToast(msg: "error, silahkan coba kembali");
+      debugPrint('$e');
     }
     return null;
   }
@@ -245,7 +312,7 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
             number: i['tlr_number'],
             title: i['tlr_title'],
             created: i['tlr_title'],
-            selesai: i['tlr_done'],
+            selesai: i['tlr_executed'],
             validation: i['tlr_validation'],
           );
           listTodoReady.add(member);
@@ -275,6 +342,13 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
         isErrorTodoAll = true;
       });
       Fluttertoast.showToast(msg: "Timed out, Try again");
+    } catch (e) {
+      setState(() {
+        isLoadingTodoAll = false;
+        isErrorTodoAll = true;
+      });
+      Fluttertoast.showToast(msg: "error, silahkan coba kembali");
+      debugPrint('$e');
     }
     return null;
   }
@@ -306,7 +380,7 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
             number: i['tld_number'],
             title: i['tld_title'],
             created: i['tld_title'],
-            selesai: i['tld_done'],
+            selesai: i['tld_executed'],
             validation: i['tld_validation'],
           );
           listTodoDone.add(donex);
@@ -336,6 +410,13 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
         isErrorTodoAll = true;
       });
       Fluttertoast.showToast(msg: "Timed out, Try again");
+    } catch (e) {
+      setState(() {
+        isLoadingTodoAll = false;
+        isErrorTodoAll = true;
+      });
+      Fluttertoast.showToast(msg: "error, silahkan coba kembali");
+      debugPrint('$e');
     }
     return null;
   }
@@ -434,7 +515,7 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
             number: i['tln_number'],
             title: i['tln_title'],
             created: i['tln_title'],
-            selesai: i['tln_done'],
+            selesai: i['tln_executed'],
             validation: i['tln_validation'],
           );
           listTodoNormal.add(normalx);
@@ -464,6 +545,13 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
         isErrorTodoAll = true;
       });
       Fluttertoast.showToast(msg: "Timed out, Try again");
+    } catch (e) {
+      setState(() {
+        isLoadingTodoAll = false;
+        isErrorTodoAll = true;
+      });
+      Fluttertoast.showToast(msg: "error, silahkan coba kembali");
+      debugPrint('$e');
     }
     return null;
   }
@@ -540,9 +628,10 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
         });
         setState(() {
           textValue = null;
+          _value = 1;
           _catatanrealisasiController.text = '';
         });
-        getHeaderHTTP();
+        todoActivity();
       } else {
         print(detailMemberUrl.body);
         progressApiAction.hide().then((isHidden) {
@@ -700,13 +789,6 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
         });
   }
 
-  Future<String> _findLocalPath() async {
-    final directory = widget.platform == TargetPlatform.android
-        ? await getExternalStorageDirectory()
-        : await getApplicationDocumentsDirectory();
-    return directory.path;
-  }
-
   void _requestDownload(url) async {
     try {
       PermissionStatus permission = await PermissionHandler()
@@ -714,7 +796,7 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
       if (permission != PermissionStatus.denied) {
         await PermissionHandler().requestPermissions([PermissionGroup.storage]);
         Directory tempDir = await getExternalStorageDirectory();
-        var dirPath = await new Directory('${tempDir.path}/todo').create();
+        var dirPath = await new Directory('${tempDir.path}/Tudulis').create();
 
         print(tempDir.path);
         await FlutterDownloader.enqueue(
@@ -816,6 +898,7 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
                         unselectedLabelColor: Colors.grey,
                         tabs: [
                           Tab(text: "Deskripsi"),
+                          Tab(text: "Aktifitas"),
                           Tab(text: "To Do Action"),
                           Tab(text: "To Do Ready"),
                           Tab(text: "To Do Normal"),
@@ -839,755 +922,81 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
                                 ? loadingPage(context)
                                 : isError == true
                                     ? errorSystem(context)
-                                    : Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: <Widget>[
-                                          dataTodo == null
-                                              ? Text(
-                                                  'Belum Ada Keterangan Tanggal')
-                                              : dataTodo['tl_allday'] == 0
-                                                  ? Row(
-                                                      children: <Widget>[
-                                                        Text(
-                                                          DateFormat(
-                                                                  'dd-MM-yyyy')
-                                                              .format(DateTime
-                                                                  .parse(dataTodo[
-                                                                      'tl_planstart'])),
-                                                          style: TextStyle(
-                                                              color: Colors
-                                                                  .black45,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .w500,
-                                                              fontSize: 14),
-                                                        ),
-                                                      ],
-                                                    )
-                                                  : Row(
-                                                      children: <Widget>[
-                                                        Text(
-                                                          DateFormat(
-                                                                  'dd-MM-yyyy')
-                                                              .format(DateTime
-                                                                  .parse(dataTodo[
-                                                                      'tl_planstart'])),
-                                                          style: TextStyle(
-                                                            color:
-                                                                Colors.black45,
-                                                            fontWeight:
-                                                                FontWeight.w500,
-                                                            fontSize: 14,
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                          Padding(
-                                            padding: const EdgeInsets.only(
-                                                top: 10.0),
-                                            child: Text(
-                                              dataTodo == null
-                                                  ? 'Belum ada deskripsi Todo'
-                                                  : dataTodo['tl_desc'] ==
-                                                              null ||
-                                                          dataTodo['tl_desc'] ==
-                                                              '' ||
-                                                          dataTodo['tl_desc'] ==
-                                                              'null'
-                                                      ? 'Belum ada deskripsi Todo'
-                                                      : dataTodo['tl_desc'],
-                                              style: TextStyle(height: 2),
-                                            ),
-                                          ),
-                                          todoAttachmentDetail.length == 0
-                                              ? Container()
-                                              : Container(
-                                                  margin: EdgeInsets.only(
-                                                      top: 20.0),
-                                                  child: Padding(
-                                                    padding:
-                                                        const EdgeInsets.only(
-                                                            top: 20.0),
-                                                    child: Text(
-                                                      'File Todo',
-                                                      style: TextStyle(
-                                                          color: Colors.black87,
-                                                          fontWeight:
-                                                              FontWeight.w500),
-                                                    ),
-                                                  )),
-                                          Container(
-                                            margin: EdgeInsets.only(
-                                                top: 0.0, bottom: 15.0),
-                                            child: Column(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
-                                              children: todoAttachmentDetail
-                                                  .map((FileTodo item) =>
-                                                      InkWell(
-                                                          onTap: () async {
-                                                            _requestDownload(item.path);
-                                                            // Fluttertoast.showToast(
-                                                            //     msg:
-                                                            //         'Fitur ini masih dikerjakan');
-                                                          },
-                                                          child: Container(
-                                                              width: double
-                                                                  .infinity,
-                                                              margin: EdgeInsets
-                                                                  .only(
-                                                                      top:
-                                                                          10.0),
-                                                              padding: EdgeInsets
-                                                                  .only(
-                                                                      top: 10.0,
-                                                                      left: 5,
-                                                                      bottom:
-                                                                          10.0,
-                                                                      right: 5),
-                                                              decoration:
-                                                                  BoxDecoration(
-                                                                border: Border.all(
-                                                                    color: Colors
-                                                                            .grey[
-                                                                        300],
-                                                                    width: 1.0),
-                                                                borderRadius:
-                                                                    BorderRadius
-                                                                        .circular(
-                                                                            5.0),
-                                                              ),
-                                                              child: Row(
-                                                                children: <
-                                                                    Widget>[
-                                                                  Icon(
-                                                                    Icons
-                                                                        .insert_drive_file,
-                                                                    size: 13,
-                                                                    color: Colors
-                                                                        .red,
-                                                                  ),
-                                                                  Expanded(
-                                                                    // padding: const EdgeInsets
-                                                                    //         .only(
-                                                                    //     left:
-                                                                    //         5.0),
-                                                                    child: Text(
-                                                                      item.path == '' ||
-                                                                              item.filename ==
-                                                                                  ''
-                                                                          ? 'FIle Tidak Diketahui'
-                                                                          : item
-                                                                              .filename,
-                                                                      style: TextStyle(
-                                                                          color: Colors
-                                                                              .black,
-                                                                          fontSize:
-                                                                              12),
-                                                                              overflow: TextOverflow.ellipsis,
-                                                                              softWrap: true,
-                                                                               maxLines: 1,
-
-                                                                    ),
-                                                                  ),
-                                                                ],
-                                                              ))))
-                                                  .toList(),
-                                            ),
-                                          ),
-                                          Container(
-                                              margin:
-                                                  EdgeInsets.only(bottom: 15.0),
-                                              child: Padding(
-                                                padding: const EdgeInsets.only(
-                                                    top: 20.0),
-                                                child: Text(
-                                                  'To Do Progress',
-                                                  style: TextStyle(
-                                                      color: Colors.black87,
-                                                      fontWeight:
-                                                          FontWeight.w500),
-                                                ),
-                                              )),
-                                          Container(
-                                            child: Row(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: <Widget>[
-                                                CircularPercentIndicator(
-                                                  radius: 80.0,
-                                                  lineWidth: 5.0,
-                                                  animation: true,
-                                                  percent: dataTodo == null
-                                                      ? 0.00
-                                                      : double.parse(dataTodo[
-                                                                  'tl_progress']
-                                                              .toString()) /
-                                                          100,
-                                                  center: new Text(
-                                                    dataTodo == null
-                                                        ? '0.00 %'
-                                                        : "${dataTodo['tl_progress']}%",
-                                                    style: new TextStyle(
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                        fontSize: 12.0),
-                                                  ),
-                                                  circularStrokeCap:
-                                                      CircularStrokeCap.round,
-                                                  progressColor: Colors.green,
-                                                ),
-                                                Container(
-                                                  margin: EdgeInsets.only(
-                                                      left: 15.0),
-                                                  child: Column(
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .start,
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment.start,
-                                                    children: <Widget>[
-                                                      Padding(
-                                                          padding:
-                                                              EdgeInsets.only(
-                                                                  top: 15.0),
-                                                          child: Row(
-                                                            children: <Widget>[
-                                                              ClipRRect(
-                                                                borderRadius:
-                                                                    BorderRadius
-                                                                        .circular(
-                                                                            100.0),
-                                                                child:
-                                                                    Container(
-                                                                  margin: EdgeInsets
-                                                                      .only(
-                                                                          right:
-                                                                              3.0),
-                                                                  height: 10.0,
-                                                                  alignment:
-                                                                      Alignment
-                                                                          .center,
-                                                                  width: 10.0,
-                                                                  decoration:
-                                                                      BoxDecoration(
-                                                                    border: Border.all(
-                                                                        color: Color.fromRGBO(
-                                                                            0,
-                                                                            204,
-                                                                            65,
-                                                                            1.0),
-                                                                        width:
-                                                                            1.0),
-                                                                    borderRadius:
-                                                                        BorderRadius.all(
-                                                                            Radius.circular(100.0) //                 <--- border radius here
-                                                                            ),
-                                                                    color: Color
-                                                                        .fromRGBO(
-                                                                            0,
-                                                                            204,
-                                                                            65,
-                                                                            1.0),
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                              Padding(
-                                                                padding:
-                                                                    const EdgeInsets
-                                                                            .only(
-                                                                        left:
-                                                                            5.0),
-                                                                child: Text(
-                                                                  'Sudah Selesai',
-                                                                  style:
-                                                                      TextStyle(
-                                                                    fontSize:
-                                                                        12,
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                            ],
-                                                          )),
-                                                      Padding(
-                                                          padding:
-                                                              EdgeInsets.only(
-                                                                  top: 10.0),
-                                                          child: Row(
-                                                            children: <Widget>[
-                                                              ClipRRect(
-                                                                borderRadius:
-                                                                    BorderRadius
-                                                                        .circular(
-                                                                            100.0),
-                                                                child:
-                                                                    Container(
-                                                                  margin: EdgeInsets
-                                                                      .only(
-                                                                          right:
-                                                                              3.0),
-                                                                  height: 10.0,
-                                                                  alignment:
-                                                                      Alignment
-                                                                          .center,
-                                                                  width: 10.0,
-                                                                  decoration:
-                                                                      BoxDecoration(
-                                                                    border: Border.all(
-                                                                        color: Color.fromRGBO(
-                                                                            0,
-                                                                            204,
-                                                                            65,
-                                                                            1.0),
-                                                                        width:
-                                                                            1.0),
-                                                                    borderRadius:
-                                                                        BorderRadius.all(
-                                                                            Radius.circular(100.0) //                 <--- border radius here
-                                                                            ),
-                                                                    color: Colors
-                                                                            .grey[
-                                                                        400],
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                              Padding(
-                                                                padding:
-                                                                    const EdgeInsets
-                                                                            .only(
-                                                                        left:
-                                                                            5.0),
-                                                                child: Text(
-                                                                  'Belum Selesai',
-                                                                  style:
-                                                                      TextStyle(
-                                                                    fontSize:
-                                                                        12,
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                            ],
-                                                          )),
-                                                    ],
-                                                  ),
-                                                )
-                                              ],
-                                            ),
-                                          ),
-                                          Container(
-                                              margin: EdgeInsets.only(
-                                                  bottom: 15.0, top: 15.0),
-                                              child: Padding(
-                                                padding: const EdgeInsets.only(
-                                                    top: 20.0),
-                                                child: Text(
-                                                  'To Do Member',
-                                                  style: TextStyle(
-                                                      color: Colors.black87,
-                                                      fontWeight:
-                                                          FontWeight.w500),
-                                                ),
-                                              )),
-                                          Container(
-                                            color: Colors.white,
-                                            margin: EdgeInsets.only(
-                                              top: 0.0,
-                                            ),
-                                            child: SingleChildScrollView(
-                                              scrollDirection: Axis.horizontal,
-                                              child: Container(
-                                                child: Row(
-                                                  children: todoMemberDetail
-                                                      .map((MemberTodo item) =>
-                                                          InkWell(
-                                                            onTap: () async {
-                                                              _showdetailMemberProject(
-                                                                  item.iduser);
-                                                            },
-                                                            child: Container(
-                                                              width: 40.0,
-                                                              height: 40.0,
-                                                              margin: EdgeInsets
-                                                                  .only(
-                                                                      right:
-                                                                          15.0),
-                                                              child: ClipOval(
-                                                                child: FadeInImage
-                                                                    .assetNetwork(
-                                                                  placeholder:
-                                                                      'images/loading.gif',
-                                                                  image: url(
-                                                                      'assets/images/imgavatar.png'),
-                                                                  fit: BoxFit
-                                                                      .cover,
-                                                                ),
-                                                              ),
-                                                              decoration:
-                                                                  BoxDecoration(
-                                                                shape: BoxShape
-                                                                    .circle,
-                                                              ),
-                                                            ),
-                                                          ))
-                                                      .toList(),
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                          Container(
-                                              margin: EdgeInsets.only(
-                                                  bottom: 0.0, top: 15.0),
-                                              child: Padding(
-                                                padding: const EdgeInsets.only(
-                                                    top: 20.0),
-                                                child: Text(
-                                                  'To Do Activity',
-                                                  style: TextStyle(
-                                                      color: Colors.black87,
-                                                      fontWeight:
-                                                          FontWeight.w500),
-                                                ),
-                                              )),
-                                          textValue == null || textValue == ''
-                                              ? Container()
-                                              : Row(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.end,
-                                                  children: <Widget>[
-                                                    Padding(
-                                                      padding:
-                                                          const EdgeInsets.only(
-                                                              bottom: 0.0),
-                                                      child: Text(
-                                                        textValue == '' ||
-                                                                textValue ==
-                                                                    null
-                                                            ? ''
-                                                            : 'Realisasi: $textValue %',
-                                                        style: TextStyle(
-                                                          color: Colors.black,
-                                                          fontSize: 12,
-                                                        ),
-                                                        textAlign:
-                                                            TextAlign.end,
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                          Container(
-                                              child: Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.start,
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: <Widget>[
-                                              // Container(
-                                              //   margin:
-                                              //       EdgeInsets.only(right: 15.0, top: 10.0),
-                                              //   child: Container(
-                                              //     width: 40.0,
-                                              //     height: 40.0,
-                                              //     child: ClipOval(
-                                              //       child:
-                                              //           Image.asset('images/imgavatar.png'),
-                                              //     ),
-                                              //   ),
-                                              // ),
-                                              Expanded(
-                                                flex: 12,
-                                                child: Column(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.start,
-                                                  children: <Widget>[
-                                                    SliderTheme(
-                                                        data: SliderThemeData(
-                                                          trackShape:
-                                                              CustomTrackShape(),
-                                                        ),
-                                                        child: Slider(
-                                                            value: _value
-                                                                .toDouble(),
-                                                            min: 1,
-                                                            max: 100,
-                                                            activeColor:
-                                                                primaryAppBarColor,
-                                                            inactiveColor:
-                                                                Colors
-                                                                    .grey[400],
-                                                            onChanged: (double
-                                                                newValue) {
-                                                              setState(() {
-                                                                _value = newValue
-                                                                    .round();
-                                                                textValue = newValue
-                                                                    .toStringAsFixed(
-                                                                        0);
-                                                              });
-                                                            },
-                                                            semanticFormatterCallback:
-                                                                (double
-                                                                    newValue) {
-                                                              return '${newValue.round()} dollars';
-                                                            })),
-                                                    Container(
-                                                      child: TextField(
-                                                        controller:
-                                                            _catatanrealisasiController,
-                                                        maxLines: 2,
-                                                        decoration: InputDecoration(
-                                                            border:
-                                                                OutlineInputBorder(),
-                                                            hintText: 'Catatan',
-                                                            hintStyle: TextStyle(
-                                                                fontSize: 13,
-                                                                color: Colors
-                                                                    .black)),
-                                                      ),
-                                                    ),
-                                                    Container(
-                                                        margin: EdgeInsets.only(
-                                                          top: 10.0,
-                                                        ),
-                                                        width: double.infinity,
-                                                        height: 40.0,
-                                                        child: ButtonTheme(
-                                                          child: FlatButton(
-                                                              onPressed:
-                                                                  () async {
-                                                                _realisasiTodo();
-                                                              },
-                                                              shape:
-                                                                  new RoundedRectangleBorder(
-                                                                borderRadius:
-                                                                    new BorderRadius
-                                                                            .circular(
-                                                                        10.0),
-                                                              ),
-                                                              color:
-                                                                  primaryAppBarColor,
-                                                              textColor:
-                                                                  Colors.white,
-                                                              child: Text(
-                                                                  'Tambahkan Aktifitas')),
-                                                        )),
-                                                    Container(height: 15.0),
-                                                    todoActivityDetail.length >
-                                                            0
-                                                        ? Divider()
-                                                        : Container(),
-                                                    Container(height: 15.0),
-                                                  ],
-                                                ),
-                                              ),
-                                            ],
-                                          )),
-                                          Container(
-                                            child: Column(
-                                              children: todoActivityDetail
-                                                  .map(
-                                                      (TodoActivity item) =>
-                                                          Container(
-                                                              child: Row(
-                                                            mainAxisAlignment:
-                                                                MainAxisAlignment
-                                                                    .start,
-                                                            crossAxisAlignment:
-                                                                CrossAxisAlignment
-                                                                    .start,
-                                                            children: <Widget>[
-                                                              Container(
-                                                                margin: EdgeInsets
-                                                                    .only(
-                                                                        top:
-                                                                            10.0,
-                                                                        right:
-                                                                            15.0),
-                                                                child:
-                                                                    Container(
-                                                                  width: 40.0,
-                                                                  height: 40.0,
-                                                                  child:
-                                                                      ClipOval(
-                                                                    child: Image
-                                                                        .asset(
-                                                                            'images/imgavatar.png'),
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                              Expanded(
-                                                                flex: 10,
-                                                                child: Column(
-                                                                  crossAxisAlignment:
-                                                                      CrossAxisAlignment
-                                                                          .start,
-                                                                  mainAxisAlignment:
-                                                                      MainAxisAlignment
-                                                                          .start,
-                                                                  children: <
-                                                                      Widget>[
-                                                                    Padding(
-                                                                      padding: const EdgeInsets
-                                                                              .only(
-                                                                          bottom:
-                                                                              5.0),
-                                                                      child:
-                                                                          Text(
-                                                                        '${item.updateat}',
-                                                                        style:
-                                                                            TextStyle(
-                                                                          color:
-                                                                              Colors.grey,
-                                                                          fontSize:
-                                                                              11,
-                                                                        ),
-                                                                      ),
-                                                                    ),
-                                                                    Row(
-                                                                      children: <
-                                                                          Widget>[
-                                                                        Expanded(
-                                                                            child:
-                                                                                Text(
-                                                                          item.name == null || item.name == ''
-                                                                              ? 'Member Tidak Diketahui'
-                                                                              : item.name,
-                                                                          overflow:
-                                                                              TextOverflow.ellipsis,
-                                                                          softWrap:
-                                                                              true,
-                                                                          maxLines:
-                                                                              1,
-                                                                          style: TextStyle(
-                                                                              fontWeight: FontWeight.w500,
-                                                                              fontSize: 14),
-                                                                        )),
-                                                                        Text(
-                                                                          item.progress == null || item.progress == ''
-                                                                              ? 'update 0%'
-                                                                              : 'update ${item.progress} %',
-                                                                          style: TextStyle(
-                                                                              color: primaryAppBarColor,
-                                                                              fontSize: 12,
-                                                                              fontWeight: FontWeight.w500),
-                                                                        ),
-                                                                      ],
-                                                                    ),
-                                                                    Padding(
-                                                                        padding: const EdgeInsets.only(
-                                                                            top:
-                                                                                5.0,
-                                                                            bottom:
-                                                                                10.0),
-                                                                        child:
-                                                                            Text(
-                                                                          item.note == null || item.note == ''
-                                                                              ? 'Tidak ada catatan'
-                                                                              : item.note,
-                                                                          style:
-                                                                              TextStyle(
-                                                                            color:
-                                                                                Colors.black87,
-                                                                            fontSize:
-                                                                                12,
-                                                                            height:
-                                                                                1.5,
-                                                                          ),
-                                                                        )),
-                                                                    Container(
-                                                                        margin: EdgeInsets.only(
-                                                                            bottom:
-                                                                                5.0),
-                                                                        child:
-                                                                            Divider()),
-                                                                  ],
-                                                                ),
-                                                              ),
-                                                            ],
-                                                          )))
-                                                  .toList(),
-                                            ),
-                                          )
-                                        ],
-                                      ),
+                                    : detailTodo(),
                           ],
                         ),
                       ),
                     )),
                 RefreshIndicator(
-                  onRefresh: listTodoReadyData,
+                  onRefresh: todoActivity,
                   child: SingleChildScrollView(
-                      physics: AlwaysScrollableScrollPhysics(),
-                      child: Container(
-                        child: Column(
-                          children: <Widget>[
-                            isLoadingTodoAll == true
-                                ? widgetLoadingTodo()
-                                : isErrorTodoAll == true
-                                    ? errorSystem(context)
-                                    : listTodoAction.length == 0
-                                        ? emptyTodoAction()
-                                        : dataTodoAction(),
-                          ],
-                        ),
-                      )),
+                    child: Container(
+                      padding: EdgeInsets.only(left: 15.0, right: 15.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          isLoadingActivity == true
+                              ? loadingTodoActivity(context)
+                              : isErrorActivity == true
+                                  ? errorSystem(context)
+                                  : dataActivityTodo(),
+                        ],
+                      ),
+                    ),
+                  ),
                 ),
-                RefreshIndicator(
-                  onRefresh: listTodoActionData,
-                  child: SingleChildScrollView(
-                      physics: AlwaysScrollableScrollPhysics(),
-                      child: Container(
-                        child: Column(
-                          children: <Widget>[
-                            isLoadingTodoAll == true
-                                ? widgetLoadingTodo()
-                                : isErrorTodoAll == true
-                                    ? errorSystem(context)
-                                    : listTodoReady.length == 0
-                                        ? emptyTodoAction()
-                                        : dataTodoReady(),
-                          ],
-                        ),
-                      )),
-                ),
-                RefreshIndicator(
-                  onRefresh: listTodoNormalData,
-                  child: SingleChildScrollView(
-                      physics: AlwaysScrollableScrollPhysics(),
-                      child: Container(
-                        child: Column(
-                          children: <Widget>[
-                            isLoadingTodoAll == true
-                                ? widgetLoadingTodo()
-                                : isErrorTodoAll == true
-                                    ? errorSystem(context)
-                                    : listTodoNormal.length == 0
-                                        ? emptyTodoAction()
-                                        : dataTodoNormal(),
-                          ],
-                        ),
-                      )),
-                ),
-                RefreshIndicator(
-                  onRefresh: listTodoDoneData,
-                  child: SingleChildScrollView(
-                      physics: AlwaysScrollableScrollPhysics(),
-                      child: Container(
-                        child: Column(
-                          children: <Widget>[
-                            isLoadingTodoAll == true
-                                ? widgetLoadingTodo()
-                                : isErrorTodoAll == true
-                                    ? errorSystem(context)
-                                    : listTodoDone.length == 0
-                                        ? emptyTodoAction()
-                                        : dataTodoDone(),
-                          ],
-                        ),
-                      )),
-                ),
+                isLoadingTodoAll == true
+                    ? widgetLoadingTodo()
+                    : isErrorTodoAll == true
+                        ? errorSystem(context)
+                        : listTodoAction.length == 0
+                            ? emptyTodoAction()
+                            : Container(
+                                child: Column(
+                                  children: <Widget>[
+                                    dataTodoAction(),
+                                  ],
+                                ),
+                              ),
+              isLoadingTodoAll == true
+                    ? widgetLoadingTodo()
+                    : isErrorTodoAll == true
+                        ? errorSystem(context)
+                        : listTodoReady.length == 0
+                            ? emptyTodoAction()
+                            : Container(
+                                child: Column(
+                                  children: <Widget>[
+                                    dataTodoReady(),
+                                  ],
+                                ),
+                              ),
+             isLoadingTodoAll == true
+                    ? widgetLoadingTodo()
+                    : isErrorTodoAll == true
+                        ? errorSystem(context)
+                        : listTodoNormal.length == 0
+                            ? emptyTodoAction()
+                            : Container(
+                                child: Column(
+                                  children: <Widget>[
+                                    dataTodoNormal(),
+                                  ],
+                                ),
+                              ),
+               isLoadingTodoAll == true
+                    ? widgetLoadingTodo()
+                    : isErrorTodoAll == true
+                        ? errorSystem(context)
+                        : listTodoDone.length == 0
+                            ? emptyTodoAction()
+                            : Container(
+                                child: Column(
+                                  children: <Widget>[
+                                    dataTodoDone(),
+                                  ],
+                                ),
+                              ),
               ]))),
       floatingActionButton: _bottomButtons(),
       bottomNavigationBar: bottomvaigation(),
@@ -1784,35 +1193,25 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
   }
 
   Widget _bottomButtons() {
-    var childButtons = List<UnicornButton>();
-
-    childButtons.add(UnicornButton(
-        hasLabel: true,
-        labelText: "Choo choo",
-        currentButton: FloatingActionButton(
-          heroTag: "train",
-          backgroundColor: Colors.redAccent,
-          mini: true,
-          child: Icon(Icons.train),
-          onPressed: () {},
-        )));
-    return _tabController.index != 0
-        ? dataStatusKita == null
-            ? null
-            : dataStatusKita['tlr_role'] == 1 || dataStatusKita['tlr_role'] == 2
-                ? DraggableFab(
-                    child: FloatingActionButton(
-                        shape: StadiumBorder(),
-                        onPressed: () async {
-                          _showModal();
-                        },
-                        backgroundColor: Color.fromRGBO(254, 86, 14, 1),
-                        child: Icon(
-                          Icons.add,
-                          size: 20.0,
-                        )))
-                : null
-        : null;
+    if (_tabController.index == 0 || _tabController.index == 1) {
+      return null;
+    } else {
+      return dataStatusKita == null
+          ? null
+          : dataStatusKita['tlr_role'] == 1 || dataStatusKita['tlr_role'] == 2
+              ? DraggableFab(
+                  child: FloatingActionButton(
+                      shape: StadiumBorder(),
+                      onPressed: () async {
+                        _showModal();
+                      },
+                      backgroundColor: Color.fromRGBO(254, 86, 14, 1),
+                      child: Icon(
+                        Icons.add,
+                        size: 20.0,
+                      )))
+              : null;
+    }
   }
 
   void _showModal() {
@@ -1868,15 +1267,15 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
 
   void tambahAction() async {
     String type;
-    if (_tabController.index == 1) {
+    if (_tabController.index == 2) {
       type = 'Action';
-    } else if (_tabController.index == 2) {
-      type = 'Ready';
     } else if (_tabController.index == 3) {
-      type = 'Normal';
+      type = 'Ready';
     } else if (_tabController.index == 4) {
+      type = 'Normal';
+    } else if (_tabController.index == 5) {
       type = 'Done';
-    } else if (_tabController.index == 0) {
+    } else if (_tabController.index == 0 || _tabController.index == 1) {
       Navigator.pop(context);
       return null;
     }
@@ -1897,13 +1296,13 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
         var addpesertaJson = json.decode(addpeserta.body);
         if (addpesertaJson['status'] == 'success') {
           Fluttertoast.showToast(msg: "Berhasil");
-          if (_tabController.index == 1) {
+          if (_tabController.index == 2) {
             listTodoActionData();
-          } else if (_tabController.index == 2) {
-            listTodoReadyData();
           } else if (_tabController.index == 3) {
-            listTodoNormalData();
+            listTodoReadyData();
           } else if (_tabController.index == 4) {
+            listTodoNormalData();
+          } else if (_tabController.index == 5) {
             listTodoDoneData();
           }
           progressApiAction.hide().then((isHidden) {});
@@ -1955,611 +1354,945 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
     }
   }
 
-  Widget dataTodoReady() {
+  Widget detailTodo() {
     return Column(
-      children: listTodoReady
-          .map((ToDoReady item) => Card(
-                child: ListTile(
-                    leading: Checkbox(
-                      activeColor: primaryAppBarColor,
-                      value: item.selesai == null || item.selesai == ''
-                          ? false
-                          : true,
-                      onChanged: (bool value) async {
-                        await progressApiAction.show();
-                        try {
-                          var body = {
-                            'id': item.number.toString(),
-                            'todo': item.idtodo.toString(),
-                            'type': 'Ready',
-                          };
-                          final addpeserta = await http.patch(
-                              url('api/todo/list/actions/${item.number}'),
-                              headers: requestHeaders,
-                              body: body);
-                          if (addpeserta.statusCode == 200) {
-                            var addpesertaJson = json.decode(addpeserta.body);
-
-                            if (addpesertaJson['status'] == 'selesai') {
-                              setState(() {
-                                item.selesai = 'selesai';
-                                item.validation =
-                                    addpesertaJson['validation'] == null
-                                        ? null
-                                        : 'valid';
-                              });
-                              Fluttertoast.showToast(msg: "Berhasil");
-                              progressApiAction.hide().then((isHidden) {});
-                            } else if (addpesertaJson['status'] ==
-                                'belum selesai') {
-                              Fluttertoast.showToast(msg: "Berhasil");
-                              progressApiAction.hide().then((isHidden) {});
-                              setState(() {
-                                item.selesai = null;
-                                item.validation =
-                                    addpesertaJson['validation'] == null
-                                        ? null
-                                        : 'valid';
-                              });
-                            } else if (addpesertaJson['status'] ==
-                                'type todolist tidak ditemukan') {
-                              Fluttertoast.showToast(
-                                  msg: "To Do List Tidak Ditemukan");
-                              progressApiAction.hide().then((isHidden) {});
-                            }
-                          } else {
-                            print(addpeserta.body);
-                            Fluttertoast.showToast(
-                                msg: "Gagal, Silahkan Coba Kembali");
-                            progressApiAction.hide().then((isHidden) {});
-                          }
-                        } on TimeoutException catch (_) {
-                          Fluttertoast.showToast(msg: "Timed out, Try again");
-                          progressApiAction.hide().then((isHidden) {});
-                        } catch (e) {
-                          Fluttertoast.showToast(
-                              msg: "Gagal, Silahkan Coba Kembali");
-                          progressApiAction.hide().then((isHidden) {});
-                        }
-                      },
-                    ),
-                    title: item.selesai == null || item.selesai == ''
-                        ? Text(
-                            "${item.title}",
-                            style: TextStyle(
-                              fontSize: 14,
-                            ),
-                          )
-                        : Text(
-                            "${item.title}",
-                            style: TextStyle(
-                              decoration: TextDecoration.lineThrough,
-                              fontSize: 14,
-                            ),
-                          ),
-                    subtitle: Padding(
-                      padding: const EdgeInsets.only(top: 10.0, bottom: 5.0),
-                      child: Text(
-                        item.selesai == null || item.selesai == ''
-                            ? 'Belum Selesai'
-                            : item.validation == null || item.validation == ''
-                                ? 'Belum Divalidasi'
-                                : 'Sudah Divalidasi',
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        dataTodo == null
+            ? Text('Belum Ada Keterangan Tanggal')
+            : dataTodo['tl_allday'] == 0
+                ? Row(
+                    children: <Widget>[
+                      Text(
+                        DateFormat('dd-MM-yyyy')
+                            .format(DateTime.parse(dataTodo['tl_planstart'])),
                         style: TextStyle(
+                            color: Colors.black45,
                             fontWeight: FontWeight.w500,
-                            color: item.selesai == null || item.selesai == ''
-                                ? Colors.grey
-                                : item.validation == null ||
-                                        item.validation == ''
-                                    ? Colors.grey
-                                    : Colors.green),
+                            fontSize: 14),
                       ),
-                    ),
-                    trailing: item.selesai == null || item.selesai == ''
-                        ? null
-                        : dataStatusKita == null
-                            ? null
-                            : dataStatusKita['tlr_role'] == 1 ||
-                                    dataStatusKita['tlr_role'] == 2
-                                ? ButtonTheme(
-                                    minWidth: 0,
-                                    height: 0,
-                                    child: FlatButton(
-                                      padding: EdgeInsets.all(0),
-                                      color: Colors.white,
-                                      child: Icon(
-                                          item.validation == null ||
-                                                  item.validation == ''
-                                              ? Icons.check
-                                              : Icons.close,
-                                          color: item.validation == null ||
-                                                  item.validation == ''
-                                              ? Colors.green
-                                              : Colors.red),
-                                      onPressed: () async {
-                                        accValidation(
-                                            item.number, item.idtodo, 'Ready');
-                                      },
-                                    ),
-                                  )
-                                : null),
-              ))
-          .toList(),
-    );
-  }
-
-  Widget dataTodoAction() {
-    return Column(
-      children: listTodoAction
-          .map((ToDoAction item) => Card(
-                child: ListTile(
-                    leading: Checkbox(
-                      activeColor: primaryAppBarColor,
-                      value: item.selesai == null || item.selesai == ''
-                          ? false
-                          : true,
-                      onChanged: (bool value) async {
-                        await progressApiAction.show();
-                        try {
-                          var body = {
-                            'id': item.number.toString(),
-                            'todo': item.idtodo.toString(),
-                            'type': 'Action',
-                          };
-                          final addpeserta = await http.patch(
-                              url('api/todo/list/actions/${item.number}'),
-                              headers: requestHeaders,
-                              body: body);
-                          if (addpeserta.statusCode == 200) {
-                            var addpesertaJson = json.decode(addpeserta.body);
-
-                            if (addpesertaJson['status'] == 'selesai') {
-                              setState(() {
-                                item.selesai = 'selesai';
-                                item.validation =
-                                    addpesertaJson['validation'] == null
-                                        ? null
-                                        : 'valid';
-                              });
-                              Fluttertoast.showToast(msg: "Berhasil");
-                              progressApiAction.hide().then((isHidden) {});
-                            } else if (addpesertaJson['status'] ==
-                                'belum selesai') {
-                              Fluttertoast.showToast(msg: "Berhasil");
-                              progressApiAction.hide().then((isHidden) {});
-                              setState(() {
-                                item.selesai = null;
-                                item.validation =
-                                    addpesertaJson['validation'] == null
-                                        ? null
-                                        : 'valid';
-                              });
-                            } else if (addpesertaJson['status'] ==
-                                'type todolist tidak ditemukan') {
-                              Fluttertoast.showToast(
-                                  msg: "To Do List Tidak Ditemukan");
-                              progressApiAction.hide().then((isHidden) {});
-                            } else {
-                              Fluttertoast.showToast(
-                                  msg: "Gagal, Silahkan Coba Kembali");
-                              progressApiAction.hide().then((isHidden) {});
-                            }
-                          } else {
-                            print(addpeserta.body);
-                            Fluttertoast.showToast(
-                                msg: "Gagal, Silahkan Coba Kembali");
-                            progressApiAction.hide().then((isHidden) {});
-                          }
-                        } on TimeoutException catch (_) {
-                          Fluttertoast.showToast(msg: "Timed out, Try again");
-                          progressApiAction.hide().then((isHidden) {});
-                        } catch (e) {
-                          Fluttertoast.showToast(
-                              msg: "Gagal, Silahkan Coba Kembali");
-                          progressApiAction.hide().then((isHidden) {});
-                          print('test $e');
-                        }
-                      },
-                    ),
-                    title: item.selesai == null || item.selesai == ''
-                        ? Text(
-                            "${item.title}",
-                            style: TextStyle(
-                              fontSize: 14,
-                            ),
-                          )
-                        : Text(
-                            "${item.title}",
-                            style: TextStyle(
-                              decoration: TextDecoration.lineThrough,
-                              fontSize: 14,
-                            ),
-                          ),
-                    subtitle: Padding(
-                      padding: const EdgeInsets.only(top: 10.0, bottom: 5.0),
-                      child: Text(
-                        item.selesai == null || item.selesai == ''
-                            ? 'Belum Selesai'
-                            : item.validation == null || item.validation == ''
-                                ? 'Belum Divalidasi'
-                                : 'Sudah Divalidasi',
+                    ],
+                  )
+                : Row(
+                    children: <Widget>[
+                      Text(
+                        DateFormat('dd-MM-yyyy')
+                            .format(DateTime.parse(dataTodo['tl_planstart'])),
                         style: TextStyle(
-                            fontWeight: FontWeight.w500,
-                            color: item.selesai == null || item.selesai == ''
-                                ? Colors.grey
-                                : item.validation == null ||
-                                        item.validation == ''
-                                    ? Colors.grey
-                                    : Colors.green),
+                          color: Colors.black45,
+                          fontWeight: FontWeight.w500,
+                          fontSize: 14,
+                        ),
                       ),
-                    ),
-                    trailing: item.selesai == null || item.selesai == ''
-                        ? null
-                        : dataStatusKita == null
-                            ? null
-                            : dataStatusKita['tlr_role'] == 1 ||
-                                    dataStatusKita['tlr_role'] == 2
-                                ? ButtonTheme(
-                                    minWidth: 0,
-                                    height: 0,
-                                    child: FlatButton(
-                                      padding: EdgeInsets.all(0),
-                                      color: Colors.white,
-                                      child: Icon(
-                                          item.validation == null ||
-                                                  item.validation == ''
-                                              ? Icons.check
-                                              : Icons.close,
-                                          color: item.validation == null ||
-                                                  item.validation == ''
-                                              ? Colors.green
-                                              : Colors.red),
-                                      onPressed: () async {
-                                        accValidation(
-                                            item.number, item.idtodo, 'Action');
-                                      },
-                                    ),
-                                  )
-                                : null),
-              ))
-          .toList(),
-    );
-  }
-
-  Widget dataTodoDone() {
-    return Column(
-      children: listTodoDone
-          .map((ToDoDone item) => Card(
-                child: ListTile(
-                    leading: Checkbox(
-                      activeColor: primaryAppBarColor,
-                      value: item.selesai == null || item.selesai == ''
-                          ? false
-                          : true,
-                      onChanged: (bool value) async {
-                        await progressApiAction.show();
-                        try {
-                          var body = {
-                            'id': item.number.toString(),
-                            'todo': item.idtodo.toString(),
-                            'type': 'Done',
-                          };
-                          final addpeserta = await http.patch(
-                              url('api/todo/list/actions/${item.number}'),
-                              headers: requestHeaders,
-                              body: body);
-                          if (addpeserta.statusCode == 200) {
-                            var addpesertaJson = json.decode(addpeserta.body);
-
-                            if (addpesertaJson['status'] == 'selesai') {
-                              setState(() {
-                                item.selesai = 'selesai';
-                                item.validation =
-                                    addpesertaJson['validation'] == null
-                                        ? null
-                                        : 'valid';
-                              });
-                              Fluttertoast.showToast(msg: "Berhasil");
-                              progressApiAction.hide().then((isHidden) {});
-                            } else if (addpesertaJson['status'] ==
-                                'belum selesai') {
-                              Fluttertoast.showToast(msg: "Berhasil");
-                              progressApiAction.hide().then((isHidden) {});
-                              setState(() {
-                                item.selesai = null;
-                                item.validation =
-                                    addpesertaJson['validation'] == null
-                                        ? null
-                                        : 'valid';
-                              });
-                            } else if (addpesertaJson['status'] ==
-                                'type todolist tidak ditemukan') {
-                              Fluttertoast.showToast(
-                                  msg: "To Do List Tidak Ditemukan");
-                              progressApiAction.hide().then((isHidden) {});
-                            } else {
-                              Fluttertoast.showToast(
-                                  msg: "Gagal, Silahkan Coba Kembali");
-                              progressApiAction.hide().then((isHidden) {});
-                            }
-                          } else {
-                            print(addpeserta.body);
-                            Fluttertoast.showToast(
-                                msg: "Gagal, Silahkan Coba Kembali");
-                            progressApiAction.hide().then((isHidden) {});
-                          }
-                        } on TimeoutException catch (_) {
-                          Fluttertoast.showToast(msg: "Timed out, Try again");
-                          progressApiAction.hide().then((isHidden) {});
-                        } catch (e) {
-                          Fluttertoast.showToast(
-                              msg: "Gagal, Silahkan Coba Kembali");
-                          progressApiAction.hide().then((isHidden) {});
-                          print('test $e');
-                        }
-                      },
-                    ),
-                    title: item.selesai == null || item.selesai == ''
-                        ? Text(
-                            "${item.title}",
-                            style: TextStyle(
-                              fontSize: 14,
-                            ),
-                          )
-                        : Text(
-                            "${item.title}",
-                            style: TextStyle(
-                              decoration: TextDecoration.lineThrough,
-                              fontSize: 14,
-                            ),
-                          ),
-                    subtitle: Padding(
-                      padding: const EdgeInsets.only(top: 10.0, bottom: 5.0),
-                      child: Text(
-                        item.selesai == null || item.selesai == ''
-                            ? 'Belum Selesai'
-                            : item.validation == null || item.validation == ''
-                                ? 'Belum Divalidasi'
-                                : 'Sudah Divalidasi',
-                        style: TextStyle(
-                            fontWeight: FontWeight.w500,
-                            color: item.selesai == null || item.selesai == ''
-                                ? Colors.grey
-                                : item.validation == null ||
-                                        item.validation == ''
-                                    ? Colors.grey
-                                    : Colors.green),
-                      ),
-                    ),
-                    trailing: item.selesai == null || item.selesai == ''
-                        ? null
-                        : dataStatusKita == null
-                            ? null
-                            : dataStatusKita['tlr_role'] == 1 ||
-                                    dataStatusKita['tlr_role'] == 2
-                                ? ButtonTheme(
-                                    minWidth: 0,
-                                    height: 0,
-                                    child: FlatButton(
-                                      padding: EdgeInsets.all(0),
-                                      color: Colors.white,
-                                      child: Icon(
-                                          item.validation == null ||
-                                                  item.validation == ''
-                                              ? Icons.check
-                                              : Icons.close,
-                                          color: item.validation == null ||
-                                                  item.validation == ''
-                                              ? Colors.green
-                                              : Colors.red),
-                                      onPressed: () async {
-                                        accValidation(
-                                            item.number, item.idtodo, 'Done');
-                                      },
-                                    ),
-                                  )
-                                : null),
-              ))
-          .toList(),
-    );
-  }
-
-  Widget dataTodoNormal() {
-    return Column(
-      children: listTodoNormal
-          .map((ToDoNormal item) => Card(
-                child: ListTile(
-                    leading: Checkbox(
-                      activeColor: primaryAppBarColor,
-                      value: item.selesai == null || item.selesai == ''
-                          ? false
-                          : true,
-                      onChanged: (bool value) async {
-                        await progressApiAction.show();
-                        try {
-                          var body = {
-                            'id': item.number.toString(),
-                            'todo': item.idtodo.toString(),
-                            'type': 'Normal',
-                          };
-                          final addpeserta = await http.patch(
-                              url('api/todo/list/actions/${item.number}'),
-                              headers: requestHeaders,
-                              body: body);
-                          if (addpeserta.statusCode == 200) {
-                            var addpesertaJson = json.decode(addpeserta.body);
-
-                            if (addpesertaJson['status'] == 'selesai') {
-                              setState(() {
-                                item.selesai = 'selesai';
-                                item.validation =
-                                    addpesertaJson['validation'] == null
-                                        ? null
-                                        : 'valid';
-                              });
-                              Fluttertoast.showToast(msg: "Berhasil");
-                              progressApiAction.hide().then((isHidden) {});
-                            } else if (addpesertaJson['status'] ==
-                                'belum selesai') {
-                              Fluttertoast.showToast(msg: "Berhasil");
-                              progressApiAction.hide().then((isHidden) {});
-                              setState(() {
-                                item.selesai = null;
-                                item.validation =
-                                    addpesertaJson['validation'] == null
-                                        ? null
-                                        : 'valid';
-                              });
-                            } else if (addpesertaJson['status'] ==
-                                'type todolist tidak ditemukan') {
-                              Fluttertoast.showToast(
-                                  msg: "To Do List Tidak Ditemukan");
-                              progressApiAction.hide().then((isHidden) {});
-                            } else {
-                              Fluttertoast.showToast(
-                                  msg: "Gagal, Silahkan Coba Kembali");
-                              progressApiAction.hide().then((isHidden) {});
-                            }
-                          } else {
-                            print(addpeserta.body);
-                            Fluttertoast.showToast(
-                                msg: "Gagal, Silahkan Coba Kembali");
-                            progressApiAction.hide().then((isHidden) {});
-                          }
-                        } on TimeoutException catch (_) {
-                          Fluttertoast.showToast(msg: "Timed out, Try again");
-                          progressApiAction.hide().then((isHidden) {});
-                        } catch (e) {
-                          Fluttertoast.showToast(
-                              msg: "Gagal, Silahkan Coba Kembali");
-                          progressApiAction.hide().then((isHidden) {});
-                          print('test $e');
-                        }
-                      },
-                    ),
-                    title: item.selesai == null || item.selesai == ''
-                        ? Text(
-                            "${item.title}",
-                            style: TextStyle(
-                              fontSize: 14,
-                            ),
-                          )
-                        : Text(
-                            "${item.title}",
-                            style: TextStyle(
-                              decoration: TextDecoration.lineThrough,
-                              fontSize: 14,
-                            ),
-                          ),
-                    subtitle: Padding(
-                      padding: const EdgeInsets.only(top: 10.0, bottom: 5.0),
-                      child: Text(
-                        item.selesai == null || item.selesai == ''
-                            ? 'Belum Selesai'
-                            : item.validation == null || item.validation == ''
-                                ? 'Belum Divalidasi'
-                                : 'Sudah Divalidasi',
-                        style: TextStyle(
-                            fontWeight: FontWeight.w500,
-                            color: item.selesai == null || item.selesai == ''
-                                ? Colors.grey
-                                : item.validation == null ||
-                                        item.validation == ''
-                                    ? Colors.grey
-                                    : Colors.green),
-                      ),
-                    ),
-                    trailing: item.selesai == null || item.selesai == ''
-                        ? null
-                        : dataStatusKita == null
-                            ? null
-                            : dataStatusKita['tlr_role'] == 1 ||
-                                    dataStatusKita['tlr_role'] == 2
-                                ? ButtonTheme(
-                                    minWidth: 0,
-                                    height: 0,
-                                    child: FlatButton(
-                                      padding: EdgeInsets.all(0),
-                                      color: Colors.white,
-                                      child: Icon(
-                                          item.validation == null ||
-                                                  item.validation == ''
-                                              ? Icons.check
-                                              : Icons.close,
-                                          color: item.validation == null ||
-                                                  item.validation == ''
-                                              ? Colors.green
-                                              : Colors.red),
-                                      onPressed: () async {
-                                        accValidation(
-                                            item.number, item.idtodo, 'Normal');
-                                      },
-                                    ),
-                                  )
-                                : null),
-              ))
-          .toList(),
-    );
-  }
-
-  Widget widgetLoadingTodo() {
-    return Container(
-      child: SingleChildScrollView(
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
-          width: double.infinity,
-          child: Shimmer.fromColors(
-            baseColor: Colors.grey[300],
-            highlightColor: Colors.grey[100],
-            child: Column(
-              children: [0, 1, 3, 4, 5, 6, 7, 8, 9, 10]
-                  .map((_) => Padding(
-                        padding: const EdgeInsets.only(bottom: 15.0),
+                    ],
+                  ),
+        Padding(
+          padding: const EdgeInsets.only(top: 10.0),
+          child: Text(
+            dataTodo == null
+                ? 'Belum ada deskripsi Todo'
+                : dataTodo['tl_desc'] == null ||
+                        dataTodo['tl_desc'] == '' ||
+                        dataTodo['tl_desc'] == 'null'
+                    ? 'Belum ada deskripsi Todo'
+                    : dataTodo['tl_desc'],
+            style: TextStyle(height: 2),
+          ),
+        ),
+        todoAttachmentDetail.length == 0
+            ? Container()
+            : Container(
+                margin: EdgeInsets.only(top: 20.0),
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 20.0),
+                  child: Text(
+                    'File To Do',
+                    style: TextStyle(
+                        color: Colors.black87, fontWeight: FontWeight.w500),
+                  ),
+                )),
+        Container(
+          margin: EdgeInsets.only(top: 0.0, bottom: 15.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: todoAttachmentDetail
+                .map((FileTodo item) => InkWell(
+                    onTap: () async {
+                      _requestDownload(item.path);
+                    },
+                    child: Container(
+                        width: double.infinity,
+                        margin: EdgeInsets.only(top: 10.0),
+                        padding: EdgeInsets.only(
+                            top: 10.0, left: 5, bottom: 10.0, right: 5),
+                        decoration: BoxDecoration(
+                          border:
+                              Border.all(color: Colors.grey[300], width: 1.0),
+                          borderRadius: BorderRadius.circular(5.0),
+                        ),
                         child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Container(
-                              width: 50.0,
-                              height: 50.0,
-                              color: Colors.white,
-                            ),
-                            Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 8.0),
+                          children: <Widget>[
+                            Icon(
+                              Icons.insert_drive_file,
+                              size: 13,
+                              color: Colors.red,
                             ),
                             Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Container(
-                                    width: double.infinity,
-                                    height: 8.0,
-                                    color: Colors.white,
+                              child: Text(
+                                item.path == '' || item.filename == ''
+                                    ? 'FIle Tidak Diketahui'
+                                    : item.filename,
+                                style: TextStyle(
+                                    color: Colors.black, fontSize: 12),
+                                overflow: TextOverflow.ellipsis,
+                                softWrap: true,
+                                maxLines: 1,
+                              ),
+                            ),
+                          ],
+                        ))))
+                .toList(),
+          ),
+        ),
+        Container(
+            margin: EdgeInsets.only(bottom: 15.0),
+            child: Padding(
+              padding: const EdgeInsets.only(top: 20.0),
+              child: Text(
+                'To Do Progress',
+                style: TextStyle(
+                    color: Colors.black87, fontWeight: FontWeight.w500),
+              ),
+            )),
+        Container(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              CircularPercentIndicator(
+                radius: 80.0,
+                lineWidth: 5.0,
+                animation: true,
+                percent: dataTodo == null
+                    ? 0.00
+                    : double.parse(dataTodo['tl_progress'].toString()) / 100,
+                center: new Text(
+                  dataTodo == null ? '0.00 %' : "${dataTodo['tl_progress']}%",
+                  style: new TextStyle(
+                      fontWeight: FontWeight.bold, fontSize: 12.0),
+                ),
+                circularStrokeCap: CircularStrokeCap.round,
+                progressColor: Colors.green,
+              ),
+              Container(
+                margin: EdgeInsets.only(left: 15.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: <Widget>[
+                    Padding(
+                        padding: EdgeInsets.only(top: 15.0),
+                        child: Row(
+                          children: <Widget>[
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(100.0),
+                              child: Container(
+                                margin: EdgeInsets.only(right: 3.0),
+                                height: 10.0,
+                                alignment: Alignment.center,
+                                width: 10.0,
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                      color: Color.fromRGBO(0, 204, 65, 1.0),
+                                      width: 1.0),
+                                  borderRadius: BorderRadius.all(
+                                      Radius.circular(
+                                          100.0) //                 <--- border radius here
+                                      ),
+                                  color: Color.fromRGBO(0, 204, 65, 1.0),
+                                ),
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(left: 5.0),
+                              child: Text(
+                                'Sudah Selesai',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ),
+                          ],
+                        )),
+                    Padding(
+                        padding: EdgeInsets.only(top: 10.0),
+                        child: Row(
+                          children: <Widget>[
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(100.0),
+                              child: Container(
+                                margin: EdgeInsets.only(right: 3.0),
+                                height: 10.0,
+                                alignment: Alignment.center,
+                                width: 10.0,
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                      color: Color.fromRGBO(0, 204, 65, 1.0),
+                                      width: 1.0),
+                                  borderRadius: BorderRadius.all(
+                                      Radius.circular(
+                                          100.0) //                 <--- border radius here
+                                      ),
+                                  color: Colors.grey[400],
+                                ),
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(left: 5.0),
+                              child: Text(
+                                'Belum Selesai',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ),
+                          ],
+                        )),
+                  ],
+                ),
+              )
+            ],
+          ),
+        ),
+        Container(
+            margin: EdgeInsets.only(bottom: 15.0, top: 15.0),
+            child: Padding(
+              padding: const EdgeInsets.only(top: 20.0),
+              child: Text(
+                'To Do Member',
+                style: TextStyle(
+                    color: Colors.black87, fontWeight: FontWeight.w500),
+              ),
+            )),
+        Container(
+          color: Colors.white,
+          margin: EdgeInsets.only(
+            top: 0.0,
+          ),
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Container(
+              child: Row(
+                children: todoMemberDetail
+                    .map((MemberTodo item) => InkWell(
+                          onTap: () async {
+                            _showdetailMemberProject(item.iduser);
+                          },
+                          child: Container(
+                            width: 40.0,
+                            height: 40.0,
+                            margin: EdgeInsets.only(right: 15.0),
+                            child: ClipOval(
+                              child: FadeInImage.assetNetwork(
+                                placeholder: 'images/loading.gif',
+                                image: url('assets/images/imgavatar.png'),
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                        ))
+                    .toList(),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget dataActivityTodo() {
+    return Column(
+      children: <Widget>[
+        textValue == null || textValue == ''
+            ? Container()
+            : Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 0.0, top: 15.0),
+                    child: Text(
+                      textValue == '' || textValue == null
+                          ? ''
+                          : 'Realisasi: $textValue %',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 12,
+                      ),
+                      textAlign: TextAlign.end,
+                    ),
+                  ),
+                ],
+              ),
+        Container(
+            child: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Expanded(
+              flex: 12,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: <Widget>[
+                  SliderTheme(
+                      data: SliderThemeData(
+                        trackShape: CustomTrackShape(),
+                      ),
+                      child: Slider(
+                          value: _value.toDouble(),
+                          min: 1,
+                          max: 100,
+                          activeColor: primaryAppBarColor,
+                          inactiveColor: Colors.grey[400],
+                          onChanged: (double newValue) {
+                            setState(() {
+                              _value = newValue.round();
+                              textValue = newValue.toStringAsFixed(0);
+                            });
+                          },
+                          semanticFormatterCallback: (double newValue) {
+                            return '${newValue.round()} dollars';
+                          })),
+                  Container(
+                    child: TextField(
+                      controller: _catatanrealisasiController,
+                      maxLines: 2,
+                      decoration: InputDecoration(
+                          border: OutlineInputBorder(),
+                          hintText: 'Catatan',
+                          hintStyle:
+                              TextStyle(fontSize: 13, color: Colors.black)),
+                    ),
+                  ),
+                  Container(
+                      margin: EdgeInsets.only(
+                        top: 10.0,
+                      ),
+                      width: double.infinity,
+                      height: 40.0,
+                      child: ButtonTheme(
+                        child: FlatButton(
+                            onPressed: () async {
+                              _realisasiTodo();
+                            },
+                            shape: new RoundedRectangleBorder(
+                              borderRadius: new BorderRadius.circular(10.0),
+                            ),
+                            color: primaryAppBarColor,
+                            textColor: Colors.white,
+                            child: Text('Tambahkan Aktifitas')),
+                      )),
+                  Container(height: 15.0),
+                  todoActivityDetail.length > 0 ? Divider() : Container(),
+                  Container(height: 15.0),
+                ],
+              ),
+            ),
+          ],
+        )),
+        Container(
+          child: Column(
+            children: todoActivityDetail
+                .map((TodoActivity item) => Container(
+                        child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Container(
+                          margin: EdgeInsets.only(top: 10.0, right: 15.0),
+                          child: Container(
+                            width: 40.0,
+                            height: 40.0,
+                            child: ClipOval(
+                              child: Image.asset('images/imgavatar.png'),
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          flex: 10,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: <Widget>[
+                              Padding(
+                                padding: const EdgeInsets.only(bottom: 5.0),
+                                child: Text(
+                                  '${item.updateat}',
+                                  style: TextStyle(
+                                    color: Colors.grey,
+                                    fontSize: 11,
                                   ),
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 5.0),
-                                  ),
-                                  Container(
-                                    width: double.infinity,
-                                    height: 8.0,
-                                    color: Colors.white,
+                                ),
+                              ),
+                              Row(
+                                children: <Widget>[
+                                  Expanded(
+                                      child: Text(
+                                    item.name == null || item.name == ''
+                                        ? 'Member Tidak Diketahui'
+                                        : item.name,
+                                    overflow: TextOverflow.ellipsis,
+                                    softWrap: true,
+                                    maxLines: 1,
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.w500,
+                                        fontSize: 14),
+                                  )),
+                                  Text(
+                                    item.progress == null || item.progress == ''
+                                        ? 'update 0%'
+                                        : 'update ${item.progress} %',
+                                    style: TextStyle(
+                                        color: primaryAppBarColor,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w500),
                                   ),
                                 ],
                               ),
-                            )
-                          ],
+                              Padding(
+                                  padding: const EdgeInsets.only(
+                                      top: 5.0, bottom: 10.0),
+                                  child: Text(
+                                    item.note == null || item.note == ''
+                                        ? 'Tidak ada catatan'
+                                        : item.note,
+                                    style: TextStyle(
+                                      color: Colors.black87,
+                                      fontSize: 12,
+                                      height: 1.5,
+                                    ),
+                                  )),
+                              Container(
+                                  margin: EdgeInsets.only(bottom: 5.0),
+                                  child: Divider()),
+                            ],
+                          ),
                         ),
-                      ))
-                  .toList(),
-            ),
+                      ],
+                    )))
+                .toList(),
+          ),
+        )
+      ],
+    );
+  }
+
+  Widget dataTodoReady() {
+    return Expanded(
+        child: Scrollbar(
+      child: RefreshIndicator(
+        onRefresh: listTodoReadyData,
+        child: ListView.builder(
+          padding: EdgeInsets.all(0),
+          itemCount: listTodoReady.length,
+          itemBuilder: (BuildContext context, int index) {
+            return Card(
+              child: ListTile(
+                  leading: Checkbox(
+                    activeColor: primaryAppBarColor,
+                    value: listTodoReady[index].selesai == null ||
+                            listTodoReady[index].selesai == ''
+                        ? false
+                        : true,
+                    onChanged: (bool value) async {
+                      await progressApiAction.show();
+                      actionDoneTodo(
+                          listTodoReady[index].number,
+                          listTodoReady[index].idtodo,
+                          listTodoReady[index].selesai,
+                          listTodoReady[index].validation,
+                          listTodoReady[index],
+                          'Ready');
+                    },
+                  ),
+                  title: listTodoReady[index].selesai == null ||
+                          listTodoReady[index].selesai == ''
+                      ? Text(
+                          "${listTodoReady[index].title}",
+                          style: TextStyle(
+                            fontSize: 14,
+                          ),
+                        )
+                      : Text(
+                          "${listTodoReady[index].title}",
+                          style: TextStyle(
+                            decoration: TextDecoration.lineThrough,
+                            fontSize: 14,
+                          ),
+                        ),
+                  subtitle: Padding(
+                    padding: const EdgeInsets.only(top: 10.0, bottom: 5.0),
+                    child: Text(
+                      listTodoReady[index].selesai == null ||
+                              listTodoReady[index].selesai == ''
+                          ? 'Belum Selesai'
+                          : listTodoReady[index].validation == null ||
+                                  listTodoReady[index].validation == ''
+                              ? 'Belum Divalidasi'
+                              : 'Sudah Divalidasi',
+                      style: TextStyle(
+                          fontWeight: FontWeight.w500,
+                          color: listTodoReady[index].selesai == null ||
+                                  listTodoReady[index].selesai == ''
+                              ? Colors.grey
+                              : listTodoReady[index].validation == null ||
+                                      listTodoReady[index].validation == ''
+                                  ? Colors.grey
+                                  : Colors.green),
+                    ),
+                  ),
+                  trailing: listTodoReady[index].selesai == null ||
+                          listTodoReady[index].selesai == ''
+                      ? null
+                      : dataStatusKita == null
+                          ? null
+                          : dataStatusKita['tlr_role'] == 1 ||
+                                  dataStatusKita['tlr_role'] == 2
+                              ? ButtonTheme(
+                                  minWidth: 0,
+                                  height: 0,
+                                  child: FlatButton(
+                                    padding: EdgeInsets.all(0),
+                                    color: Colors.white,
+                                    child: Icon(
+                                        listTodoReady[index].validation ==
+                                                    null ||
+                                                listTodoReady[index]
+                                                        .validation ==
+                                                    ''
+                                            ? Icons.check
+                                            : Icons.close,
+                                        color:
+                                            listTodoReady[index].validation ==
+                                                        null ||
+                                                    listTodoReady[index]
+                                                            .validation ==
+                                                        ''
+                                                ? Colors.green
+                                                : Colors.red),
+                                    onPressed: () async {
+                                      accValidation(
+                                          listTodoReady[index].number,
+                                          listTodoReady[index].idtodo,
+                                          listTodoReady[index].selesai,
+                                          listTodoReady[index].validation,
+                                          listTodoReady[index],
+                                          'Ready');
+                                    },
+                                  ),
+                                )
+                              : null),
+            );
+          },
+        ),
+      ),
+    ));
+  }
+
+  Widget dataTodoAction() {
+    return Expanded(
+        child: Scrollbar(
+      child: RefreshIndicator(
+        onRefresh: listTodoActionData,
+        child: ListView.builder(
+          padding: EdgeInsets.all(0),
+          itemCount: listTodoAction.length,
+          itemBuilder: (BuildContext context, int index) {
+            return Card(
+              child: ListTile(
+                  leading: Checkbox(
+                    activeColor: primaryAppBarColor,
+                    value: listTodoAction[index].selesai == null ||
+                            listTodoAction[index].selesai == ''
+                        ? false
+                        : true,
+                    onChanged: (bool value) async {
+                      await progressApiAction.show();
+                      actionDoneTodo(
+                          listTodoAction[index].number,
+                          listTodoAction[index].idtodo,
+                          listTodoAction[index].selesai,
+                          listTodoAction[index].validation,
+                          listTodoAction[index],
+                          'Action');
+                    },
+                  ),
+                  title: listTodoAction[index].selesai == null ||
+                          listTodoAction[index].selesai == ''
+                      ? Text(
+                          "${listTodoAction[index].title}",
+                          style: TextStyle(
+                            fontSize: 14,
+                          ),
+                        )
+                      : Text(
+                          "${listTodoAction[index].title}",
+                          style: TextStyle(
+                            decoration: TextDecoration.lineThrough,
+                            fontSize: 14,
+                          ),
+                        ),
+                  subtitle: Padding(
+                    padding: const EdgeInsets.only(top: 10.0, bottom: 5.0),
+                    child: Text(
+                      listTodoAction[index].selesai == null ||
+                              listTodoAction[index].selesai == ''
+                          ? 'Belum Selesai'
+                          : listTodoAction[index].validation == null ||
+                                  listTodoAction[index].validation == ''
+                              ? 'Belum Divalidasi'
+                              : 'Sudah Divalidasi',
+                      style: TextStyle(
+                          fontWeight: FontWeight.w500,
+                          color: listTodoAction[index].selesai == null ||
+                                  listTodoAction[index].selesai == ''
+                              ? Colors.grey
+                              : listTodoAction[index].validation == null ||
+                                      listTodoAction[index].validation == ''
+                                  ? Colors.grey
+                                  : Colors.green),
+                    ),
+                  ),
+                  trailing: listTodoAction[index].selesai == null ||
+                          listTodoAction[index].selesai == ''
+                      ? null
+                      : dataStatusKita == null
+                          ? null
+                          : dataStatusKita['tlr_role'] == 1 ||
+                                  dataStatusKita['tlr_role'] == 2
+                              ? ButtonTheme(
+                                  minWidth: 0,
+                                  height: 0,
+                                  child: FlatButton(
+                                    padding: EdgeInsets.all(0),
+                                    color: Colors.white,
+                                    child: Icon(
+                                        listTodoAction[index].validation ==
+                                                    null ||
+                                                listTodoAction[index]
+                                                        .validation ==
+                                                    ''
+                                            ? Icons.check
+                                            : Icons.close,
+                                        color:
+                                            listTodoAction[index].validation ==
+                                                        null ||
+                                                    listTodoAction[index]
+                                                            .validation ==
+                                                        ''
+                                                ? Colors.green
+                                                : Colors.red),
+                                    onPressed: () async {
+                                      accValidation(
+                                          listTodoAction[index].number,
+                                          listTodoAction[index].idtodo,
+                                          listTodoAction[index].selesai,
+                                          listTodoAction[index].validation,
+                                          listTodoAction[index],
+                                          'Action');
+                                    },
+                                  ),
+                                )
+                              : null),
+            );
+          },
+        ),
+      ),
+    ));
+  }
+
+  Widget dataTodoDone() {
+    return Expanded(
+        child: Scrollbar(
+      child: RefreshIndicator(
+        onRefresh: listTodoDoneData,
+        child: ListView.builder(
+          padding: EdgeInsets.all(0),
+          itemCount: listTodoDone.length,
+          itemBuilder: (BuildContext context, int index) {
+            return Card(
+              child: ListTile(
+                  leading: Checkbox(
+                    activeColor: primaryAppBarColor,
+                    value: listTodoDone[index].selesai == null ||
+                            listTodoDone[index].selesai == ''
+                        ? false
+                        : true,
+                    onChanged: (bool value) async {
+                      await progressApiAction.show();
+                      actionDoneTodo(
+                          listTodoDone[index].number,
+                          listTodoDone[index].idtodo,
+                          listTodoDone[index].selesai,
+                          listTodoDone[index].validation,
+                          listTodoDone[index],
+                          'Done');
+                    },
+                  ),
+                  title: listTodoDone[index].selesai == null ||
+                          listTodoDone[index].selesai == ''
+                      ? Text(
+                          "${listTodoDone[index].title}",
+                          style: TextStyle(
+                            fontSize: 14,
+                          ),
+                        )
+                      : Text(
+                          "${listTodoDone[index].title}",
+                          style: TextStyle(
+                            decoration: TextDecoration.lineThrough,
+                            fontSize: 14,
+                          ),
+                        ),
+                  subtitle: Padding(
+                    padding: const EdgeInsets.only(top: 10.0, bottom: 5.0),
+                    child: Text(
+                      listTodoDone[index].selesai == null ||
+                              listTodoDone[index].selesai == ''
+                          ? 'Belum Selesai'
+                          : listTodoDone[index].validation == null ||
+                                  listTodoDone[index].validation == ''
+                              ? 'Belum Divalidasi'
+                              : 'Sudah Divalidasi',
+                      style: TextStyle(
+                          fontWeight: FontWeight.w500,
+                          color: listTodoDone[index].selesai == null ||
+                                  listTodoDone[index].selesai == ''
+                              ? Colors.grey
+                              : listTodoDone[index].validation == null ||
+                                      listTodoDone[index].validation == ''
+                                  ? Colors.grey
+                                  : Colors.green),
+                    ),
+                  ),
+                  trailing: listTodoDone[index].selesai == null ||
+                          listTodoDone[index].selesai == ''
+                      ? null
+                      : dataStatusKita == null
+                          ? null
+                          : dataStatusKita['tlr_role'] == 1 ||
+                                  dataStatusKita['tlr_role'] == 2
+                              ? ButtonTheme(
+                                  minWidth: 0,
+                                  height: 0,
+                                  child: FlatButton(
+                                    padding: EdgeInsets.all(0),
+                                    color: Colors.white,
+                                    child: Icon(
+                                        listTodoDone[index].validation ==
+                                                    null ||
+                                                listTodoReady[index]
+                                                        .validation ==
+                                                    ''
+                                            ? Icons.check
+                                            : Icons.close,
+                                        color: listTodoDone[index].validation ==
+                                                    null ||
+                                                listTodoDone[index]
+                                                        .validation ==
+                                                    ''
+                                            ? Colors.green
+                                            : Colors.red),
+                                    onPressed: () async {
+                                      accValidation(
+                                          listTodoDone[index].number,
+                                          listTodoDone[index].idtodo,
+                                          listTodoDone[index].selesai,
+                                          listTodoDone[index].validation,
+                                          listTodoDone[index],
+                                          'Done');
+                                    },
+                                  ),
+                                )
+                              : null),
+            );
+          },
+        ),
+      ),
+    ));
+  }
+
+  Widget dataTodoNormal() {
+    return Expanded(
+        child: Scrollbar(
+      child: RefreshIndicator(
+        onRefresh: listTodoNormalData,
+        child: ListView.builder(
+          padding: EdgeInsets.all(0),
+          itemCount: listTodoNormal.length,
+          itemBuilder: (BuildContext context, int index) {
+            return Card(
+              child: ListTile(
+                  leading: Checkbox(
+                    activeColor: primaryAppBarColor,
+                    value: listTodoNormal[index].selesai == null ||
+                            listTodoNormal[index].selesai == ''
+                        ? false
+                        : true,
+                    onChanged: (bool value) async {
+                      await progressApiAction.show();
+                      actionDoneTodo(
+                          listTodoNormal[index].number,
+                          listTodoNormal[index].idtodo,
+                          listTodoNormal[index].selesai,
+                          listTodoNormal[index].validation,
+                          listTodoNormal[index],
+                          'Normal');
+                    },
+                  ),
+                  title: listTodoNormal[index].selesai == null ||
+                          listTodoNormal[index].selesai == ''
+                      ? Text(
+                          "${listTodoNormal[index].title}",
+                          style: TextStyle(
+                            fontSize: 14,
+                          ),
+                        )
+                      : Text(
+                          "${listTodoNormal[index].title}",
+                          style: TextStyle(
+                            decoration: TextDecoration.lineThrough,
+                            fontSize: 14,
+                          ),
+                        ),
+                  subtitle: Padding(
+                    padding: const EdgeInsets.only(top: 10.0, bottom: 5.0),
+                    child: Text(
+                      listTodoNormal[index].selesai == null ||
+                              listTodoNormal[index].selesai == ''
+                          ? 'Belum Selesai'
+                          : listTodoNormal[index].validation == null ||
+                                  listTodoNormal[index].validation == ''
+                              ? 'Belum Divalidasi'
+                              : 'Sudah Divalidasi',
+                      style: TextStyle(
+                          fontWeight: FontWeight.w500,
+                          color: listTodoNormal[index].selesai == null ||
+                                  listTodoNormal[index].selesai == ''
+                              ? Colors.grey
+                              : listTodoNormal[index].validation == null ||
+                                      listTodoNormal[index].validation == ''
+                                  ? Colors.grey
+                                  : Colors.green),
+                    ),
+                  ),
+                  trailing: listTodoNormal[index].selesai == null ||
+                          listTodoNormal[index].selesai == ''
+                      ? null
+                      : dataStatusKita == null
+                          ? null
+                          : dataStatusKita['tlr_role'] == 1 ||
+                                  dataStatusKita['tlr_role'] == 2
+                              ? ButtonTheme(
+                                  minWidth: 0,
+                                  height: 0,
+                                  child: FlatButton(
+                                    padding: EdgeInsets.all(0),
+                                    color: Colors.white,
+                                    child: Icon(
+                                        listTodoNormal[index].validation ==
+                                                    null ||
+                                                listTodoReady[index]
+                                                        .validation ==
+                                                    ''
+                                            ? Icons.check
+                                            : Icons.close,
+                                        color:
+                                            listTodoNormal[index].validation ==
+                                                        null ||
+                                                    listTodoNormal[index]
+                                                            .validation ==
+                                                        ''
+                                                ? Colors.green
+                                                : Colors.red),
+                                    onPressed: () async {
+                                      accValidation(
+                                          listTodoNormal[index].number,
+                                          listTodoNormal[index].idtodo,
+                                          listTodoNormal[index].selesai,
+                                          listTodoNormal[index].validation,
+                                          listTodoNormal[index],
+                                          'Normal');
+                                    },
+                                  ),
+                                )
+                              : null),
+            );
+          },
+        ),
+      ),
+    ));
+  }
+
+  Widget widgetLoadingTodo() {
+    return SingleChildScrollView(
+      scrollDirection: Axis.vertical,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
+        width: double.infinity,
+        child: Shimmer.fromColors(
+          baseColor: Colors.grey[300],
+          highlightColor: Colors.grey[100],
+          child: Column(
+            children: [0, 1, 3, 4, 5, 6, 7, 8, 9, 10]
+                .map((_) => Padding(
+                      padding: const EdgeInsets.only(bottom: 15.0),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            width: 50.0,
+                            height: 50.0,
+                            color: Colors.white,
+                          ),
+                          Padding(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 8.0),
+                          ),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Container(
+                                  width: double.infinity,
+                                  height: 8.0,
+                                  color: Colors.white,
+                                ),
+                                Padding(
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 5.0),
+                                ),
+                                Container(
+                                  width: double.infinity,
+                                  height: 8.0,
+                                  color: Colors.white,
+                                ),
+                              ],
+                            ),
+                          )
+                        ],
+                      ),
+                    ))
+                .toList(),
           ),
         ),
       ),
     );
   }
 
-  void accValidation(number, idtodo, type) async {
+  void accValidation(number, idtodo, selesai, validation, index, type) async {
     await progressApiAction.show();
     try {
       var body = {
@@ -2571,20 +2304,21 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
           headers: requestHeaders, body: body);
       if (addpeserta.statusCode == 200) {
         var addpesertaJson = json.decode(addpeserta.body);
-        if (addpesertaJson['status'] == 'success') {
-          if (_tabController.index == 1) {
-            progressApiAction.hide().then((isHidden) {});
-            listTodoActionData();
-          } else if (_tabController.index == 2) {
-            progressApiAction.hide().then((isHidden) {});
-            listTodoReadyData();
-          } else if (_tabController.index == 3) {
-            progressApiAction.hide().then((isHidden) {});
-            listTodoNormalData();
-          } else if (_tabController.index == 4) {
-            progressApiAction.hide().then((isHidden) {});
-            listTodoDoneData();
-          }
+        if (addpesertaJson['status'] == 'validation') {
+          setState(() {
+            index.validation = 'valid';
+          });
+          Fluttertoast.showToast(msg: 'Berhasil');
+          progressApiAction.hide().then((isHidden) {});
+        } else if (addpesertaJson['status'] == 'belum validation') {
+          setState(() {
+            index.validation = null;
+          });
+          Fluttertoast.showToast(msg: 'Berhasil');
+          progressApiAction.hide().then((isHidden) {});
+        } else {
+          progressApiAction.hide().then((isHidden) {});
+          Fluttertoast.showToast(msg: 'To Do tidak ditemukan');
         }
       } else {
         print(addpeserta.body);
@@ -2647,12 +2381,14 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
                     if (_tabController.index == 0) {
                       getHeaderHTTP();
                     } else if (_tabController.index == 1) {
-                      listTodoActionData();
+                      todoActivity();
                     } else if (_tabController.index == 2) {
-                      listTodoReadyData();
+                      listTodoActionData();
                     } else if (_tabController.index == 3) {
-                      listTodoNormalData();
+                      listTodoReadyData();
                     } else if (_tabController.index == 4) {
+                      listTodoNormalData();
+                    } else if (_tabController.index == 5) {
                       listTodoDoneData();
                     }
                   },
@@ -2852,31 +2588,178 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
     ));
   }
 
-  Widget emptyTodoAction() {
-    return Padding(
-      padding: const EdgeInsets.only(top: 30.0),
-      child: Column(children: <Widget>[
-        new Container(
-          width: 100.0,
-          height: 100.0,
-          child: Image.asset("images/todo_icon2.png"),
-        ),
-        Padding(
-          padding: const EdgeInsets.only(
-              top: 20.0, left: 25.0, right: 25.0, bottom: 35.0),
-          child: Center(
-            child: Text(
-              "To Do Action Yang Anda Cari Tidak Ditemukan",
-              style: TextStyle(
-                fontSize: 16,
-                height: 1.5,
-              ),
-              textAlign: TextAlign.center,
+  Widget loadingTodoActivity(BuildContext context) {
+    return SingleChildScrollView(
+        child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: <Widget>[
+        Container(
+            color: Colors.white,
+            margin: EdgeInsets.only(
+              top: 15.0,
             ),
-          ),
-        ),
-      ]),
+            padding: EdgeInsets.all(15.0),
+            child: SingleChildScrollView(
+                child: Container(
+              width: double.infinity,
+              child: Shimmer.fromColors(
+                baseColor: Colors.grey[300],
+                highlightColor: Colors.grey[100],
+                child: Column(
+                  children: [0, 1, 2, 3, 4, 5]
+                      .map((_) => Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: <Widget>[
+                              Container(
+                                margin: EdgeInsets.only(bottom: 25.0),
+                                child: Row(
+                                  children: <Widget>[
+                                    Container(
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.all(
+                                            Radius.circular(100.0)),
+                                      ),
+                                      width: 35.0,
+                                      height: 35.0,
+                                    ),
+                                    Expanded(
+                                      flex: 9,
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: <Widget>[
+                                          Container(
+                                            decoration: BoxDecoration(
+                                              color: Colors.white,
+                                              borderRadius: BorderRadius.all(
+                                                  Radius.circular(5.0)),
+                                            ),
+                                            margin: EdgeInsets.only(left: 15.0),
+                                            width: double.infinity,
+                                            height: 10.0,
+                                          ),
+                                          Container(
+                                            decoration: BoxDecoration(
+                                              color: Colors.white,
+                                              borderRadius: BorderRadius.all(
+                                                  Radius.circular(5.0)),
+                                            ),
+                                            margin: EdgeInsets.only(
+                                                left: 15.0, top: 15.0),
+                                            width: 100.0,
+                                            height: 10.0,
+                                          ),
+                                        ],
+                                      ),
+                                    )
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ))
+                      .toList(),
+                ),
+              ),
+            ))),
+      ],
+    ));
+  }
+
+  Widget emptyTodoAction() {
+    return RefreshIndicator(
+      onRefresh: () async {
+        if (_tabController.index == 2) {
+          listTodoActionData();
+        } else if (_tabController.index == 3) {
+          listTodoReadyData();
+        } else if (_tabController.index == 4) {
+          listTodoNormalData();
+        } else if (_tabController.index == 5) {
+          listTodoDoneData();
+        }
+      },
+      child: SingleChildScrollView(
+          physics: AlwaysScrollableScrollPhysics(),
+          child: Padding(
+            padding: const EdgeInsets.only(top: 30.0),
+            child: Column(children: <Widget>[
+              new Container(
+                width: 100.0,
+                height: 100.0,
+                child: Image.asset("images/todo_icon2.png"),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(
+                    top: 20.0, left: 25.0, right: 25.0, bottom: 35.0),
+                child: Center(
+                  child: Text(
+                    "To Do Action Yang Anda Cari Tidak Ditemukan",
+                    style: TextStyle(
+                      fontSize: 16,
+                      height: 1.5,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ),
+            ]),
+          )),
     );
+  }
+
+  void actionDoneTodo(number, idtodo, selesai, validation, index, type) async {
+    try {
+      var body = {
+        'id': number.toString(),
+        'todo': idtodo.toString(),
+        'type': type,
+      };
+      final addpeserta = await http.patch(url('api/todo/list/actions/$number'),
+          headers: requestHeaders, body: body);
+      if (addpeserta.statusCode == 200) {
+        var addpesertaJson = json.decode(addpeserta.body);
+
+        if (addpesertaJson['status'] == 'selesai') {
+          setState(() {
+            index.selesai = 'selesai';
+            index.validation =
+                addpesertaJson['validation'] == null ? null : 'valid';
+          });
+          Fluttertoast.showToast(msg: "Berhasil");
+          progressApiAction.hide().then((isHidden) {});
+        } else if (addpesertaJson['status'] == 'belum selesai') {
+          Fluttertoast.showToast(msg: "Berhasil");
+          progressApiAction.hide().then((isHidden) {});
+          setState(() {
+            index.selesai = null;
+            index.validation =
+                addpesertaJson['validation'] == null ? null : 'valid';
+          });
+        } else if (addpesertaJson['status'] ==
+            'type todolist tidak ditemukan') {
+          Fluttertoast.showToast(msg: "To Do List Tidak Ditemukan");
+          progressApiAction.hide().then((isHidden) {});
+        } else {
+          Fluttertoast.showToast(msg: "Gagal, Silahkan Coba Kembali");
+          progressApiAction.hide().then((isHidden) {});
+        }
+      } else {
+        print(addpeserta.body);
+        Fluttertoast.showToast(msg: "Gagal, Silahkan Coba Kembali");
+        progressApiAction.hide().then((isHidden) {});
+      }
+    } on TimeoutException catch (_) {
+      Fluttertoast.showToast(msg: "Timed out, Try again");
+      progressApiAction.hide().then((isHidden) {});
+    } catch (e) {
+      Fluttertoast.showToast(msg: "Gagal, Silahkan Coba Kembali");
+      progressApiAction.hide().then((isHidden) {});
+    }
   }
 }
 
