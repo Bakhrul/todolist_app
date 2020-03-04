@@ -598,7 +598,6 @@ class _HomeState extends State<Home> {
                                             : url(
                                                 'storage/profile/$imageData'))))
 
-                            // :Text("uyee"),
                           ],
                         ),
                       ),

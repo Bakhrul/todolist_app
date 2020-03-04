@@ -14,7 +14,6 @@ import 'package:todolist_app/src/storage/storage.dart';
 enum PageEnum {
   openGaleri,
   deletePhoto,
- 
 }
 
 class EditPhoto extends StatefulWidget {

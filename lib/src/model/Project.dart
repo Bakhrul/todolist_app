@@ -9,6 +9,7 @@ class Project{
   int membertotal;
   List listMember;
   Color colored;
+  String status;
 
-  Project({this.id,this.title, this.start, this.end,this.colored, this.percent, this.membertotal, this.listMember});
+  Project({this.id,this.title, this.start, this.end,this.colored, this.percent, this.membertotal, this.listMember,this.status});
 }

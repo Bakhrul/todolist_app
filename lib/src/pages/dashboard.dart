@@ -1,5 +1,5 @@
 import 'package:todolist_app/src/pages/dashboard/home.dart';
-import 'package:todolist_app/src/pages/manajamen_user/index.dart';
+import 'package:todolist_app/src/pages/manajamen_user/index2.dart';
 import 'package:todolist_app/src/pages/todolist/create_todo.dart';
 import 'package:todolist_app/src/routes/env.dart';
 import 'package:todolist_app/src/utils/utils.dart';
