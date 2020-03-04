@@ -15,6 +15,7 @@ import 'package:http/http.dart' as http;
 import 'dart:async';
 import '../manajemen_project/detail_project.dart';
 import '../todolist/detail_todo.dart';
+import 'package:flutter/services.dart';
 import 'package:todolist_app/src/utils/utils.dart';
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 
@@ -53,6 +54,7 @@ class _HomeState extends State<Home> {
     DataStore user = new DataStore();
     String namaRawUser = await user.getDataString('name');
     String imageStore = await user.getDataString('photo');
+    print(imageStore);
     setState(() {
       imageData = imageStore;
       namaUser = namaRawUser;
@@ -247,13 +249,13 @@ class _HomeState extends State<Home> {
               statuspinned: i['statuspinned'].toString(),
               allday: i['allday'],
               statusProgress: i['statusprogress'],
-              coloredProgress: i['statusprogress'] == 'compleshed'
+               coloredProgress: i['statusprogress'] == 'compleshed'
                   ? Colors.green
                   : i['statusprogress'] == 'overdue'
                       ? Colors.red
                       : i['statusprogress'] == 'pending'
                           ? Colors.grey
-                          : Colors.white);
+                          : i['statusprogress'] == 'working' ? Colors.blue: Colors.white);
 
           listTodo.add(todo);
         }
@@ -340,7 +342,7 @@ class _HomeState extends State<Home> {
                       ? Colors.red
                       : i['statusprogress'] == 'pending'
                           ? Colors.grey
-                          : Colors.white);
+                          : i['statusprogress'] == 'working' ? Colors.blue: Colors.white);
 
           listTodo.add(todo);
         }
@@ -585,20 +587,40 @@ class _HomeState extends State<Home> {
                               ),
                             ),
                             Container(
-                                margin: EdgeInsets.only(left: 20),
-                                height: 40,
-                                width: 40,
-                                child: ClipOval(
-                                    child: FadeInImage.assetNetwork(
-                                        fit: BoxFit.cover,
-                                        placeholder: 'images/imgavatar.png',
-                                        image: imageData == null ||
-                                                imageData == ''
-                                            ? url('assets/images/imgavatar.png')
-                                            : url(
-                                                'storage/profile/$imageData'))))
-
-                            // :Text("uyee"),
+                              margin: EdgeInsets.only(left: 20),
+                              height: 40,
+                              width: 40,
+                              decoration: BoxDecoration(
+                                border: Border.all(color:Colors.white,width:1.0),
+                                color: Colors.white,
+                                borderRadius: BorderRadius.all(Radius.circular(100.0)),
+                              ),
+                              child: GestureDetector(
+                                child: Hero(
+                                    tag: 'imageHero',
+                                    child: ClipOval(
+                                        child: FadeInImage.assetNetwork(
+                                            fit: BoxFit.cover,
+                                            placeholder: 'images/imgavatar.png',
+                                            image: imageData == null ||
+                                                    imageData == '' ||
+                                                    imageData ==
+                                                        'Tidak ditemukan'
+                                                ? url(
+                                                    'assets/images/imgavatar.png')
+                                                : url(
+                                                    'storage/image/profile/$imageData')))),
+                                onTap: () {
+                                  Navigator.push(context,
+                                      MaterialPageRoute(builder: (_) {
+                                    return DetailScreen(
+                                        tag: 'imageHero',
+                                        url:
+                                            url('storage/image/profile/$imageData'));
+                                  }));
+                                },
+                              ),
+                            ),
                           ],
                         ),
                       ),
@@ -876,7 +898,7 @@ class _HomeState extends State<Home> {
                                                                               height: 35,
                                                                               width: 35,
                                                                               decoration: BoxDecoration(border: Border.all(color: Colors.white, width: 2.0), borderRadius: BorderRadius.circular(100.0)),
-                                                                              child: ClipOval(child: FadeInImage.assetNetwork(placeholder: 'images/loading.gif', image: url('assets/images/imgavatar.png')))),
+                                                                              child: ClipOval(child: FadeInImage.assetNetwork(placeholder: 'images/loading.gif', image: item.listMember[i]['path'] == null || item.listMember[i]['path'] == '' ? url('assets/images/imgavatar.png') : url('storage/image/profile/${item.listMember[i]['path']}')))),
                                                                         ),
                                                                       item.membertotal >
                                                                               5
@@ -963,7 +985,7 @@ class _HomeState extends State<Home> {
                                                                               Padding(
                                                                                 padding: const EdgeInsets.only(left: 5.0),
                                                                                 child: Text(
-                                                                                  item.start == null ? 'Tidak Diketahui' : DateFormat('dd MM yyyy').format(DateTime.parse(item.start)),
+                                                                                  item.start == null ? 'Tidak Diketahui' : DateFormat('dd MMM yyyy').format(DateTime.parse(item.start)),
                                                                                   style: TextStyle(color: Colors.grey, fontSize: 12, fontWeight: FontWeight.w500),
                                                                                 ),
                                                                               ),
@@ -1330,11 +1352,15 @@ class _HomeState extends State<Home> {
                                                               fontWeight:
                                                                   FontWeight
                                                                       .w500)),
-                                                      subtitle: Text(
+                                                      subtitle: Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .only(top: 2.0),
+                                                        child: Text(
                                                           DateFormat(x.allday >
                                                                           0
-                                                                      ? 'd/MM/y'
-                                                                      : 'd/MM/y HH:mm')
+                                                                      ? 'dd MMM yyyy'
+                                                                      : 'dd MMM yyyy HH:mm')
                                                                   .format(DateTime
                                                                       .parse(
                                                                           "${x.timestart}"))
@@ -1342,16 +1368,16 @@ class _HomeState extends State<Home> {
                                                               ' - ' +
                                                               DateFormat(x.allday >
                                                                           0
-                                                                      ? 'd/MM/y'
-                                                                      : 'd/MM/y HH:mm')
+                                                                      ? 'dd MMM yyyy'
+                                                                      : 'dd MMM yyyy HH:mm')
                                                                   .format(DateTime
                                                                       .parse(
                                                                           "${x.timeend}"))
                                                                   .toString(),
-                                                          softWrap: true,
-                                                          overflow: TextOverflow
-                                                              .ellipsis,
-                                                          maxLines: 1),
+                                                          style: TextStyle(
+                                                              fontSize: 12),
+                                                        ),
+                                                      ),
                                                     ),
                                                   ),
                                                 )),
@@ -1631,6 +1657,55 @@ class _HomeState extends State<Home> {
               ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class DetailScreen extends StatefulWidget {
+  final String tag;
+  final String url;
+
+  DetailScreen({Key key, @required this.tag, @required this.url})
+      : assert(tag != null),
+        assert(url != null),
+        super(key: key);
+
+  @override
+  _DetailScreenState createState() => _DetailScreenState();
+}
+
+class _DetailScreenState extends State<DetailScreen> {
+  @override
+  initState() {
+    SystemChrome.setEnabledSystemUIOverlays([]);
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    //SystemChrome.restoreSystemUIOverlays();
+    SystemChrome.setEnabledSystemUIOverlays(SystemUiOverlay.values);
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      body: GestureDetector(
+        child: Center(
+          child: Hero(
+            tag: widget.tag,
+            child: FadeInImage.assetNetwork(
+              placeholder: 'images/imgavatar.png',
+              image: widget.url,
+            ),
+          ),
+        ),
+        onTap: () {
+          Navigator.pop(context);
+        },
       ),
     );
   }

@@ -20,16 +20,18 @@ import 'package:flutter/services.dart';
 import 'package:todolist_app/src/model/TodoMember.dart';
 import 'package:todolist_app/src/model/TodoAttachment.dart';
 import 'choose_project.dart';
+import 'delete_todolist.dart';
 
 String tokenType, accessToken;
 String categoriesID;
 String categoriesName;
 bool isLoading, isError;
 String idProjectEditChoose;
-String namaProjectEditChoose,titleEdit;
+String namaProjectEditChoose, titleEdit;
 
 class ManajemenEditTodo extends StatefulWidget {
-  ManajemenEditTodo({Key key, this.title, this.idTodo,this.platform}) : super(key: key);
+  ManajemenEditTodo({Key key, this.title, this.idTodo, this.platform})
+      : super(key: key);
   final String title;
   final int idTodo;
   final TargetPlatform platform;
@@ -41,12 +43,12 @@ class ManajemenEditTodo extends StatefulWidget {
 
 class _ManajemenEditTodoState extends State<ManajemenEditTodo>
     with SingleTickerProviderStateMixin {
-      
   String _dfileName;
   String fileImage;
   bool _loadingPath;
   String _urutkanvalue;
   String _alldayTipe;
+  Map dataTodo, dataStatusKita;
   bool _hasValidMime;
   FileType _pickingType;
   String filename;
@@ -115,9 +117,10 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
       if (participant.statusCode == 200) {
         var listParticipantToJson = json.decode(participant.body);
         Map rawTodo = listParticipantToJson['todo'];
+        Map rawStatusKita = listParticipantToJson['statuskita'];
         var members = listParticipantToJson['member_todo'];
         var ducuments = listParticipantToJson['document_todo'];
-      titleEdit =  rawTodo['tl_title'].toString();
+        titleEdit = rawTodo['tl_title'].toString();
         for (var i in members) {
           MemberTodo member = MemberTodo(
             iduser: i['us_id'],
@@ -139,6 +142,8 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
         }
 
         setState(() {
+          dataTodo = rawTodo;
+          dataStatusKita = rawStatusKita;
           _titleController.text = rawTodo['tl_title'];
           _dateEndController.text = rawTodo != null
               ? rawTodo['tl_allday'].toString() == '1'
@@ -579,13 +584,9 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
       print(e);
     }
   }
-    
-  
-  
 
   @override
   Widget build(BuildContext context) {
-    
     progressApiAction = new ProgressDialog(context,
         type: ProgressDialogType.Normal, isDismissible: false, showLogs: false);
     progressApiAction.style(
@@ -601,7 +602,11 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
       backgroundColor: Color.fromRGBO(242, 242, 242, 1),
       appBar: AppBar(
         backgroundColor: primaryAppBarColor,
-        title: Text(titleEdit == null ? 'Tunggu Sebentar...':'Manajemen To Do ($titleEdit)', style: TextStyle(fontSize: 14)),
+        title: Text(
+            titleEdit == null
+                ? 'Tunggu Sebentar...'
+                : 'Manajemen To Do ($titleEdit)',
+            style: TextStyle(fontSize: 14)),
         actions: <Widget>[],
       ), //
       body: Container(
@@ -623,6 +628,9 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
                         Padding(
                           padding: const EdgeInsets.only(top: 5.0, bottom: 5.0),
                           child: Text('Information',
+                              overflow: TextOverflow.ellipsis,
+                              softWrap: true,
+                              maxLines: 1,
                               style: TextStyle(
                                   fontSize: 14, color: Colors.black38)),
                         ),
@@ -637,6 +645,9 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
                         Padding(
                           padding: const EdgeInsets.only(top: 5.0, bottom: 5.0),
                           child: Text('Member',
+                              overflow: TextOverflow.ellipsis,
+                              softWrap: true,
+                              maxLines: 1,
                               style: TextStyle(
                                   fontSize: 14, color: Colors.black38)),
                         ),
@@ -651,6 +662,9 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
                         Padding(
                           padding: const EdgeInsets.only(top: 5.0, bottom: 5.0),
                           child: Text('Document',
+                              overflow: TextOverflow.ellipsis,
+                              softWrap: true,
+                              maxLines: 1,
                               style: TextStyle(
                                   fontSize: 14, color: Colors.black38)),
                         ),
@@ -749,465 +763,590 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
                                             ),
                                           )
                                         : Container(
-                                            margin: EdgeInsets.only(top: 0.0),
-                                            color: Colors.white,
-                                            width: double.infinity,
-                                            padding: EdgeInsets.only(
-                                              left: 10.0,
-                                              right: 10.0,
-                                              top: 20.0,
-                                              bottom: 15.0,
-                                            ),
                                             child: Column(
                                               crossAxisAlignment:
                                                   CrossAxisAlignment.start,
                                               children: <Widget>[
-                                                Container(
-                                                  margin: EdgeInsets.only(
-                                                      bottom: 10.0),
-                                                  child: Text(
-                                                    'Edit To Do',
-                                                    style: TextStyle(
-                                                        fontWeight:
-                                                            FontWeight.w500),
-                                                  ),
-                                                ),
-                                                Divider(),
-                                                Container(
-                                                    margin: EdgeInsets.only(
-                                                        bottom: 10.0,
-                                                        top: 10.0),
-                                                    child: TextField(
-                                                      textAlignVertical:
-                                                          TextAlignVertical
-                                                              .center,
-                                                      decoration: InputDecoration(
-                                                          contentPadding:
-                                                              EdgeInsets.only(
-                                                                  top: 2,
-                                                                  bottom: 2,
-                                                                  left: 10,
-                                                                  right: 10),
-                                                          border:
-                                                              OutlineInputBorder(),
-                                                          hintText:
-                                                              'Nama To Do',
-                                                          hintStyle: TextStyle(
-                                                              fontSize: 12,
-                                                              color: Colors
-                                                                  .black)),
-                                                      controller:
-                                                          _titleController,
-                                                    )),                                               
-                                                Text("Pelaksanaan Kegiatan"),
-                                                Row(
-                                                  children: <Widget>[
-                                                    Container(
-                                                      margin: EdgeInsets.only(
-                                                          top: 10.0,
-                                                          bottom: 10.0),
-                                                      child: SizedBox(
-                                                        height: 24.0,
-                                                        width: 24.0,
-                                                        child: Checkbox(
-                                                          value:
-                                                              _alldayTipe == '0'
-                                                                  ? false
-                                                                  : true,
-
-                                                          // checkColor: Colors.green,
-                                                          activeColor:
-                                                              primaryAppBarColor,
-                                                          onChanged:
-                                                              (bool value) {
-                                                            setState(() {
-                                                              _alldayTipe =
-                                                                  value == true
-                                                                      ? '1'
-                                                                      : '0';
-                                                              _dateStartController
-                                                                  .text = '';
-                                                              _dateEndController
-                                                                  .text = '';
-                                                            });
-                                                          },
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    Text("All Day")
-                                                  ],
-                                                ),
-                                                _alldayTipe == '0'
-                                                    ? Container(
-                                                        margin: EdgeInsets.only(
-                                                            bottom: 10.0),
-                                                        child: DateTimeField(
-                                                          controller:
-                                                              _dateStartController,
-                                                          format: DateFormat(
-                                                              "dd-MM-yyyy HH:mm:ss"),
-                                                          readOnly: true,
-                                                          decoration:
-                                                              InputDecoration(
-                                                            contentPadding:
-                                                                EdgeInsets.only(
-                                                                    top: 2,
-                                                                    bottom: 2,
-                                                                    left: 10,
-                                                                    right: 10),
-                                                            border:
-                                                                OutlineInputBorder(),
-                                                            hintText:
-                                                                'Tanggal Dimulainya To Do',
-                                                            hintStyle: TextStyle(
-                                                                fontSize: 12,
-                                                                color: Colors
-                                                                    .black),
-                                                          ),
-                                                          onShowPicker: (context,
-                                                              currentValue) async {
-                                                            final date = await showDatePicker(
-                                                                context:
-                                                                    context,
-                                                                firstDate:
-                                                                    DateTime(
-                                                                        2000),
-                                                                initialDate:
-                                                                    DateTime
-                                                                        .now(),
-                                                                lastDate:
-                                                                    DateTime(
-                                                                        2100));
-                                                            if (date != null) {
-                                                              final time =
-                                                                  await showTimePicker(
-                                                                context:
-                                                                    context,
-                                                                initialTime: TimeOfDay
-                                                                    .fromDateTime(
-                                                                        currentValue ??
-                                                                            DateTime.now()),
-                                                              );
-                                                              return DateTimeField
-                                                                  .combine(date,
-                                                                      time);
-                                                            } else {
-                                                              return currentValue;
-                                                            }
-                                                          },
-                                                          onChanged: (ini) {
-                                                            setState(() {
-                                                              _dateEndController
-                                                                  .text = '';
-                                                            });
-                                                          },
-                                                        ))
-                                                    : Container(
-                                                        margin: EdgeInsets.only(
-                                                            bottom: 10.0),
-                                                        child: DateTimeField(
-                                                          controller:
-                                                              _dateStartController,
-                                                          readOnly: true,
-                                                          format: DateFormat(
-                                                              "dd-MM-yyyy"),
-                                                          decoration:
-                                                              InputDecoration(
-                                                            contentPadding:
-                                                                EdgeInsets.only(
-                                                                    top: 2,
-                                                                    bottom: 2,
-                                                                    left: 10,
-                                                                    right: 10),
-                                                            border:
-                                                                OutlineInputBorder(),
-                                                            hintText:
-                                                                'Tanggal Dimulainya To Do',
-                                                            hintStyle: TextStyle(
-                                                                fontSize: 12,
-                                                                color: Colors
-                                                                    .black),
-                                                          ),
-                                                          onShowPicker: (context,
-                                                              currentValue) {
-                                                            return showDatePicker(
-                                                                context:
-                                                                    context,
-                                                                firstDate:
-                                                                    DateTime(
-                                                                        2000),
-                                                                initialDate:
-                                                                    DateTime
-                                                                        .now(),
-                                                                lastDate:
-                                                                    DateTime(
-                                                                        2100));
-                                                          },
-                                                          onChanged: (ini) {
-                                                            setState(() {
-                                                              _dateEndController
-                                                                  .text = '';
-                                                            });
-                                                          },
-                                                        ),
-                                                      ),
-                                                _alldayTipe == '0'
-                                                    ? Container(
-                                                        margin: EdgeInsets.only(
-                                                            bottom: 10.0),
-                                                        child: DateTimeField(
-                                                          controller:
-                                                              _dateEndController,
-                                                          format: DateFormat(
-                                                              "dd-MM-yyyy HH:mm:ss"),
-                                                          readOnly: true,
-                                                          decoration:
-                                                              InputDecoration(
-                                                            contentPadding:
-                                                                EdgeInsets.only(
-                                                                    top: 2,
-                                                                    bottom: 2,
-                                                                    left: 10,
-                                                                    right: 10),
-                                                            border:
-                                                                OutlineInputBorder(),
-                                                            hintText:
-                                                                'Tanggal Berakhirnya To Do',
-                                                            hintStyle: TextStyle(
-                                                                fontSize: 12,
-                                                                color: Colors
-                                                                    .black),
-                                                          ),
-                                                          onShowPicker: (context,
-                                                              currentValue) async {
-                                                            DateFormat
-                                                                inputFormat =
-                                                                DateFormat(
-                                                                    "dd-MM-yyyy");
-                                                            DateTime dateTime =
-                                                                inputFormat.parse(
-                                                                    "${_dateStartController.text}");
-                                                            final date = await showDatePicker(
-                                                                context:
-                                                                    context,
-                                                                firstDate: _dateStartController
-                                                                            .text ==
-                                                                        ''
-                                                                    ? DateTime(2000)
-                                                                    : dateTime,
-                                                                initialDate: _dateStartController
-                                                                            .text ==
-                                                                        ''
-                                                                    ? DateTime
-                                                                        .now()
-                                                                    : dateTime,
-                                                                lastDate:
-                                                                    DateTime(
-                                                                        2100));
-                                                            if (date != null) {
-                                                              final time =
-                                                                  await showTimePicker(
-                                                                context:
-                                                                    context,
-                                                                initialTime: TimeOfDay
-                                                                    .fromDateTime(
-                                                                        currentValue ??
-                                                                            DateTime.now()),
-                                                              );
-                                                              return DateTimeField
-                                                                  .combine(date,
-                                                                      time);
-                                                            } else {
-                                                              return currentValue;
-                                                            }
-                                                          },
-                                                          onChanged: (ini) {
-                                                            setState(() {});
-                                                          },
-                                                        ))
-                                                    : Container(
-                                                        margin: EdgeInsets.only(
-                                                            bottom: 10.0),
-                                                        child: DateTimeField(
-                                                          controller:
-                                                              _dateEndController,
-                                                          readOnly: true,
-                                                          format: DateFormat(
-                                                              "dd-MM-yyyy"),
-                                                          decoration:
-                                                              InputDecoration(
-                                                            contentPadding:
-                                                                EdgeInsets.only(
-                                                                    top: 2,
-                                                                    bottom: 2,
-                                                                    left: 10,
-                                                                    right: 10),
-                                                            border:
-                                                                OutlineInputBorder(),
-                                                            hintText:
-                                                                'Tanggal Berakhirnya To Do',
-                                                            hintStyle: TextStyle(
-                                                                fontSize: 12,
-                                                                color: Colors
-                                                                    .black),
-                                                          ),
-                                                          onShowPicker: (context,
-                                                              currentValue) {
-                                                            DateFormat
-                                                                inputFormat =
-                                                                DateFormat(
-                                                                    "dd-MM-yyyy");
-                                                            DateTime dateTime =
-                                                                inputFormat.parse(
-                                                                    "${_dateStartController.text}");
-                                                            return showDatePicker(
-                                                                context:
-                                                                    context,
-                                                                firstDate: _dateStartController
-                                                                            .text ==
-                                                                        ''
-                                                                    ? DateTime(2000)
-                                                                    : dateTime,
-                                                                initialDate: _dateStartController
-                                                                            .text ==
-                                                                        ''
-                                                                    ? DateTime.now()
-                                                                    : dateTime,
-                                                                lastDate:
-                                                                    DateTime(
-                                                                        2100));
-                                                          },
-                                                        ),
-                                                      ),
-                                                InkWell(
-                                                  onTap: () async {
-                                                    showCategory();
-                                                  },
-                                                  child: Container(
-                                                    height: 45.0,
-                                                    padding: EdgeInsets.only(
-                                                        left: 10.0,
-                                                        right: 10.0),
-                                                    width: double.infinity,
-                                                    decoration: BoxDecoration(
-                                                        border: Border.all(
+                                                dataStatusKita == null
+                                                    ? Container()
+                                                    : dataStatusKita[
+                                                                    'tlr_role'] ==
+                                                                '1' ||
+                                                            dataStatusKita[
+                                                                    'tlr_role'] ==
+                                                                1
+                                                        ? Container(
                                                             color:
-                                                                Colors.black45),
-                                                        borderRadius:
-                                                            BorderRadius.all(
-                                                                Radius.circular(
-                                                                    5.0))),
+                                                                Colors.red[100],
+                                                            margin:
+                                                                EdgeInsets.only(
+                                                                    top: 0.0,
+                                                                    left: 5.0,
+                                                                    right: 5.0,
+                                                                    bottom:
+                                                                        15.0),
+                                                            padding:
+                                                                EdgeInsets.only(
+                                                                    left: 10.0,
+                                                                    right: 10.0,
+                                                                    top: 5.0,
+                                                                    bottom:
+                                                                        5.0),
+                                                            child: Row(
+                                                              mainAxisAlignment:
+                                                                  MainAxisAlignment
+                                                                      .spaceBetween,
+                                                              children: <
+                                                                  Widget>[
+                                                                Expanded(
+                                                                  child: Text(
+                                                                      'Ingin Menghapus To Do Ini ??',
+                                                                      style: TextStyle(
+                                                                          color:
+                                                                              Colors.black87)),
+                                                                ),
+                                                                ButtonTheme(
+                                                                    minWidth: 0,
+                                                                    height: 0,
+                                                                    child: FlatButton(
+                                                                        // borderSide: BorderSide(color:Colors.red),
+                                                                        color: Colors.red[400],
+                                                                        onPressed: () async {
+                                                                          Navigator.push(
+                                                                              context,
+                                                                              MaterialPageRoute(
+                                                                                  builder: (context) => ManageDeleteTodo(
+                                                                                        idtodo: dataTodo['tl_id'],
+                                                                                        namatodo: dataTodo['tl_title'],
+                                                                                      )));
+                                                                        },
+                                                                        padding: EdgeInsets.only(left: 15.0, right: 15.0, top: 10.0, bottom: 10.0),
+                                                                        child: Text(
+                                                                          'Hapus',
+                                                                          style:
+                                                                              TextStyle(color: Colors.white),
+                                                                        ))),
+                                                              ],
+                                                            ),
+                                                          )
+                                                        : Container(),
+                                                Container(
+                                                    color: Colors.white,
+                                                    padding:
+                                                        EdgeInsets.all(10.0),
                                                     child: Column(
                                                       crossAxisAlignment:
                                                           CrossAxisAlignment
                                                               .start,
                                                       mainAxisAlignment:
                                                           MainAxisAlignment
-                                                              .center,
+                                                              .start,
                                                       children: <Widget>[
-                                                        Text(
-                                                            categoriesID == null
-                                                                ? "Pilih Kategori"
-                                                                : 'Kategori - $categoriesName',
+                                                        Container(
+                                                          child: Text(
+                                                            'Edit To Do',
                                                             style: TextStyle(
-                                                                fontSize: 12,
-                                                                color: Colors
-                                                                    .black),
-                                                            textAlign:
-                                                                TextAlign.left),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                ),
-                                                categoriesID == '1'
-                                                    ? GestureDetector(
-                                                        onTap: () async {
-                                                          await Navigator.push(
-                                                              context,
-                                                              MaterialPageRoute(
-                                                                  builder:
-                                                                      (context) =>
-                                                                          ChooseProjectAvailable()));
-                                                          setState(() {
-                                                            namaProjectEditChoose =
-                                                                namaProjectEditChoose;
-                                                          });
-                                                        },
-                                                        child: Container(
-                                                          height: 45.0,
-                                                          margin:
-                                                              EdgeInsets.only(
-                                                                  top: 10.0),
-                                                          padding:
-                                                              EdgeInsets.only(
-                                                                  left: 10.0,
-                                                                  right: 10.0),
-                                                          width:
-                                                              double.infinity,
-                                                          decoration: BoxDecoration(
-                                                              border: Border.all(
-                                                                  color: Colors
-                                                                      .black45),
-                                                              borderRadius: BorderRadius
-                                                                  .all(Radius
-                                                                      .circular(
-                                                                          5.0))),
-                                                          child: Row(
-                                                            mainAxisAlignment:
-                                                                MainAxisAlignment
-                                                                    .spaceBetween,
-                                                            children: <Widget>[
-                                                              Expanded(
-                                                                child: Text(
-                                                                    namaProjectEditChoose ==
-                                                                            null
-                                                                        ? 'Pilih Project'
-                                                                        : 'Project $namaProjectEditChoose',
-                                                                    style:
-                                                                        TextStyle(
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w500),
+                                                          ),
+                                                        ),
+                                                        Divider(),
+                                                        Container(
+                                                            margin:
+                                                                EdgeInsets.only(
+                                                                    bottom:
+                                                                        10.0,
+                                                                    top: 10.0),
+                                                            child: TextField(
+                                                              textAlignVertical:
+                                                                  TextAlignVertical
+                                                                      .center,
+                                                              decoration: InputDecoration(
+                                                                  contentPadding:
+                                                                      EdgeInsets.only(
+                                                                          top:
+                                                                              2,
+                                                                          bottom:
+                                                                              2,
+                                                                          left:
+                                                                              10,
+                                                                          right:
+                                                                              10),
+                                                                  border:
+                                                                      OutlineInputBorder(),
+                                                                  hintText:
+                                                                      'Nama To Do',
+                                                                  hintStyle: TextStyle(
                                                                       fontSize:
                                                                           12,
-                                                                    ),
-                                                                    overflow:
-                                                                        TextOverflow
-                                                                            .ellipsis,
-                                                                    softWrap:
-                                                                        true,
-                                                                    maxLines: 1,
+                                                                      color: Colors
+                                                                          .black)),
+                                                              controller:
+                                                                  _titleController,
+                                                            )),
+                                                        Text(
+                                                            "Pelaksanaan Kegiatan"),
+                                                        Row(
+                                                          children: <Widget>[
+                                                            Container(
+                                                              margin: EdgeInsets
+                                                                  .only(
+                                                                      top: 10.0,
+                                                                      bottom:
+                                                                          10.0),
+                                                              child: SizedBox(
+                                                                height: 24.0,
+                                                                width: 24.0,
+                                                                child: Checkbox(
+                                                                  value: _alldayTipe ==
+                                                                          '0'
+                                                                      ? false
+                                                                      : true,
+
+                                                                  // checkColor: Colors.green,
+                                                                  activeColor:
+                                                                      primaryAppBarColor,
+                                                                  onChanged: (bool
+                                                                      value) {
+                                                                    setState(
+                                                                        () {
+                                                                      _alldayTipe = value ==
+                                                                              true
+                                                                          ? '1'
+                                                                          : '0';
+                                                                      _dateStartController
+                                                                          .text = '';
+                                                                      _dateEndController
+                                                                          .text = '';
+                                                                    });
+                                                                  },
+                                                                ),
+                                                              ),
+                                                            ),
+                                                            Text("All Day")
+                                                          ],
+                                                        ),
+                                                        _alldayTipe == '0'
+                                                            ? Container(
+                                                                margin: EdgeInsets
+                                                                    .only(
+                                                                        bottom:
+                                                                            10.0),
+                                                                child:
+                                                                    DateTimeField(
+                                                                  controller:
+                                                                      _dateStartController,
+                                                                  format: DateFormat(
+                                                                      "dd-MM-yyyy HH:mm:ss"),
+                                                                  readOnly:
+                                                                      true,
+                                                                  decoration:
+                                                                      InputDecoration(
+                                                                    contentPadding: EdgeInsets.only(
+                                                                        top: 2,
+                                                                        bottom:
+                                                                            2,
+                                                                        left:
+                                                                            10,
+                                                                        right:
+                                                                            10),
+                                                                    border:
+                                                                        OutlineInputBorder(),
+                                                                    hintText:
+                                                                        'Tanggal Dimulainya To Do',
+                                                                    hintStyle: TextStyle(
+                                                                        fontSize:
+                                                                            12,
+                                                                        color: Colors
+                                                                            .black),
+                                                                  ),
+                                                                  onShowPicker:
+                                                                      (context,
+                                                                          currentValue) async {
+                                                                    final date = await showDatePicker(
+                                                                        context:
+                                                                            context,
+                                                                        firstDate:
+                                                                            DateTime(
+                                                                                2000),
+                                                                        initialDate:
+                                                                            DateTime
+                                                                                .now(),
+                                                                        lastDate:
+                                                                            DateTime(2100));
+                                                                    if (date !=
+                                                                        null) {
+                                                                      final time =
+                                                                          await showTimePicker(
+                                                                        context:
+                                                                            context,
+                                                                        initialTime:
+                                                                            TimeOfDay.fromDateTime(currentValue ??
+                                                                                DateTime.now()),
+                                                                      );
+                                                                      return DateTimeField.combine(
+                                                                          date,
+                                                                          time);
+                                                                    } else {
+                                                                      return currentValue;
+                                                                    }
+                                                                  },
+                                                                  onChanged:
+                                                                      (ini) {
+                                                                    setState(
+                                                                        () {
+                                                                      _dateEndController
+                                                                          .text = '';
+                                                                    });
+                                                                  },
+                                                                ))
+                                                            : Container(
+                                                                margin: EdgeInsets
+                                                                    .only(
+                                                                        bottom:
+                                                                            10.0),
+                                                                child:
+                                                                    DateTimeField(
+                                                                  controller:
+                                                                      _dateStartController,
+                                                                  readOnly:
+                                                                      true,
+                                                                  format: DateFormat(
+                                                                      "dd-MM-yyyy"),
+                                                                  decoration:
+                                                                      InputDecoration(
+                                                                    contentPadding: EdgeInsets.only(
+                                                                        top: 2,
+                                                                        bottom:
+                                                                            2,
+                                                                        left:
+                                                                            10,
+                                                                        right:
+                                                                            10),
+                                                                    border:
+                                                                        OutlineInputBorder(),
+                                                                    hintText:
+                                                                        'Tanggal Dimulainya To Do',
+                                                                    hintStyle: TextStyle(
+                                                                        fontSize:
+                                                                            12,
+                                                                        color: Colors
+                                                                            .black),
+                                                                  ),
+                                                                  onShowPicker:
+                                                                      (context,
+                                                                          currentValue) {
+                                                                    return showDatePicker(
+                                                                        context:
+                                                                            context,
+                                                                        firstDate:
+                                                                            DateTime(
+                                                                                2000),
+                                                                        initialDate:
+                                                                            DateTime
+                                                                                .now(),
+                                                                        lastDate:
+                                                                            DateTime(2100));
+                                                                  },
+                                                                  onChanged:
+                                                                      (ini) {
+                                                                    setState(
+                                                                        () {
+                                                                      _dateEndController
+                                                                          .text = '';
+                                                                    });
+                                                                  },
+                                                                ),
+                                                              ),
+                                                        _alldayTipe == '0'
+                                                            ? Container(
+                                                                margin: EdgeInsets
+                                                                    .only(
+                                                                        bottom:
+                                                                            10.0),
+                                                                child:
+                                                                    DateTimeField(
+                                                                  controller:
+                                                                      _dateEndController,
+                                                                  format: DateFormat(
+                                                                      "dd-MM-yyyy HH:mm:ss"),
+                                                                  readOnly:
+                                                                      true,
+                                                                  decoration:
+                                                                      InputDecoration(
+                                                                    contentPadding: EdgeInsets.only(
+                                                                        top: 2,
+                                                                        bottom:
+                                                                            2,
+                                                                        left:
+                                                                            10,
+                                                                        right:
+                                                                            10),
+                                                                    border:
+                                                                        OutlineInputBorder(),
+                                                                    hintText:
+                                                                        'Tanggal Berakhirnya To Do',
+                                                                    hintStyle: TextStyle(
+                                                                        fontSize:
+                                                                            12,
+                                                                        color: Colors
+                                                                            .black),
+                                                                  ),
+                                                                  onShowPicker:
+                                                                      (context,
+                                                                          currentValue) async {
+                                                                    DateFormat
+                                                                        inputFormat =
+                                                                        DateFormat(
+                                                                            "dd-MM-yyyy");
+                                                                    DateTime
+                                                                        dateTime =
+                                                                        inputFormat
+                                                                            .parse("${_dateStartController.text}");
+                                                                    final date = await showDatePicker(
+                                                                        context:
+                                                                            context,
+                                                                        firstDate: _dateStartController.text ==
+                                                                                ''
+                                                                            ? DateTime(
+                                                                                2000)
+                                                                            : dateTime,
+                                                                        initialDate: _dateStartController.text ==
+                                                                                ''
+                                                                            ? DateTime
+                                                                                .now()
+                                                                            : dateTime,
+                                                                        lastDate:
+                                                                            DateTime(2100));
+                                                                    if (date !=
+                                                                        null) {
+                                                                      final time =
+                                                                          await showTimePicker(
+                                                                        context:
+                                                                            context,
+                                                                        initialTime:
+                                                                            TimeOfDay.fromDateTime(currentValue ??
+                                                                                DateTime.now()),
+                                                                      );
+                                                                      return DateTimeField.combine(
+                                                                          date,
+                                                                          time);
+                                                                    } else {
+                                                                      return currentValue;
+                                                                    }
+                                                                  },
+                                                                  onChanged:
+                                                                      (ini) {
+                                                                    setState(
+                                                                        () {});
+                                                                  },
+                                                                ))
+                                                            : Container(
+                                                                margin: EdgeInsets
+                                                                    .only(
+                                                                        bottom:
+                                                                            10.0),
+                                                                child:
+                                                                    DateTimeField(
+                                                                  controller:
+                                                                      _dateEndController,
+                                                                  readOnly:
+                                                                      true,
+                                                                  format: DateFormat(
+                                                                      "dd-MM-yyyy"),
+                                                                  decoration:
+                                                                      InputDecoration(
+                                                                    contentPadding: EdgeInsets.only(
+                                                                        top: 2,
+                                                                        bottom:
+                                                                            2,
+                                                                        left:
+                                                                            10,
+                                                                        right:
+                                                                            10),
+                                                                    border:
+                                                                        OutlineInputBorder(),
+                                                                    hintText:
+                                                                        'Tanggal Berakhirnya To Do',
+                                                                    hintStyle: TextStyle(
+                                                                        fontSize:
+                                                                            12,
+                                                                        color: Colors
+                                                                            .black),
+                                                                  ),
+                                                                  onShowPicker:
+                                                                      (context,
+                                                                          currentValue) {
+                                                                    DateFormat
+                                                                        inputFormat =
+                                                                        DateFormat(
+                                                                            "dd-MM-yyyy");
+                                                                    DateTime
+                                                                        dateTime =
+                                                                        inputFormat
+                                                                            .parse("${_dateStartController.text}");
+                                                                    return showDatePicker(
+                                                                        context:
+                                                                            context,
+                                                                        firstDate: _dateStartController.text ==
+                                                                                ''
+                                                                            ? DateTime(
+                                                                                2000)
+                                                                            : dateTime,
+                                                                        initialDate: _dateStartController.text ==
+                                                                                ''
+                                                                            ? DateTime
+                                                                                .now()
+                                                                            : dateTime,
+                                                                        lastDate:
+                                                                            DateTime(2100));
+                                                                  },
+                                                                ),
+                                                              ),
+                                                        InkWell(
+                                                          onTap: () async {
+                                                            showCategory();
+                                                          },
+                                                          child: Container(
+                                                            height: 45.0,
+                                                            padding:
+                                                                EdgeInsets.only(
+                                                                    left: 10.0,
+                                                                    right:
+                                                                        10.0),
+                                                            width:
+                                                                double.infinity,
+                                                            decoration: BoxDecoration(
+                                                                border: Border.all(
+                                                                    color: Colors
+                                                                        .black45),
+                                                                borderRadius: BorderRadius
+                                                                    .all(Radius
+                                                                        .circular(
+                                                                            5.0))),
+                                                            child: Column(
+                                                              crossAxisAlignment:
+                                                                  CrossAxisAlignment
+                                                                      .start,
+                                                              mainAxisAlignment:
+                                                                  MainAxisAlignment
+                                                                      .center,
+                                                              children: <
+                                                                  Widget>[
+                                                                Text(
+                                                                    categoriesID ==
+                                                                            null
+                                                                        ? "Pilih Kategori"
+                                                                        : 'Kategori - $categoriesName',
+                                                                    style: TextStyle(
+                                                                        fontSize:
+                                                                            12,
+                                                                        color: Colors
+                                                                            .black),
                                                                     textAlign:
                                                                         TextAlign
                                                                             .left),
-                                                              ),
-                                                              Icon(Icons
-                                                                  .chevron_right),
-                                                            ],
+                                                              ],
+                                                            ),
                                                           ),
                                                         ),
-                                                      )
-                                                    : Container(),
-                                                Container(
-                                                    margin: EdgeInsets.only(
-                                                        bottom: 10.0,
-                                                        top: 10.0),
-                                                    height: 120.0,
-                                                    child: TextField(
-                                                      maxLines: 10,
-                                                      controller:
-                                                          _descController,
-                                                      textAlignVertical:
-                                                          TextAlignVertical
-                                                              .center,
-                                                      decoration: InputDecoration(
-                                                          border:
-                                                              OutlineInputBorder(),
-                                                          hintText: 'Deskripsi',
-                                                          hintStyle: TextStyle(
-                                                              fontSize: 12,
-                                                              color: Colors
-                                                                  .black)),
+                                                        categoriesID == '1'
+                                                            ? GestureDetector(
+                                                                onTap:
+                                                                    () async {
+                                                                  await Navigator.push(
+                                                                      context,
+                                                                      MaterialPageRoute(
+                                                                          builder: (context) =>
+                                                                              ChooseProjectAvailable()));
+                                                                  setState(() {
+                                                                    namaProjectEditChoose =
+                                                                        namaProjectEditChoose;
+                                                                  });
+                                                                },
+                                                                child:
+                                                                    Container(
+                                                                  height: 45.0,
+                                                                  margin: EdgeInsets
+                                                                      .only(
+                                                                          top:
+                                                                              10.0),
+                                                                  padding: EdgeInsets.only(
+                                                                      left:
+                                                                          10.0,
+                                                                      right:
+                                                                          10.0),
+                                                                  width: double
+                                                                      .infinity,
+                                                                  decoration: BoxDecoration(
+                                                                      border: Border.all(
+                                                                          color: Colors
+                                                                              .black45),
+                                                                      borderRadius:
+                                                                          BorderRadius.all(
+                                                                              Radius.circular(5.0))),
+                                                                  child: Row(
+                                                                    mainAxisAlignment:
+                                                                        MainAxisAlignment
+                                                                            .spaceBetween,
+                                                                    children: <
+                                                                        Widget>[
+                                                                      Expanded(
+                                                                        child: Text(
+                                                                            namaProjectEditChoose == null
+                                                                                ? 'Pilih Project'
+                                                                                : 'Project $namaProjectEditChoose',
+                                                                            style:
+                                                                                TextStyle(
+                                                                              fontSize: 12,
+                                                                            ),
+                                                                            overflow: TextOverflow
+                                                                                .ellipsis,
+                                                                            softWrap:
+                                                                                true,
+                                                                            maxLines:
+                                                                                1,
+                                                                            textAlign:
+                                                                                TextAlign.left),
+                                                                      ),
+                                                                      Icon(Icons
+                                                                          .chevron_right),
+                                                                    ],
+                                                                  ),
+                                                                ),
+                                                              )
+                                                            : Container(),
+                                                        Container(
+                                                            margin:
+                                                                EdgeInsets.only(
+                                                                    bottom:
+                                                                        10.0,
+                                                                    top: 10.0),
+                                                            height: 120.0,
+                                                            child: TextField(
+                                                              maxLines: 10,
+                                                              controller:
+                                                                  _descController,
+                                                              textAlignVertical:
+                                                                  TextAlignVertical
+                                                                      .center,
+                                                              decoration: InputDecoration(
+                                                                  border:
+                                                                      OutlineInputBorder(),
+                                                                  hintText:
+                                                                      'Deskripsi',
+                                                                  hintStyle: TextStyle(
+                                                                      fontSize:
+                                                                          12,
+                                                                      color: Colors
+                                                                          .black)),
+                                                            )),
+                                                      ],
                                                     )),
                                               ],
-                                            )),
+                                            ),
+                                          ),
                                   ],
                                 ),
                         ],
@@ -1695,7 +1834,8 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
                                                           .map(
                                                               (FileTodo item) =>
                                                                   Card(
-                                                                    elevation: 0.5,
+                                                                    elevation:
+                                                                        0.5,
                                                                     child:
                                                                         ListTile(
                                                                       leading:
@@ -1936,9 +2076,8 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
         isScrollControlled: true,
         context: context,
         builder: (builder) {
-          return 
-          SingleChildScrollView(
-          child: Container(
+          return SingleChildScrollView(
+              child: Container(
             // height: 200.0 + MediaQuery.of(context).viewInsets.bottom,
             padding: EdgeInsets.only(
                 bottom: MediaQuery.of(context).viewInsets.bottom,
@@ -1964,8 +2103,8 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
                         ),
                       ),
                     )),
-            ]),)
-          );
+            ]),
+          ));
         });
   }
 }

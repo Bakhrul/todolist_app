@@ -35,7 +35,7 @@ class _ManajemenDetailProjectAllState extends State<ManajemenDetailProjectAll> {
   bool isLoading, isError;
   ProgressDialog progressApiAction;
   String projectPercent;
-  Map dataProject;
+  Map dataProject, dataStatusKita;
   Future<Null> removeSharedPrefs() async {
     DataStore dataStore = new DataStore();
     dataStore.clearData();
@@ -84,9 +84,12 @@ class _ManajemenDetailProjectAllState extends State<ManajemenDetailProjectAll> {
         var members = getDetailProjectJson['member'];
         var todos = getDetailProjectJson['todo'];
         Map rawProject = getDetailProjectJson['project'];
+        Map rawStatusKita = getDetailProjectJson['statusKita'];
+        print(getDetailProjectJson);
         if (mounted) {
           setState(() {
             dataProject = rawProject;
+            dataStatusKita = rawStatusKita;
             projectPercent = getDetailProjectJson['progressproject'].toString();
           });
         }
@@ -230,7 +233,11 @@ class _ManajemenDetailProjectAllState extends State<ManajemenDetailProjectAll> {
                           height: 60.0,
                           width: 60.0,
                           child: ClipOval(
-                            child: Image.asset('images/imgavatar.png'),
+                            child: FadeInImage.assetNetwork(
+                                placeholder: 'images/imgavatar.png',
+                                image: image == null || image == ''
+                                    ? url('assets/images/imgavatar.png')
+                                    : url('storage/image/profile/$image')),
                           ),
                         ),
                         Padding(
@@ -362,22 +369,27 @@ class _ManajemenDetailProjectAllState extends State<ManajemenDetailProjectAll> {
               pinned: true,
               centerTitle: false,
               actions: <Widget>[
-                IconButton(
-                  icon: const Icon(
-                    Icons.edit,
-                    size: 16,
-                    color: Colors.white,
-                  ),
-                  tooltip: 'Edit Data Project',
-                  onPressed: () async {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => DetailProject(
-                                idproject: widget.idproject,
-                                namaproject: widget.namaproject)));
-                  },
-                ),
+                dataStatusKita == null
+                    ? Container()
+                    : dataStatusKita['mp_role'] == 3 ||
+                            dataStatusKita['mp_role'] == 4
+                        ? Container()
+                        : IconButton(
+                            icon: const Icon(
+                              Icons.edit,
+                              size: 16,
+                              color: Colors.white,
+                            ),
+                            tooltip: 'Edit Data Project',
+                            onPressed: () async {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => DetailProject(
+                                          idproject: widget.idproject,
+                                          namaproject: widget.namaproject)));
+                            },
+                          ),
               ],
               // automaticallyImplyLeading: false,
               backgroundColor: primaryAppBarColor,
@@ -419,104 +431,126 @@ class _ManajemenDetailProjectAllState extends State<ManajemenDetailProjectAll> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: <Widget>[
-                            Text(
-                              dataProject == null
-                                  ? 'Belum ada deskripsi project'
-                                  : dataProject['p_desc'] == null ||
-                                          dataProject['p_desc'] == '' ||
-                                          dataProject['p_desc'] == 'null'
-                                      ? 'Belum ada deskripsi project'
-                                      : dataProject['p_desc'],
-                              style: TextStyle(height: 2),
-                            ),
-                            Container(
-                              margin: EdgeInsets.only(top: 25.0, bottom: 15.0),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: <Widget>[
-                                  InkWell(
-                                    onTap: () async {
-                                      Fluttertoast.showToast(
-                                          msg: 'Fitur ini masih dikerjakan');
-                                    },
-                                    child: Container(
-                                      margin: EdgeInsets.only(right: 3),
-                                      padding: EdgeInsets.only(
-                                          top: 10.0,
-                                          left: 5,
-                                          bottom: 10.0,
-                                          right: 5),
-                                      decoration: BoxDecoration(
-                                        border: Border.all(
-                                            color: Colors.grey[300],
-                                            width: 1.0),
-                                        borderRadius:
-                                            BorderRadius.circular(10.0),
+                            dataProject == null
+                                ? Text('Belum Ada Keterangan Tanggal')
+                                : Column(
+                                    children: <Widget>[
+                                      Text(
+                                        DateFormat('dd MMM yyyy').format(
+                                                DateTime.parse(dataProject[
+                                                    'p_timestart'])) +
+                                            ' - ' +
+                                            DateFormat('dd MMM yyyy')
+                                                .format(DateTime.parse(
+                                                    dataProject['p_timeend'])),
+                                        style: TextStyle(
+                                            color: Colors.black45,
+                                            fontWeight: FontWeight.w500,
+                                            fontSize: 13),
                                       ),
-                                      child: Row(
-                                        children: <Widget>[
-                                          Icon(
-                                            Icons.insert_drive_file,
-                                            size: 13,
-                                            color: Colors.red,
-                                          ),
-                                          Padding(
-                                            padding: const EdgeInsets.only(
-                                                left: 5.0),
-                                            child: Text(
-                                              'Proposal Project',
-                                              style: TextStyle(
-                                                  color: Colors.black,
-                                                  fontSize: 12),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
+                                    ],
                                   ),
-                                  InkWell(
-                                    onTap: () async {
-                                      Fluttertoast.showToast(
-                                          msg: 'Fitur ini masih dikerjakan');
-                                    },
-                                    child: Container(
-                                      margin: EdgeInsets.only(left: 3),
-                                      padding: EdgeInsets.only(
-                                          top: 10.0,
-                                          left: 5,
-                                          bottom: 10.0,
-                                          right: 5),
-                                      decoration: BoxDecoration(
-                                        border: Border.all(
-                                            color: Colors.grey[300],
-                                            width: 1.0),
-                                        borderRadius:
-                                            BorderRadius.circular(10.0),
-                                      ),
-                                      child: Row(
-                                        children: <Widget>[
-                                          Icon(
-                                            Icons.insert_drive_file,
-                                            size: 13,
-                                            color: Colors.red,
-                                          ),
-                                          Padding(
-                                            padding: const EdgeInsets.only(
-                                                left: 5.0),
-                                            child: Text(
-                                              'Ruang Lingkup',
-                                              style: TextStyle(
-                                                  color: Colors.black,
-                                                  fontSize: 12),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ],
+                            Padding(
+                              padding: const EdgeInsets.only(top:10.0),
+                              child: Text(
+                                dataProject == null
+                                    ? 'Belum ada deskripsi project'
+                                    : dataProject['p_desc'] == null ||
+                                            dataProject['p_desc'] == '' ||
+                                            dataProject['p_desc'] == 'null'
+                                        ? 'Belum ada deskripsi project'
+                                        : dataProject['p_desc'],
+                                style: TextStyle(height: 2),
                               ),
                             ),
+                            // Container(
+                            //   margin: EdgeInsets.only(top: 25.0, bottom: 15.0),
+                            //   child: Row(
+                            //     mainAxisAlignment: MainAxisAlignment.center,
+                            //     children: <Widget>[
+                            //       InkWell(
+                            //         onTap: () async {
+                            //           Fluttertoast.showToast(
+                            //               msg: 'Fitur ini masih dikerjakan');
+                            //         },
+                            //         child: Container(
+                            //           margin: EdgeInsets.only(right: 3),
+                            //           padding: EdgeInsets.only(
+                            //               top: 10.0,
+                            //               left: 5,
+                            //               bottom: 10.0,
+                            //               right: 5),
+                            //           decoration: BoxDecoration(
+                            //             border: Border.all(
+                            //                 color: Colors.grey[300],
+                            //                 width: 1.0),
+                            //             borderRadius:
+                            //                 BorderRadius.circular(10.0),
+                            //           ),
+                            //           child: Row(
+                            //             children: <Widget>[
+                            //               Icon(
+                            //                 Icons.insert_drive_file,
+                            //                 size: 13,
+                            //                 color: Colors.red,
+                            //               ),
+                            //               Padding(
+                            //                 padding: const EdgeInsets.only(
+                            //                     left: 5.0),
+                            //                 child: Text(
+                            //                   'Proposal Project',
+                            //                   style: TextStyle(
+                            //                       color: Colors.black,
+                            //                       fontSize: 12),
+                            //                 ),
+                            //               ),
+                            //             ],
+                            //           ),
+                            //         ),
+                            //       ),
+                            //       InkWell(
+                            //         onTap: () async {
+                            //           Fluttertoast.showToast(
+                            //               msg: 'Fitur ini masih dikerjakan');
+                            //         },
+                            //         child: Container(
+                            //           margin: EdgeInsets.only(left: 3),
+                            //           padding: EdgeInsets.only(
+                            //               top: 10.0,
+                            //               left: 5,
+                            //               bottom: 10.0,
+                            //               right: 5),
+                            //           decoration: BoxDecoration(
+                            //             border: Border.all(
+                            //                 color: Colors.grey[300],
+                            //                 width: 1.0),
+                            //             borderRadius:
+                            //                 BorderRadius.circular(10.0),
+                            //           ),
+                            //           child: Row(
+                            //             children: <Widget>[
+                            //               Icon(
+                            //                 Icons.insert_drive_file,
+                            //                 size: 13,
+                            //                 color: Colors.red,
+                            //               ),
+                            //               Padding(
+                            //                 padding: const EdgeInsets.only(
+                            //                     left: 5.0),
+                            //                 child: Text(
+                            //                   'Ruang Lingkup',
+                            //                   style: TextStyle(
+                            //                       color: Colors.black,
+                            //                       fontSize: 12),
+                            //                 ),
+                            //               ),
+                            //             ],
+                            //           ),
+                            //         ),
+                            //       ),
+                            //     ],
+                            //   ),
+                            // ),
                             Container(
                                 margin: EdgeInsets.only(bottom: 15.0),
                                 child: Padding(
@@ -676,8 +710,8 @@ class _ManajemenDetailProjectAllState extends State<ManajemenDetailProjectAll> {
                                               child: Container(
                                                 width: 40.0,
                                                 height: 40.0,
-                                                margin: EdgeInsets.only(
-                                                    right: 15.0),
+                                                margin:
+                                                    EdgeInsets.only(right: 5.0),
                                                 child: ClipOval(
                                                   child:
                                                       FadeInImage.assetNetwork(
@@ -717,47 +751,32 @@ class _ManajemenDetailProjectAllState extends State<ManajemenDetailProjectAll> {
                                 )),
                             projectTododetail.length == 0
                                 ? Padding(
-                                                                padding:
-                                                                    const EdgeInsets
-                                                                            .only(
-                                                                        top:
-                                                                            25.0),
-                                                                child: Column(
-                                                                    children: <
-                                                                        Widget>[
-                                                                      new Container(
-                                                                        width:
-                                                                            100.0,
-                                                                        height:
-                                                                            100.0,
-                                                                        child: Image.asset(
-                                                                            "images/todo_icon2.png"),
-                                                                      ),
-                                                                      Padding(
-                                                                        padding: const EdgeInsets.only(
-                                                                            top:
-                                                                                20.0,
-                                                                            left:
-                                                                                25.0,
-                                                                            right:
-                                                                                25.0,
-                                                                            bottom:
-                                                                                35.0),
-                                                                        child:
-                                                                            Center(
-                                                                          child:
-                                                                              Text(
-                                                                            "${widget.namaproject} Tidak Memiliki To Do Sama Sekali",
-                                                                            style:
-                                                                                TextStyle(
-                                                                              fontSize: 16,
-                                                                              height: 1.5,
-                                                                            ),
-                                                                            textAlign:
-                                                                                TextAlign.center,
-                                                                          ),
-                                                                        ),
-                                                                      )]))
+                                    padding: const EdgeInsets.only(top: 25.0),
+                                    child: Column(children: <Widget>[
+                                      new Container(
+                                        width: 100.0,
+                                        height: 100.0,
+                                        child: Image.asset(
+                                            "images/todo_icon2.png"),
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.only(
+                                            top: 20.0,
+                                            left: 25.0,
+                                            right: 25.0,
+                                            bottom: 35.0),
+                                        child: Center(
+                                          child: Text(
+                                            "${widget.namaproject} Tidak Memiliki To Do Sama Sekali",
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              height: 1.5,
+                                            ),
+                                            textAlign: TextAlign.center,
+                                          ),
+                                        ),
+                                      )
+                                    ]))
                                 : Container(
                                     color: Colors.white,
                                     margin: EdgeInsets.only(
@@ -973,9 +992,14 @@ class _ManajemenDetailProjectAllState extends State<ManajemenDetailProjectAll> {
                           shape: new RoundedRectangleBorder(
                             borderRadius: new BorderRadius.circular(10.0),
                           ),
-                          onPressed: () async {
-                            actionmulaimengerjakan('baru mengerjakan');
-                          },
+                          onPressed: dataStatusKita == null
+                              ? null
+                              : dataStatusKita['mp_role'] == 4
+                                  ? null
+                                  : () async {
+                                      actionmulaimengerjakan(
+                                          'baru mengerjakan');
+                                    },
                           child: Text(
                             "Mulai Mengerjakan",
                             style: TextStyle(fontSize: 14.0),
@@ -1011,9 +1035,14 @@ class _ManajemenDetailProjectAllState extends State<ManajemenDetailProjectAll> {
                           shape: new RoundedRectangleBorder(
                             borderRadius: new BorderRadius.circular(10.0),
                           ),
-                          onPressed: () async {
-                            actionmulaimengerjakan('pending mengerjakan');
-                          },
+                          onPressed: dataStatusKita == null
+                              ? null
+                              : dataStatusKita['mp_role'] == 4
+                                  ? null
+                                  : () async {
+                                      actionmulaimengerjakan(
+                                          'pending mengerjakan');
+                                    },
                           child: Text(
                             "Pending",
                             textAlign: TextAlign.center,
@@ -1039,9 +1068,14 @@ class _ManajemenDetailProjectAllState extends State<ManajemenDetailProjectAll> {
                           shape: new RoundedRectangleBorder(
                             borderRadius: new BorderRadius.circular(10.0),
                           ),
-                          onPressed: () async {
-                            actionmulaimengerjakan('selesai mengerjakan');
-                          },
+                          onPressed: dataStatusKita == null
+                              ? null
+                              : dataStatusKita['mp_role'] == 4
+                                  ? null
+                                  : () async {
+                                      actionmulaimengerjakan(
+                                          'selesai mengerjakan');
+                                    },
                           child: Text(
                             "Selesai",
                             style: TextStyle(fontSize: 14.0),
@@ -1077,9 +1111,14 @@ class _ManajemenDetailProjectAllState extends State<ManajemenDetailProjectAll> {
                           shape: new RoundedRectangleBorder(
                             borderRadius: new BorderRadius.circular(10.0),
                           ),
-                          onPressed: () async {
-                            actionmulaimengerjakan('mulai mengerjakan lagi');
-                          },
+                          onPressed: dataStatusKita == null
+                              ? null
+                              : dataStatusKita['mp_role'] == 4
+                                  ? null
+                                  : () async {
+                                      actionmulaimengerjakan(
+                                          'mulai mengerjakan lagi');
+                                    },
                           child: Text(
                             "Mulai Mengerjakan Lagi",
                             style: TextStyle(fontSize: 14.0),

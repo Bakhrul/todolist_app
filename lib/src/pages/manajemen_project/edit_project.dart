@@ -16,6 +16,7 @@ import 'package:shimmer/shimmer.dart';
 import 'package:progress_dialog/progress_dialog.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:todolist_app/src/pages/todolist/detail_todo.dart';
+import 'delete_project.dart';
 
 enum PageMember {
   hapusMember,
@@ -51,6 +52,7 @@ class _DetailProjectState extends State<DetailProject>
   bool isFilterMember, isErrorFilterMember, isFilterTodo, isErrorFilterTodo;
   String _urutkanvalue;
   Map<String, String> requestHeaders = Map();
+  Map dataStatusKita;
   var datepickerlastTodo, datepickerfirstTodo;
   bool actionBackAppBar, iconButtonAppbarColor;
   TextEditingController _searchQuery = TextEditingController();
@@ -67,6 +69,7 @@ class _DetailProjectState extends State<DetailProject>
   DateTime timeReplacement;
   ProgressDialog progressApiAction;
   TabController _tabController;
+  Map dataProject;
   @override
   void initState() {
     _controllerNamaTodo.text = '';
@@ -337,8 +340,11 @@ class _DetailProjectState extends State<DetailProject>
         var todos = getDetailProjectJson['todo'];
         var members = getDetailProjectJson['member'];
         Map rawProject = getDetailProjectJson['project'];
+        Map rawStatusKita = getDetailProjectJson['statuskita'];
         if (mounted) {
           setState(() {
+            dataProject = rawProject;
+            dataStatusKita = rawStatusKita;
             _titleProjectController.text = rawProject['p_name'];
             _dateStartController.text = DateFormat('dd-MM-yyyy')
                 .format(DateTime.parse(rawProject['p_timestart']));
@@ -991,6 +997,9 @@ class _DetailProjectState extends State<DetailProject>
                         Padding(
                           padding: const EdgeInsets.only(top: 5.0, bottom: 5.0),
                           child: Text('Information',
+                              overflow: TextOverflow.ellipsis,
+                              softWrap: true,
+                              maxLines: 1,
                               style: TextStyle(
                                   fontSize: 14, color: Colors.black38)),
                         ),
@@ -1005,6 +1014,9 @@ class _DetailProjectState extends State<DetailProject>
                         Padding(
                           padding: const EdgeInsets.only(top: 5.0, bottom: 5.0),
                           child: Text('Member',
+                              overflow: TextOverflow.ellipsis,
+                              softWrap: true,
+                              maxLines: 1,
                               style: TextStyle(
                                   fontSize: 14, color: Colors.black38)),
                         ),
@@ -1019,6 +1031,9 @@ class _DetailProjectState extends State<DetailProject>
                         Padding(
                           padding: const EdgeInsets.only(top: 5.0, bottom: 5.0),
                           child: Text('Todo List',
+                              overflow: TextOverflow.ellipsis,
+                              softWrap: true,
+                              maxLines: 1,
                               style: TextStyle(
                                   fontSize: 14, color: Colors.black38)),
                         ),
@@ -1035,9 +1050,6 @@ class _DetailProjectState extends State<DetailProject>
                 controller: _tabController,
                 children: [
                   Container(
-                    padding: EdgeInsets.all(10.0),
-                    margin: EdgeInsets.only(top: 5.0),
-                    color: Colors.white,
                     child: SingleChildScrollView(
                       child: Column(
                         children: <Widget>[
@@ -1046,141 +1058,244 @@ class _DetailProjectState extends State<DetailProject>
                               : isError == true
                                   ? errorSystem(context)
                                   : Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.start,
                                       children: <Widget>[
+                                        dataStatusKita == null
+                                            ? Container()
+                                            : dataStatusKita['mp_role'] ==
+                                                        '1' ||
+                                                    dataStatusKita['mp_role'] ==
+                                                        1
+                                                ? Container(
+                                                    color: Colors.red[100],
+                                                    margin: EdgeInsets.only(
+                                                        top: 0.0,
+                                                        left: 5.0,
+                                                        right: 5.0,
+                                                        bottom: 15.0),
+                                                    padding: EdgeInsets.only(
+                                                        left: 10.0,
+                                                        right: 10.0,
+                                                        top: 5.0,
+                                                        bottom: 5.0),
+                                                    child: Row(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .spaceBetween,
+                                                      children: <Widget>[
+                                                        Expanded(
+                                                          child: Text(
+                                                              'Ingin Menghapus Project Ini ??',
+                                                              style: TextStyle(
+                                                                  color: Colors
+                                                                      .black87)),
+                                                        ),
+                                                        ButtonTheme(
+                                                            minWidth: 0,
+                                                            height: 0,
+                                                            child: FlatButton(
+                                                                // borderSide: BorderSide(color:Colors.red),
+                                                                color: Colors
+                                                                    .red[400],
+                                                                onPressed:
+                                                                    () async {
+                                                                  Navigator.push(
+                                                                      context,
+                                                                      MaterialPageRoute(
+                                                                          builder: (context) => ManageDeleteProject(
+                                                                                idproject: dataProject['p_id'],
+                                                                                namaproject: dataProject['p_name'],
+                                                                              )));
+                                                                },
+                                                                padding: EdgeInsets
+                                                                    .only(
+                                                                        left:
+                                                                            15.0,
+                                                                        right:
+                                                                            15.0,
+                                                                        top:
+                                                                            10.0,
+                                                                        bottom:
+                                                                            10.0),
+                                                                child: Text(
+                                                                  'Hapus',
+                                                                  style: TextStyle(
+                                                                      color: Colors
+                                                                          .white),
+                                                                ))),
+                                                      ],
+                                                    ),
+                                                  )
+                                                : Container(),
                                         Container(
-                                          margin: EdgeInsets.only(bottom: 10.0),
-                                          child: Text(
-                                            'Edit Data Project',
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.w500),
+                                          color: Colors.white,
+                                          padding: EdgeInsets.all(10.0),
+                                          margin: EdgeInsets.only(top: 5.0),
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.start,
+                                            children: <Widget>[
+                                              Container(
+                                                margin: EdgeInsets.only(
+                                                    bottom: 10.0),
+                                                child: Text(
+                                                  'Edit Data Project',
+                                                  style: TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.w500),
+                                                ),
+                                              ),
+                                              Divider(),
+                                              Container(
+                                                  margin: EdgeInsets.only(
+                                                      bottom: 10.0, top: 10.0),
+                                                  child: TextField(
+                                                    textAlignVertical:
+                                                        TextAlignVertical
+                                                            .center,
+                                                    decoration: InputDecoration(
+                                                        contentPadding:
+                                                            EdgeInsets.only(
+                                                                top: 2,
+                                                                bottom: 2,
+                                                                left: 10,
+                                                                right: 10),
+                                                        border:
+                                                            OutlineInputBorder(),
+                                                        hintText:
+                                                            'Nama Project',
+                                                        hintStyle: TextStyle(
+                                                            fontSize: 12,
+                                                            color:
+                                                                Colors.black)),
+                                                    controller:
+                                                        _titleProjectController,
+                                                  )),
+                                              Container(
+                                                margin: EdgeInsets.only(
+                                                    bottom: 10.0),
+                                                child: DateTimeField(
+                                                  controller:
+                                                      _dateStartController,
+                                                  readOnly: true,
+                                                  format:
+                                                      DateFormat("dd-MM-yyyy"),
+                                                  decoration: InputDecoration(
+                                                    contentPadding:
+                                                        EdgeInsets.only(
+                                                            top: 2,
+                                                            bottom: 2,
+                                                            left: 10,
+                                                            right: 10),
+                                                    border:
+                                                        OutlineInputBorder(),
+                                                    hintText:
+                                                        'Tanggal Dimulainya Project',
+                                                    hintStyle: TextStyle(
+                                                        fontSize: 12,
+                                                        color: Colors.black),
+                                                  ),
+                                                  onShowPicker:
+                                                      (context, currentValue) {
+                                                    return showDatePicker(
+                                                        context: context,
+                                                        firstDate:
+                                                            DateTime(2000),
+                                                        initialDate:
+                                                            DateTime.now(),
+                                                        lastDate:
+                                                            DateTime(2100));
+                                                  },
+                                                  onChanged: (ini) {
+                                                    setState(() {
+                                                      _dateEndController.text =
+                                                          '';
+                                                    });
+                                                  },
+                                                ),
+                                              ),
+                                              Container(
+                                                margin: EdgeInsets.only(
+                                                    bottom: 10.0),
+                                                child: DateTimeField(
+                                                  controller:
+                                                      _dateEndController,
+                                                  readOnly: true,
+                                                  format:
+                                                      DateFormat("dd-MM-yyyy"),
+                                                  decoration: InputDecoration(
+                                                    contentPadding:
+                                                        EdgeInsets.only(
+                                                            top: 2,
+                                                            bottom: 2,
+                                                            left: 10,
+                                                            right: 10),
+                                                    border:
+                                                        OutlineInputBorder(),
+                                                    hintText:
+                                                        'Tanggal Berakhirnya Project',
+                                                    hintStyle: TextStyle(
+                                                        fontSize: 12,
+                                                        color: Colors.black),
+                                                  ),
+                                                  onShowPicker:
+                                                      (context, currentValue) {
+                                                    DateFormat inputFormat =
+                                                        DateFormat(
+                                                            "dd-MM-yyyy");
+                                                    DateTime dateTime =
+                                                        inputFormat.parse(
+                                                            "${_dateStartController.text}");
+                                                    return showDatePicker(
+                                                        context: context,
+                                                        firstDate:
+                                                            _dateStartController
+                                                                        .text ==
+                                                                    ''
+                                                                ? DateTime(2000)
+                                                                : dateTime,
+                                                        initialDate:
+                                                            _dateStartController
+                                                                        .text ==
+                                                                    ''
+                                                                ? DateTime.now()
+                                                                : dateTime,
+                                                        lastDate:
+                                                            DateTime(2100));
+                                                  },
+                                                ),
+                                              ),
+                                              Container(
+                                                  margin: EdgeInsets.only(
+                                                    bottom: 10.0,
+                                                  ),
+                                                  child: TextField(
+                                                    maxLines: 5,
+                                                    textAlignVertical:
+                                                        TextAlignVertical
+                                                            .center,
+                                                    decoration: InputDecoration(
+                                                        contentPadding:
+                                                            EdgeInsets.only(
+                                                                top: 5,
+                                                                bottom: 5,
+                                                                left: 10,
+                                                                right: 10),
+                                                        border:
+                                                            OutlineInputBorder(),
+                                                        hintText:
+                                                            'Deskripsi Project',
+                                                        hintStyle: TextStyle(
+                                                            fontSize: 12,
+                                                            color:
+                                                                Colors.black)),
+                                                    controller:
+                                                        _deskripsiProjectController,
+                                                  )),
+                                            ],
                                           ),
                                         ),
-                                        Divider(),
-                                        Container(
-                                            margin: EdgeInsets.only(
-                                                bottom: 10.0, top: 10.0),
-                                            child: TextField(
-                                              textAlignVertical:
-                                                  TextAlignVertical.center,
-                                              decoration: InputDecoration(
-                                                  contentPadding:
-                                                      EdgeInsets.only(
-                                                          top: 2,
-                                                          bottom: 2,
-                                                          left: 10,
-                                                          right: 10),
-                                                  border: OutlineInputBorder(),
-                                                  hintText: 'Nama Project',
-                                                  hintStyle: TextStyle(
-                                                      fontSize: 12,
-                                                      color: Colors.black)),
-                                              controller:
-                                                  _titleProjectController,
-                                            )),
-                                        Container(
-                                          margin: EdgeInsets.only(bottom: 10.0),
-                                          child: DateTimeField(
-                                            controller: _dateStartController,
-                                            readOnly: true,
-                                            format: DateFormat("dd-MM-yyyy"),
-                                            decoration: InputDecoration(
-                                              contentPadding: EdgeInsets.only(
-                                                  top: 2,
-                                                  bottom: 2,
-                                                  left: 10,
-                                                  right: 10),
-                                              border: OutlineInputBorder(),
-                                              hintText:
-                                                  'Tanggal Dimulainya Project',
-                                              hintStyle: TextStyle(
-                                                  fontSize: 12,
-                                                  color: Colors.black),
-                                            ),
-                                            onShowPicker:
-                                                (context, currentValue) {
-                                              return showDatePicker(
-                                                  context: context,
-                                                  firstDate: DateTime(2000),
-                                                  initialDate: DateTime.now(),
-                                                  lastDate: DateTime(2100));
-                                            },
-                                            onChanged: (ini) {
-                                              setState(() {
-                                                _dateEndController.text = '';
-                                              });
-                                            },
-                                          ),
-                                        ),
-                                        Container(
-                                          margin: EdgeInsets.only(bottom: 10.0),
-                                          child: DateTimeField(
-                                            controller: _dateEndController,
-                                            readOnly: true,
-                                            format: DateFormat("dd-MM-yyyy"),
-                                            decoration: InputDecoration(
-                                              contentPadding: EdgeInsets.only(
-                                                  top: 2,
-                                                  bottom: 2,
-                                                  left: 10,
-                                                  right: 10),
-                                              border: OutlineInputBorder(),
-                                              hintText:
-                                                  'Tanggal Berakhirnya Project',
-                                              hintStyle: TextStyle(
-                                                  fontSize: 12,
-                                                  color: Colors.black),
-                                            ),
-                                            onShowPicker:
-                                                (context, currentValue) {
-                                              DateFormat inputFormat =
-                                                  DateFormat("dd-MM-yyyy");
-                                              DateTime dateTime = inputFormat.parse(
-                                                  "${_dateStartController.text}");
-                                              return showDatePicker(
-                                                  context: context,
-                                                  firstDate:
-                                                      _dateStartController
-                                                                  .text ==
-                                                              ''
-                                                          ? DateTime(2000)
-                                                          : dateTime,
-                                                  initialDate:
-                                                      _dateStartController
-                                                                  .text ==
-                                                              ''
-                                                          ? DateTime.now()
-                                                          : dateTime,
-                                                  lastDate: DateTime(2100));
-                                            },
-                                          ),
-                                        ),
-                                        Container(
-                                            margin: EdgeInsets.only(
-                                              bottom: 10.0,
-                                            ),
-                                            child: TextField(
-                                              maxLines: 5,
-                                              textAlignVertical:
-                                                  TextAlignVertical.center,
-                                              decoration: InputDecoration(
-                                                  contentPadding:
-                                                      EdgeInsets.only(
-                                                          top: 5,
-                                                          bottom: 5,
-                                                          left: 10,
-                                                          right: 10),
-                                                  border: OutlineInputBorder(),
-                                                  hintText: 'Deskripsi Project',
-                                                  hintStyle: TextStyle(
-                                                      fontSize: 12,
-                                                      color: Colors.black)),
-                                              controller:
-                                                  _deskripsiProjectController,
-                                            )),
                                       ],
                                     ),
                         ],

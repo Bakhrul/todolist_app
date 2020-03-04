@@ -349,8 +349,8 @@ class _Register extends State<Register> {
               mainAxisAlignment: MainAxisAlignment.end,
               children: <Widget>[
                 Container(
-                    margin: EdgeInsets.only(bottom: 40.0,top:40.0),
-                    child: Text('To Do List', style: TextStyle(
+                    margin: EdgeInsets.only(bottom: 30.0,top:40.0),
+                    child: Text('Tudulis', style: TextStyle(
                       color: Color.fromRGBO(254, 86, 14, 1),
                       fontSize: 42.0,
                     ),),
@@ -419,6 +419,7 @@ class _Register extends State<Register> {
                   child: SizedBox(
                     width: double.infinity,
                     child: RaisedButton(
+                      elevation: 1,
                       color: Colors.white,
                       textColor: primaryAppBarColor,
                       disabledColor: Colors.green[400],

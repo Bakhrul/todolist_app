@@ -8,6 +8,7 @@ import 'dart:convert';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:todolist_app/src/routes/env.dart';
 import 'package:flutter/cupertino.dart';
+import 'reset_password.dart';
 
 TextEditingController username = TextEditingController();
 TextEditingController password = TextEditingController();
@@ -32,6 +33,8 @@ class _LoginPageState extends State<LoginPage> {
     _isLoading = false;
     username.text = '';
     password.text = '';
+    validatePassword = false;
+    validateEmail = false;
     super.initState();
   }
 
@@ -111,8 +114,9 @@ class _LoginPageState extends State<LoginPage> {
             store.setDataString("email", datauser['us_email']);
             store.setDataString("name", datauser['us_name']);
             store.setDataString("photo", datauser['us_image']);
-         Navigator.pushReplacementNamed(context, "/dashboard");
-          Fluttertoast.showToast(msg: 'Selamat Datang ${datauser['us_name']}');
+            Navigator.pushReplacementNamed(context, "/dashboard");
+            Fluttertoast.showToast(
+                msg: 'Selamat Datang ${datauser['us_name']}');
           } else {
             print(getUser.body);
             Fluttertoast.showToast(
@@ -154,17 +158,15 @@ class _LoginPageState extends State<LoginPage> {
       setState(() {
         _isLoading = false;
       });
-    } 
-    // catch (e) {
-    //   setState(() {
-    //     _isLoading = false;
-    //   });
-    //   print(e.toString());
-    //   print('eror');
-    //   Fluttertoast.showToast(msg: "Terjadi Kesalahan Server");
-    // }
+    }
+    catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+      print(e.toString());
+      Fluttertoast.showToast(msg: "Terjadi Kesalahan Server");
+    }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -262,9 +264,9 @@ class _LoginPageState extends State<LoginPage> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: <Widget>[
                   Container(
-                    margin: EdgeInsets.only(bottom: 40.0),
+                    margin: EdgeInsets.only(bottom: 30.0),
                     child: Text(
-                      'To Do List',
+                      'Tudulis',
                       style: TextStyle(
                         color: Color.fromRGBO(254, 86, 14, 1),
                         fontSize: 42.0,
@@ -282,52 +284,46 @@ class _LoginPageState extends State<LoginPage> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
-                      
                       ButtonTheme(
                         minWidth: 0.0,
                         height: 0.0,
                         child: FlatButton(
                           padding: EdgeInsets.all(5.0),
                           onPressed: () async {
-                            // Navigator.push(
-                            //     context,
-                            //     MaterialPageRoute(
-                            //         builder: (context) => ResetPassword()));
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => ResetPassword()));
                           },
                           child: Text(
                             'Lupa Password ?',
-                            style: TextStyle(
-                              color: Colors.blue,
-                              fontSize: 12
-                            ),
+                            style: TextStyle(color: Colors.blue, fontSize: 12),
                           ),
                           color: Colors.white,
                         ),
                       ),
-                       ButtonTheme(
-                          minWidth: 0.0,
-                          height: 0.0,
-                          child: FlatButton(
-                            padding: EdgeInsets.all(5.0),
-                            onPressed: () async {
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => Register()));
-                            },
-                            child: Text(
-                              'Daftar Sekarang',
-                              style: TextStyle(
-                                color: primaryAppBarColor,
-                                fontSize: 12
-                              ),
-                            ),
-                            color: Colors.white,
+                      ButtonTheme(
+                        minWidth: 0.0,
+                        height: 0.0,
+                        child: FlatButton(
+                          padding: EdgeInsets.all(5.0),
+                          onPressed: () async {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => Register()));
+                          },
+                          child: Text(
+                            'Daftar Sekarang',
+                            style: TextStyle(
+                                color: primaryAppBarColor, fontSize: 12),
                           ),
+                          color: Colors.white,
                         ),
+                      ),
                     ],
                   ),
-                  loginButton,                
+                  loginButton,
                 ],
               ),
             ),

@@ -58,7 +58,7 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
   List<ToDoDone> listTodoDone = [];
   List<ToDoReady> listTodoReady = [];
   List<ToDoAction> listTodoAction = [];
-  int minimalRealisasi;
+  int minimalRealisasi, currentIndex;
   bool isLoading,
       isError,
       isLoadingTodoAll,
@@ -83,36 +83,44 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
     textValue = null;
     _value = 1;
     minimalRealisasi = 1;
+    currentIndex = 0;
     projectPercent = '0';
     _tabController = TabController(
-        length: 6, vsync: _ManajemenDetailTodoState(), initialIndex: 0);
+        length: 6,
+        vsync: _ManajemenDetailTodoState(),
+        initialIndex: currentIndex);
     _tabController.addListener(_handleTabIndex);
   }
 
   void _handleTabIndex() {
-    if (_tabController.index == 3) {
-      setState(() {
-        listTodoReadyData();
-      });
-    } else if (_tabController.index == 2) {
-      setState(() {
-        listTodoActionData();
-      });
-    } else if (_tabController.index == 4) {
-      setState(() {
-        listTodoNormalData();
-      });
-    } else if (_tabController.index == 5) {
-      setState(() {
-        listTodoDoneData();
-      });
-    } else if (_tabController.index == 0) {
-      setState(() {
-        getHeaderHTTP();
-      });
-    } else if (_tabController.index == 1) {
-      todoActivity();
-    }
+    setState(() {
+      currentIndex = _tabController.index;
+    });
+    new Timer(new Duration(seconds: 1), () {
+      if (_tabController.index == 3) {
+        setState(() {
+          listTodoReadyData();
+        });
+      } else if (_tabController.index == 2) {
+        setState(() {
+          listTodoActionData();
+        });
+      } else if (_tabController.index == 4) {
+        setState(() {
+          listTodoNormalData();
+        });
+      } else if (_tabController.index == 5) {
+        setState(() {
+          listTodoDoneData();
+        });
+      } else if (_tabController.index == 0) {
+        setState(() {
+          getHeaderHTTP();
+        });
+      } else if (_tabController.index == 1) {
+        todoActivity();
+      }
+    });
   }
 
   Future<void> getHeaderHTTP() async {
@@ -181,9 +189,11 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
           );
           todoAttachmentDetail.add(files);
         }
-        setState(() {
-          isLoading = false;
-          isError = false;
+        new Timer(new Duration(seconds: 2), () {
+          setState(() {
+            isLoading = false;
+            isError = false;
+          });
         });
       } else if (getDetailProject.statusCode == 401) {
         Fluttertoast.showToast(
@@ -249,9 +259,11 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
                   .format(DateTime.parse(t['tlt_created'])));
           todoActivityDetail.add(todo);
         }
-        setState(() {
-          isLoadingActivity = false;
-          isErrorActivity = false;
+        new Timer(new Duration(seconds: 2), () {
+          setState(() {
+            isLoadingActivity = false;
+            isErrorActivity = false;
+          });
         });
       } else if (getDetailProject.statusCode == 401) {
         Fluttertoast.showToast(
@@ -317,9 +329,11 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
           );
           listTodoReady.add(member);
         }
-        setState(() {
-          isLoadingTodoAll = false;
-          isErrorTodoAll = false;
+        new Timer(new Duration(seconds: 2), () {
+          setState(() {
+            isLoadingTodoAll = false;
+            isErrorTodoAll = false;
+          });
         });
       } else if (getTodoReadyurl.statusCode == 401) {
         Fluttertoast.showToast(
@@ -385,9 +399,11 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
           );
           listTodoDone.add(donex);
         }
-        setState(() {
-          isLoadingTodoAll = false;
-          isErrorTodoAll = false;
+        new Timer(new Duration(seconds: 2), () {
+          setState(() {
+            isLoadingTodoAll = false;
+            isErrorTodoAll = false;
+          });
         });
       } else if (getTodoDoneyurl.statusCode == 401) {
         Fluttertoast.showToast(
@@ -453,9 +469,11 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
           listTodoAction.add(participant);
         }
 
-        setState(() {
-          isLoadingTodoAll = false;
-          isErrorTodoAll = false;
+        new Timer(new Duration(seconds: 2), () {
+          setState(() {
+            isLoadingTodoAll = false;
+            isErrorTodoAll = false;
+          });
         });
       } else if (getTodoActionUrl.statusCode == 401) {
         Fluttertoast.showToast(
@@ -520,9 +538,11 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
           );
           listTodoNormal.add(normalx);
         }
-        setState(() {
-          isLoadingTodoAll = false;
-          isErrorTodoAll = false;
+        new Timer(new Duration(seconds: 2), () {
+          setState(() {
+            isLoadingTodoAll = false;
+            isErrorTodoAll = false;
+          });
         });
       } else if (getTodoNormalurl.statusCode == 401) {
         Fluttertoast.showToast(
@@ -681,7 +701,11 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
                           height: 60.0,
                           width: 60.0,
                           child: ClipOval(
-                            child: Image.asset('images/imgavatar.png'),
+                            child: FadeInImage.assetNetwork(
+                                placeholder: 'images/imgavatar.png',
+                                image: image == null || image == ''
+                                    ? url('assets/images/imgavatar.png')
+                                    : url('storage/image/profile/$image')),
                           ),
                         ),
                         Padding(
@@ -958,7 +982,7 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
                                   ],
                                 ),
                               ),
-              isLoadingTodoAll == true
+                isLoadingTodoAll == true
                     ? widgetLoadingTodo()
                     : isErrorTodoAll == true
                         ? errorSystem(context)
@@ -971,7 +995,7 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
                                   ],
                                 ),
                               ),
-             isLoadingTodoAll == true
+                isLoadingTodoAll == true
                     ? widgetLoadingTodo()
                     : isErrorTodoAll == true
                         ? errorSystem(context)
@@ -984,7 +1008,7 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
                                   ],
                                 ),
                               ),
-               isLoadingTodoAll == true
+                isLoadingTodoAll == true
                     ? widgetLoadingTodo()
                     : isErrorTodoAll == true
                         ? errorSystem(context)
@@ -1035,7 +1059,19 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
                             borderRadius: new BorderRadius.circular(10.0),
                           ),
                           onPressed: () async {
-                            actionmulaimengerjakan('baru mengerjakan');
+                            if (dataStatusKita == null) {
+                              Fluttertoast.showToast(
+                                  msg:
+                                      'Anda Tidak Memiliki Akses Untuk Melakukan Aksi Ini');
+                            }
+                            if (dataStatusKita['tlr_role'] == 4 ||
+                                dataStatusKita['tlr_role'] == '4') {
+                              Fluttertoast.showToast(
+                                  msg:
+                                      'Anda Tidak Memiliki Akses Untuk Melakukan Aksi Ini');
+                            } else {
+                              actionmulaimengerjakan('baru mengerjakan');
+                            }
                           },
                           child: Text(
                             "Mulai Mengerjakan",
@@ -1074,7 +1110,19 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
                             borderRadius: new BorderRadius.circular(10.0),
                           ),
                           onPressed: () async {
-                            actionmulaimengerjakan('pending');
+                            if (dataStatusKita == null) {
+                              Fluttertoast.showToast(
+                                  msg:
+                                      'Anda Tidak Memiliki Akses Untuk Melakukan Aksi Ini');
+                            }
+                            if (dataStatusKita['tlr_role'] == 4 ||
+                                dataStatusKita['tlr_role'] == '4') {
+                              Fluttertoast.showToast(
+                                  msg:
+                                      'Anda Tidak Memiliki Akses Untuk Melakukan Aksi Ini');
+                            } else {
+                              actionmulaimengerjakan('pending');
+                            }
                           },
                           child: Text(
                             "Pending",
@@ -1102,7 +1150,19 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
                             borderRadius: new BorderRadius.circular(10.0),
                           ),
                           onPressed: () async {
-                            actionmulaimengerjakan('selesai');
+                            if (dataStatusKita == null) {
+                              Fluttertoast.showToast(
+                                  msg:
+                                      'Anda Tidak Memiliki Akses Untuk Melakukan Aksi Ini');
+                            }
+                            if (dataStatusKita['tlr_role'] == 4 ||
+                                dataStatusKita['tlr_role'] == '4') {
+                              Fluttertoast.showToast(
+                                  msg:
+                                      'Anda Tidak Memiliki Akses Untuk Melakukan Aksi Ini');
+                            } else {
+                              actionmulaimengerjakan('selesai');
+                            }
                           },
                           child: Text(
                             "Selesai",
@@ -1140,7 +1200,20 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
                             borderRadius: new BorderRadius.circular(10.0),
                           ),
                           onPressed: () async {
-                            actionmulaimengerjakan('mulai mengerjakan kembali');
+                            if (dataStatusKita == null) {
+                              Fluttertoast.showToast(
+                                  msg:
+                                      'Anda Tidak Memiliki Akses Untuk Melakukan Aksi Ini');
+                            }
+                            if (dataStatusKita['tlr_role'] == 4 ||
+                                dataStatusKita['tlr_role'] == '4') {
+                              Fluttertoast.showToast(
+                                  msg:
+                                      'Anda Tidak Memiliki Akses Untuk Melakukan Aksi Ini');
+                            } else {
+                              actionmulaimengerjakan(
+                                  'mulai mengerjakan kembali');
+                            }
                           },
                           child: Text(
                             "Mulai Mengerjakan Lagi",
@@ -1239,7 +1312,7 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
                       controller: _titleTodoListAction,
                       decoration: InputDecoration(
                           border: OutlineInputBorder(),
-                          hintText: 'Masukkan Nama Action',
+                          hintText: 'Isilah dengan detail action',
                           hintStyle: TextStyle(
                             fontSize: 12,
                           )),
@@ -1361,28 +1434,33 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
         dataTodo == null
             ? Text('Belum Ada Keterangan Tanggal')
             : dataTodo['tl_allday'] == 0
-                ? Row(
+                ? Column(
                     children: <Widget>[
                       Text(
-                        DateFormat('dd-MM-yyyy')
-                            .format(DateTime.parse(dataTodo['tl_planstart'])),
+                        DateFormat('dd MMM yyyy HH:mm').format(
+                                DateTime.parse(dataTodo['tl_planstart'])) +
+                            ' - ' +
+                            DateFormat('dd MMM yyyy HH:mm')
+                                .format(DateTime.parse(dataTodo['tl_planend'])),
                         style: TextStyle(
                             color: Colors.black45,
                             fontWeight: FontWeight.w500,
-                            fontSize: 14),
+                            fontSize: 13),
                       ),
                     ],
                   )
-                : Row(
+                : Column(
                     children: <Widget>[
                       Text(
-                        DateFormat('dd-MM-yyyy')
-                            .format(DateTime.parse(dataTodo['tl_planstart'])),
+                        DateFormat('dd MMM yyyy').format(
+                                DateTime.parse(dataTodo['tl_planstart'])) +
+                            ' - ' +
+                            DateFormat('dd MMM yyyy HH:mm')
+                                .format(DateTime.parse(dataTodo['tl_planend'])),
                         style: TextStyle(
-                          color: Colors.black45,
-                          fontWeight: FontWeight.w500,
-                          fontSize: 14,
-                        ),
+                            color: Colors.black45,
+                            fontWeight: FontWeight.w500,
+                            fontSize: 13),
                       ),
                     ],
                   ),
@@ -1594,7 +1672,10 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
                             child: ClipOval(
                               child: FadeInImage.assetNetwork(
                                 placeholder: 'images/loading.gif',
-                                image: url('assets/images/imgavatar.png'),
+                                image: item.image == null || item.image == ''
+                                    ? url('assets/images/imgavatar.png')
+                                    : url(
+                                        'storage/image/profile/${item.image}'),
                                 fit: BoxFit.cover,
                               ),
                             ),
@@ -1685,7 +1766,19 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
                       child: ButtonTheme(
                         child: FlatButton(
                             onPressed: () async {
-                              _realisasiTodo();
+                              if (dataStatusKita == null) {
+                                Fluttertoast.showToast(
+                                    msg:
+                                        'Anda Tidak Memiliki Akses Untuk Melakukan Aksi Ini');
+                              }
+                              if (dataStatusKita['tlr_role'] == 4 ||
+                                  dataStatusKita['tlr_role'] == '4') {
+                                Fluttertoast.showToast(
+                                    msg:
+                                        'Anda Tidak Memiliki Akses Untuk Melakukan Aksi Ini');
+                              } else {
+                                _realisasiTodo();
+                              }
                             },
                             shape: new RoundedRectangleBorder(
                               borderRadius: new BorderRadius.circular(10.0),
@@ -1807,14 +1900,34 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
                         ? false
                         : true,
                     onChanged: (bool value) async {
-                      await progressApiAction.show();
-                      actionDoneTodo(
-                          listTodoReady[index].number,
-                          listTodoReady[index].idtodo,
-                          listTodoReady[index].selesai,
-                          listTodoReady[index].validation,
-                          listTodoReady[index],
-                          'Ready');
+                      if (dataTodo['tl_status'] == 'Open' &&
+                          dataTodo['tl_exestart'] == null) {
+                        Fluttertoast.showToast(
+                            msg:
+                                'To Do Masih Belum Dikerjakan, Tidak Dapat Melakukan Konfirmasi Selesai');
+                      } else if (dataTodo['tl_status'] == 'Pending') {
+                        Fluttertoast.showToast(
+                            msg:
+                                'To Do Masih Tahap Pending, Tidak Dapat Melakukan Konfirmasi Selesai');
+                      } else if (dataStatusKita == null) {
+                        Fluttertoast.showToast(
+                            msg:
+                                'Anda Tidak Memiliki Akses Untuk Melakukan Aksi Ini');
+                      } else if (dataStatusKita['tlr_role'] == 4 ||
+                          dataStatusKita['tlr_role'] == '4') {
+                        Fluttertoast.showToast(
+                            msg:
+                                'Anda Tidak Memiliki Akses Untuk Melakukan Aksi Ini');
+                      } else {
+                        await progressApiAction.show();
+                        actionDoneTodo(
+                            listTodoReady[index].number,
+                            listTodoReady[index].idtodo,
+                            listTodoReady[index].selesai,
+                            listTodoReady[index].validation,
+                            listTodoReady[index],
+                            'Ready');
+                      }
                     },
                   ),
                   title: listTodoReady[index].selesai == null ||
@@ -1919,14 +2032,34 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
                         ? false
                         : true,
                     onChanged: (bool value) async {
-                      await progressApiAction.show();
-                      actionDoneTodo(
-                          listTodoAction[index].number,
-                          listTodoAction[index].idtodo,
-                          listTodoAction[index].selesai,
-                          listTodoAction[index].validation,
-                          listTodoAction[index],
-                          'Action');
+                      if (dataTodo['tl_status'] == 'Open' &&
+                          dataTodo['tl_exestart'] == null) {
+                        Fluttertoast.showToast(
+                            msg:
+                                'To Do Masih Belum Dikerjakan, Tidak Dapat Melakukan Konfirmasi Selesai');
+                      } else if (dataTodo['tl_status'] == 'Pending') {
+                        Fluttertoast.showToast(
+                            msg:
+                                'To Do Masih Tahap Pending, Tidak Dapat Melakukan Konfirmasi Selesai');
+                      }else if (dataStatusKita == null) {
+                        Fluttertoast.showToast(
+                            msg:
+                                'Anda Tidak Memiliki Akses Untuk Melakukan Aksi Ini');
+                      } else if (dataStatusKita['tlr_role'] == 4 ||
+                          dataStatusKita['tlr_role'] == '4') {
+                        Fluttertoast.showToast(
+                            msg:
+                                'Anda Tidak Memiliki Akses Untuk Melakukan Aksi Ini');
+                      } else {
+                        await progressApiAction.show();
+                        actionDoneTodo(
+                            listTodoAction[index].number,
+                            listTodoAction[index].idtodo,
+                            listTodoAction[index].selesai,
+                            listTodoAction[index].validation,
+                            listTodoAction[index],
+                            'Action');
+                      }
                     },
                   ),
                   title: listTodoAction[index].selesai == null ||
@@ -2031,14 +2164,34 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
                         ? false
                         : true,
                     onChanged: (bool value) async {
-                      await progressApiAction.show();
-                      actionDoneTodo(
-                          listTodoDone[index].number,
-                          listTodoDone[index].idtodo,
-                          listTodoDone[index].selesai,
-                          listTodoDone[index].validation,
-                          listTodoDone[index],
-                          'Done');
+                      if (dataTodo['tl_status'] == 'Open' &&
+                          dataTodo['tl_exestart'] == null) {
+                        Fluttertoast.showToast(
+                            msg:
+                                'To Do Masih Belum Dikerjakan, Tidak Dapat Melakukan Konfirmasi Selesai');
+                      } else if (dataTodo['tl_status'] == 'Pending') {
+                        Fluttertoast.showToast(
+                            msg:
+                                'To Do Masih Tahap Pending, Tidak Dapat Melakukan Konfirmasi Selesai');
+                      }else if (dataStatusKita == null) {
+                        Fluttertoast.showToast(
+                            msg:
+                                'Anda Tidak Memiliki Akses Untuk Melakukan Aksi Ini');
+                      } else if (dataStatusKita['tlr_role'] == 4 ||
+                          dataStatusKita['tlr_role'] == '4') {
+                        Fluttertoast.showToast(
+                            msg:
+                                'Anda Tidak Memiliki Akses Untuk Melakukan Aksi Ini');
+                      } else {
+                        await progressApiAction.show();
+                        actionDoneTodo(
+                            listTodoDone[index].number,
+                            listTodoDone[index].idtodo,
+                            listTodoDone[index].selesai,
+                            listTodoDone[index].validation,
+                            listTodoDone[index],
+                            'Done');
+                      }
                     },
                   ),
                   title: listTodoDone[index].selesai == null ||
@@ -2142,14 +2295,34 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
                         ? false
                         : true,
                     onChanged: (bool value) async {
-                      await progressApiAction.show();
-                      actionDoneTodo(
-                          listTodoNormal[index].number,
-                          listTodoNormal[index].idtodo,
-                          listTodoNormal[index].selesai,
-                          listTodoNormal[index].validation,
-                          listTodoNormal[index],
-                          'Normal');
+                      if (dataTodo['tl_status'] == 'Open' &&
+                          dataTodo['tl_exestart'] == null) {
+                        Fluttertoast.showToast(
+                            msg:
+                                'To Do Masih Belum Dikerjakan, Tidak Dapat Melakukan Konfirmasi Selesai');
+                      } else if (dataTodo['tl_status'] == 'Pending') {
+                        Fluttertoast.showToast(
+                            msg:
+                                'To Do Masih Tahap Pending, Tidak Dapat Melakukan Konfirmasi Selesai');
+                      }else if (dataStatusKita == null) {
+                        Fluttertoast.showToast(
+                            msg:
+                                'Anda Tidak Memiliki Akses Untuk Melakukan Aksi Ini');
+                      } else if (dataStatusKita['tlr_role'] == 4 ||
+                          dataStatusKita['tlr_role'] == '4') {
+                        Fluttertoast.showToast(
+                            msg:
+                                'Anda Tidak Memiliki Akses Untuk Melakukan Aksi Ini');
+                      } else {
+                        await progressApiAction.show();
+                        actionDoneTodo(
+                            listTodoNormal[index].number,
+                            listTodoNormal[index].idtodo,
+                            listTodoNormal[index].selesai,
+                            listTodoNormal[index].validation,
+                            listTodoNormal[index],
+                            'Normal');
+                      }
                     },
                   ),
                   title: listTodoNormal[index].selesai == null ||

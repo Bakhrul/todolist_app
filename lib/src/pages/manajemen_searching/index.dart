@@ -122,14 +122,13 @@ class _ManajemenSerachTodoState extends State<ManajemenSerachTodo>
               statuspinned: i['statuspinned'].toString(),
               allday: i['allday'],
               statusProgress: i['statusprogress'],
-              coloredProgress: i['statusprogress'] == 'compleshed' 
-              ? Colors.green 
-              : i['statusprogress'] == 'overdue' 
-              ? Colors.red
-              :  i['statusprogress'] == 'pending' 
-              ? Colors.grey
-              : Colors.white
-              );
+                 coloredProgress: i['statusprogress'] == 'compleshed'
+                  ? Colors.green
+                  : i['statusprogress'] == 'overdue'
+                      ? Colors.red
+                      : i['statusprogress'] == 'pending'
+                          ? Colors.grey
+                          : i['statusprogress'] == 'working' ? Colors.blue: Colors.white);
 
           listTodoSearch.add(todo);
         }
@@ -141,10 +140,10 @@ class _ManajemenSerachTodoState extends State<ManajemenSerachTodo>
             id: i['p_id'],
             title: i['p_name'],
             start: yearStart.year == yearEnd.year
-                ? DateFormat("dd MMMM").format(DateTime.parse(i['p_timestart']))
-                : DateFormat("dd MMMM yyyy")
+                ? DateFormat("dd MMM").format(DateTime.parse(i['p_timestart']))
+                : DateFormat("dd MMM yyyy")
                     .format(DateTime.parse(i['p_timestart'])),
-            end: DateFormat("dd MMMM yyyy")
+            end: DateFormat("dd MMM yyyy")
                 .format(DateTime.parse(i['p_timeend'])),
           );
           listProjectSearch.add(todo);
@@ -579,7 +578,10 @@ class _ManajemenSerachTodoState extends State<ManajemenSerachTodo>
                                                                                       softWrap: true,
                                                                                       maxLines: 1,
                                                                                     ),
-                                                                                    subtitle: Text(DateFormat(item.allday > 0 ? 'dd/MM/yyyy' : 'dd/MM/yyyy HH:mm:ss').format(DateTime.parse("${item.timestart}")).toString() + ' - ' + DateFormat(item.allday > 0 ? 'dd/MM/yyyy' : 'dd/MM/yyyy HH:mm:ss').format(DateTime.parse("${item.timeend}")).toString(), overflow: TextOverflow.ellipsis, maxLines: 1),
+                                                                                    subtitle: Padding(
+                                                                                      padding: const EdgeInsets.only(top:2.0),
+                                                                                      child: Text(DateFormat(item.allday > 0 ? 'dd MMM yyyy' : 'dd MMM yyyy HH:mm').format(DateTime.parse("${item.timestart}")).toString() + ' - ' + DateFormat(item.allday > 0 ? 'dd MMM yyyy' : 'dd MMM yyyy HH:mm:ss').format(DateTime.parse("${item.timeend}")).toString(),style: TextStyle(fontSize: 12),),
+                                                                                    ),
                                                                                   ),
                                                                                 ),
                                                                               )),

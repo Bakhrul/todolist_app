@@ -109,15 +109,13 @@ class _ManajemenTodoImportantState extends State<ManajemenTodoImportant>
               statuspinned: i['statuspinned'].toString(),
               allday: i['allday'],
               statusProgress: i['statusprogress'],
-              coloredProgress: i['statusprogress'] == 'compleshed' 
-              ? Colors.green 
-              : i['statusprogress'] == 'overdue' 
-              ? Colors.red
-              :  i['statusprogress'] == 'pending' 
-              ? Colors.grey
-              : Colors.white
-              );
-
+               coloredProgress: i['statusprogress'] == 'compleshed'
+                  ? Colors.green
+                  : i['statusprogress'] == 'overdue'
+                      ? Colors.red
+                      : i['statusprogress'] == 'pending'
+                          ? Colors.grey
+                          : i['statusprogress'] == 'working' ? Colors.blue: Colors.white);
           listTodoImportant.add(todo);
         }
 
@@ -202,14 +200,13 @@ class _ManajemenTodoImportantState extends State<ManajemenTodoImportant>
               statuspinned: i['statuspinned'].toString(),
               allday: i['allday'],
               statusProgress: i['statusprogress'],
-              coloredProgress: i['statusprogress'] == 'compleshed' 
-              ? Colors.green 
-              : i['statusprogress'] == 'overdue' 
-              ? Colors.red
-              :  i['statusprogress'] == 'pending' 
-              ? Colors.grey
-              : Colors.white
-              );
+            coloredProgress: i['statusprogress'] == 'compleshed'
+                  ? Colors.green
+                  : i['statusprogress'] == 'overdue'
+                      ? Colors.red
+                      : i['statusprogress'] == 'pending'
+                          ? Colors.grey
+                          : i['statusprogress'] == 'working' ? Colors.blue: Colors.white);
 
           listTodoImportant.add(todo);
         }
@@ -538,12 +535,15 @@ class _ManajemenTodoImportantState extends State<ManajemenTodoImportant>
                                                                                       maxLines: 1,
                                                                                       style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
                                                                                     ),
-                                                                                    subtitle: Text(
-                                                                                      DateFormat(item.allday > 0 ? 'dd/MM/yyyy' : 'dd/MM/yyyy HH:mm:ss').format(DateTime.parse("${item.timestart}")).toString() + ' - ' + DateFormat(item.allday > 0 ? 'dd/MM/yyyy' : 'dd/MM/yyyy HH:mm:ss').format(DateTime.parse("${item.timeend}")).toString(),
-                                                                                      overflow: TextOverflow.ellipsis,
-                                                                                      maxLines: 1,
-                                                                                      softWrap: true,
-                                                                                      style: TextStyle(fontSize: 12),
+                                                                                    subtitle: Padding(
+                                                                                      padding: const EdgeInsets.only(top:2.0),
+                                                                                      child: Text(
+                                                                                        DateFormat(item.allday > 0 ? 'dd MMM yyyy' : 'dd MMM yyyy HH:mm').format(DateTime.parse("${item.timestart}")).toString() + ' - ' + DateFormat(item.allday > 0 ? 'dd MMM yyyy' : 'dd MMM yyyy HH:mm:ss').format(DateTime.parse("${item.timeend}")).toString(),
+                                                                                        // overflow: TextOverflow.ellipsis,
+                                                                                        // maxLines: 1,
+                                                                                        // softWrap: true,
+                                                                                        style: TextStyle(fontSize: 12),
+                                                                                      ),
                                                                                     ),
                                                                                   ),
                                                                                 ),

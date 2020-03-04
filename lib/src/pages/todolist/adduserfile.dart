@@ -585,8 +585,11 @@ class _AddUserFileTodoState extends State<AddUserFileTodo>
             actions: <Widget>[
               IconButton(
                 onPressed: () async {
-                  Navigator.pushReplacement(context,
-                      MaterialPageRoute(builder: (context) => Dashboard()));
+                  Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(
+                          builder: (BuildContext context) => Dashboard()),
+                      ModalRoute.withName('/'));
                 },
                 icon: Icon(Icons.check),
               )
