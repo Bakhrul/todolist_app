@@ -1909,7 +1909,11 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
                         Fluttertoast.showToast(
                             msg:
                                 'To Do Masih Tahap Pending, Tidak Dapat Melakukan Konfirmasi Selesai');
-                      } else if (dataStatusKita == null) {
+                      }else if (dataTodo['tl_status'] == 'Finish') {
+                        Fluttertoast.showToast(
+                            msg:
+                                'To Do Sudah Selesai');
+                      }else if (dataStatusKita == null) {
                         Fluttertoast.showToast(
                             msg:
                                 'Anda Tidak Memiliki Akses Untuk Melakukan Aksi Ini');
@@ -2041,6 +2045,10 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
                         Fluttertoast.showToast(
                             msg:
                                 'To Do Masih Tahap Pending, Tidak Dapat Melakukan Konfirmasi Selesai');
+                      }else if (dataTodo['tl_status'] == 'Finish') {
+                        Fluttertoast.showToast(
+                            msg:
+                                'To Do Sudah Selesai');
                       }else if (dataStatusKita == null) {
                         Fluttertoast.showToast(
                             msg:
@@ -2173,6 +2181,10 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
                         Fluttertoast.showToast(
                             msg:
                                 'To Do Masih Tahap Pending, Tidak Dapat Melakukan Konfirmasi Selesai');
+                      }else if (dataTodo['tl_status'] == 'Finish') {
+                        Fluttertoast.showToast(
+                            msg:
+                                'To Do Sudah Selesai');
                       }else if (dataStatusKita == null) {
                         Fluttertoast.showToast(
                             msg:
@@ -2304,6 +2316,10 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
                         Fluttertoast.showToast(
                             msg:
                                 'To Do Masih Tahap Pending, Tidak Dapat Melakukan Konfirmasi Selesai');
+                      }else if (dataTodo['tl_status'] == 'Finish') {
+                        Fluttertoast.showToast(
+                            msg:
+                                'To Do Sudah Selesai');
                       }else if (dataStatusKita == null) {
                         Fluttertoast.showToast(
                             msg:
