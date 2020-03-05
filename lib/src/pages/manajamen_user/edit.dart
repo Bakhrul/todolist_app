@@ -105,12 +105,11 @@ class _ProfileUserEdit extends State<ProfileUserEdit> {
     String locationUser = await user.getDataString('location');
     String imageStored = await user.getDataString('photo');
 
-
     setState(() {
       namaData = namaUser;
       emailData = emailUser;
       phoneData = phoneUser;
-      imageData = imageStored ;
+      imageData = imageStored;
       locationData = locationUser;
       _controllerNama.text = namaUser;
       _controllerEmail.text = emailUser;
@@ -183,24 +182,26 @@ class _ProfileUserEdit extends State<ProfileUserEdit> {
                         width: double.infinity,
                         height: 45.0,
                         child: RaisedButton(
-                            onPressed: load == true ? null : () async {
-                              editData('Y');
-                            },
+                            onPressed: load == true
+                                ? null
+                                : () async {
+                                    editData('Y');
+                                  },
                             color: primaryAppBarColor,
                             textColor: Colors.white,
                             disabledColor: Color.fromRGBO(254, 86, 14, 0.7),
                             disabledTextColor: Colors.white,
                             splashColor: Colors.blueAccent,
                             child: load == true
-                              ? Container(
-                                  height: 25.0,
-                                  width: 25.0,
-                                  child: CircularProgressIndicator(
-                                      valueColor:
-                                          new AlwaysStoppedAnimation<Color>(
-                                              Colors.white)))
-                              :  Text("Ubah password",
-                                style: TextStyle(color: Colors.white)))))
+                                ? Container(
+                                    height: 25.0,
+                                    width: 25.0,
+                                    child: CircularProgressIndicator(
+                                        valueColor:
+                                            new AlwaysStoppedAnimation<Color>(
+                                                Colors.white)))
+                                : Text("Ubah password",
+                                    style: TextStyle(color: Colors.white)))))
               ],
             ),
           );
@@ -318,147 +319,235 @@ class _ProfileUserEdit extends State<ProfileUserEdit> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
       appBar: AppBar(
-        iconTheme: IconThemeData(
-          color: Colors.white,
-        ),
-        backgroundColor: primaryAppBarColor,
-        elevation: 0.0,
-      ),
-      body: SingleChildScrollView(
-          child: Stack(
+          title: Text('Edit Profile'), backgroundColor: primaryAppBarColor),
+      body: Stack(
+        alignment: Alignment.center,
         children: <Widget>[
-          Container(
-            height: 160,
-            width: double.infinity,
-            color: primaryAppBarColor,
-          ),
-          Container(
-              child: Column(
+          // background image and bottom contents
+          Column(
             children: <Widget>[
-              GestureDetector(
-                onTap: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => EditPhoto(fileName: imageData,)));
-                },
-                child: imageData == null
-                    ? Container(
-                        margin: EdgeInsets.only(top: 20),
-                        height: 90,
-                        width: 90,
-                        child: ClipOval(
-                            child: Image.asset('images/imgavatar.png',
-                                fit: BoxFit.fill)))
-                    : Container(
-                        margin: EdgeInsets.only(top: 20),
-                        height: 90,
-                        width: 90,
-                        child: ClipOval(
-                            child: 
-                                 FadeInImage.assetNetwork(
-                                    fit: BoxFit.cover,
-                                    placeholder: 'images/imgavatar.png',
-                                    image: url(
-                                        'storage/profile/$imageData'))
-                                )),
-              ),
               Container(
-                margin: EdgeInsets.only(bottom: 5.0, top: 10.0),
-                child: Text(namaData == null ? 'memuat..' : namaData,
-                    style: TextStyle(
-                      fontSize: 20.0,
-                      color: Colors.white,
-                    )),
-              ),
-             
-              Container(
-                  width: double.infinity,
-                  padding: EdgeInsets.only(
-                    left: 50.0,
-                    right: 50.0,
-                    top: 20.0,
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Container(
-                          child: Text('Nama',
-                              style: TextStyle(color: Colors.grey))),
-                      Container(
-                          margin: EdgeInsets.only(bottom: 20.0),
-                          child: TextField(
-                            controller: _controllerNama,
-                          )),
-                      Container(
-                        margin: EdgeInsets.only(bottom: 5.0),
-                        child:
-                            Text('Email', style: TextStyle(color: Colors.grey)),
-                      ),
-                      Container(
-                          margin: EdgeInsets.only(bottom: 20.0),
-                          child: TextField(
-                            enabled: false,
-                            controller: _controllerEmail,
-                            decoration: InputDecoration(
-                                suffixIcon: Icon(Icons.lock, size: 20.0)),
-                          )),
-                      Container(
-                        margin: EdgeInsets.only(bottom: 5.0),
-                        child: Text('Password',
-                            style: TextStyle(color: Colors.grey)),
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: <Widget>[
-                          Text('********'),
-                          FlatButton(
-                            padding: EdgeInsets.all(0),
-                            child: Padding(
-                              padding: const EdgeInsets.all(0.0),
-                              child: Text(
-                                'Ganti Password',
-                                style: TextStyle(fontSize: 12.0),
-                              ),
-                            ),
-                            onPressed: _showPasswordModal,
-                          ),
-                        ],
-                      ),
+                height: 150.0,
+                color: primaryAppBarColor,
+                child: Expanded(
+                child: Container(
+                  decoration: new BoxDecoration(
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey[300],
+                        blurRadius:
+                            6.0, // has the effect of softening the shadow
+                        spreadRadius:
+                            1.0, // has the effect of extending the shadow
+                        offset: Offset(
+                          1.0, // horizontal, move right 10
+                          1.0, // vertical, move down 10
+                        ),
+                      )
                     ],
-                  )),
-            
+                  ),
+                  child: Container(
+                    decoration: new BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: new BorderRadius.only(
+                          bottomLeft: const Radius.circular(18.0),
+                          bottomRight: const Radius.circular(18.0),
+                        )),
+                    child: Center(
+                      child: Text('Content goes here'),
+                    ),
+                  ),
+                ),
+              ),
+              ),
+              
             ],
-          )),
-          
+          ),
+          // Profile image
+          Positioned(
+            top: 100.0, // (background container size) - (circle height / 2)
+            child: Container(
+              height: 100.0,
+              width: 100.0,
+              decoration:
+                  BoxDecoration(shape: BoxShape.circle, color: Colors.green),
+            ),
+          )
         ],
-      )),
-      bottomNavigationBar: BottomAppBar(
-        child:  Container(
-                      width: double.infinity,
-                      margin: EdgeInsets.only(top: 50.0),
-                      height: 50.0,
-                      
-                      child: RaisedButton(
-                          onPressed: load == true ? null : () {
-                            editData('N');
-                          },
-                          color: primaryAppBarColor,
-                          textColor: Colors.white,
-                          disabledColor: Color.fromRGBO(254, 86, 14, 0.7),
-                          disabledTextColor: Colors.white,
-                          splashColor: Colors.blueAccent,
-                          child: load == true
-                              ? Container(
-                                  height: 25.0,
-                                  width: 25.0,
-                                  child: CircularProgressIndicator(
-                                      valueColor:
-                                          new AlwaysStoppedAnimation<Color>(
-                                              Colors.white)))
-                              : Text("Simpan Data",
-                                  style: TextStyle(color: Colors.white)))),
       ),
     );
+
+    //   return Scaffold(
+    //     backgroundColor: Colors.white,
+    //     appBar: AppBar(
+    //       iconTheme: IconThemeData(
+    //         color: Colors.white,
+    //       ),
+    //       backgroundColor: primaryAppBarColor,
+    //       elevation: 0.0,
+    //     ),
+    //     body: SingleChildScrollView(
+    //         child: Column(
+    //       children: <Widget>[
+    //         Container(
+    //           height: 160,
+    //           width: double.infinity,
+    //           color: primaryAppBarColor,
+    //         ),
+    //         Container(
+    //             child: Stack(
+    //           children: <Widget>[
+
+    //             // Container(
+    //             //   margin: EdgeInsets.only(bottom: 5.0, ),
+    //             //   child: Text(namaData == null ? 'memuat..' : namaData,
+    //             //       style: TextStyle(
+    //             //         fontSize: 20.0,
+    //             //         color: Colors.white,
+    //             //       )),
+    //             // ),
+    //             Container(
+    //               decoration: new BoxDecoration(
+    //                 boxShadow: [
+    //                   BoxShadow(
+    //                     color: Colors.black,
+    //                     blurRadius:
+    //                         20.0, // has the effect of softening the shadow
+    //                     spreadRadius:
+    //                         5.0, // has the effect of extending the shadow
+    //                     offset: Offset(
+    //                       10.0, // horizontal, move right 10
+    //                       10.0, // vertical, move down 10
+    //                     ),
+    //                   )
+    //                 ],
+    //                 // borderRadius: new BorderRadius.all(...),
+    //                 // gradient: new LinearGradient(...),
+    //               ),
+    //               child: Container(
+    //                   decoration: new BoxDecoration(
+    //                       color: Colors.white,
+    //                       borderRadius: new BorderRadius.only(
+    //                         topLeft: const Radius.circular(18.0),
+    //                         topRight: const Radius.circular(18.0),
+    //                       )),
+    //                   width: double.infinity,
+    //                   padding: EdgeInsets.only(
+    //                     left: 50.0,
+    //                     right: 50.0,
+    //                     top: 20.0,
+    //                   ),
+    //                   child: Column(
+    //                     crossAxisAlignment: CrossAxisAlignment.start,
+    //                     children: <Widget>[
+    //                       Container(
+    //                           child: Text('Nama',
+    //                               style: TextStyle(color: Colors.grey))),
+    //                       Container(
+    //                           margin: EdgeInsets.only(bottom: 20.0),
+    //                           child: TextField(
+    //                             controller: _controllerNama,
+    //                           )),
+    //                       Container(
+    //                         margin: EdgeInsets.only(bottom: 5.0),
+    //                         child: Text('Email',
+    //                             style: TextStyle(color: Colors.grey)),
+    //                       ),
+    //                       Container(
+    //                           margin: EdgeInsets.only(bottom: 20.0),
+    //                           child: TextField(
+    //                             enabled: false,
+    //                             controller: _controllerEmail,
+    //                             decoration: InputDecoration(
+    //                                 suffixIcon: Icon(Icons.lock, size: 20.0)),
+    //                           )),
+    //                       Container(
+    //                         margin: EdgeInsets.only(bottom: 5.0),
+    //                         child: Text('Password',
+    //                             style: TextStyle(color: Colors.grey)),
+    //                       ),
+    //                       Row(
+    //                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    //                         children: <Widget>[
+    //                           Text('********'),
+    //                           FlatButton(
+    //                             padding: EdgeInsets.all(0),
+    //                             child: Padding(
+    //                               padding: const EdgeInsets.all(0.0),
+    //                               child: Text(
+    //                                 'Ganti Password',
+    //                                 style: TextStyle(fontSize: 12.0),
+    //                               ),
+    //                             ),
+    //                             onPressed: _showPasswordModal,
+    //                           ),
+    //                         ],
+    //                       ),
+    //                     ],
+    //                   )),
+    //             ),
+    //             Align(
+    // alignment: Alignment.topCenter,
+    //               // top: 20,
+    //               child: GestureDetector(
+    //                 onTap: () {
+    //                   Navigator.push(
+    //                       context,
+    //                       MaterialPageRoute(
+    //                           builder: (context) => EditPhoto(
+    //                                 fileName: imageData,
+    //                               )));
+    //                 },
+    //                 child: imageData == null
+    //                     ? Container(
+    //                         // margin: EdgeInsets.only(top: 20),
+    //                         height: 90,
+    //                         width: 90,
+    //                         child: ClipOval(
+    //                             child: Image.asset('images/imgavatar.png',
+    //                                 fit: BoxFit.fill)))
+    //                     : Container(
+    //                         margin: EdgeInsets.only(top: -20),
+    //                         height: 90,
+    //                         width: 90,
+    //                         child: ClipOval(
+    //                             child: FadeInImage.assetNetwork(
+    //                                 fit: BoxFit.cover,
+    //                                 placeholder: 'images/imgavatar.png',
+    //                                 image: url('storage/profile/$imageData')))),
+    //               ),
+    //             ),
+    //           ],
+    //         )),
+    //       ],
+    //     )),
+    //     bottomNavigationBar: BottomAppBar(
+    //       child: Container(
+    //           width: double.infinity,
+    //           margin: EdgeInsets.only(top: 50.0),
+    //           height: 50.0,
+    //           child: RaisedButton(
+    //               onPressed: load == true
+    //                   ? null
+    //                   : () {
+    //                       editData('N');
+    //                     },
+    //               color: primaryAppBarColor,
+    //               textColor: Colors.white,
+    //               disabledColor: Color.fromRGBO(254, 86, 14, 0.7),
+    //               disabledTextColor: Colors.white,
+    //               splashColor: Colors.blueAccent,
+    //               child: load == true
+    //                   ? Container(
+    //                       height: 25.0,
+    //                       width: 25.0,
+    //                       child: CircularProgressIndicator(
+    //                           valueColor: new AlwaysStoppedAnimation<Color>(
+    //                               Colors.white)))
+    //                   : Text("Simpan Data",
+    //                       style: TextStyle(color: Colors.white)))),
+    //     ),
+    //   );
   }
 }

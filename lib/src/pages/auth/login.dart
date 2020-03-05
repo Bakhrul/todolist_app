@@ -113,10 +113,12 @@ class _LoginPageState extends State<LoginPage> {
             store.setDataString("id", datauser['us_id'].toString());
             store.setDataString("email", datauser['us_email']);
             store.setDataString("name", datauser['us_name']);
+            store.setDataString("phone", datauser['us_phone']);
+            store.setDataString("address", datauser['us_address']);
             store.setDataString("photo", datauser['us_image']);
             Navigator.pushReplacementNamed(context, "/dashboard");
             Fluttertoast.showToast(
-                msg: 'Selamat Datang ${datauser['us_name']}');
+                msg: 'Selamat Datang ${datauser['us_email']}');
           } else {
             print(getUser.body);
             Fluttertoast.showToast(
