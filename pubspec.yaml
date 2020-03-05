@@ -34,9 +34,8 @@ dependencies:
   progress_dialog: ^1.2.1
   image_picker: ^0.6.2+2
   datetime_picker_formfield: ^0.4.3
-  # random_color: ^1.0.3
-  # expandable: ^4.1.2
   percent_indicator: "^2.1.1"
+  flutter_pagewise: ^1.2.3
   file_picker: ^1.4.3+2
   flutter_downloader: ^1.4.1
   path_provider: ^0.4.1

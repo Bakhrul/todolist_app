@@ -17,14 +17,9 @@ import 'package:todolist_app/src/storage/storage.dart';
 import 'package:progress_dialog/progress_dialog.dart';
 import 'package:flutter/services.dart';
 
-String tokenType, accessToken;
-String categoriesID;
-String categoriesName;
-bool isLoading, isError;
+
 String idProjectChoose;
 String namaProjectChoose;
-bool isAllday;
-
 class TodoList extends StatefulWidget {
   @override
   _TodoListState createState() => _TodoListState();
@@ -32,6 +27,12 @@ class TodoList extends StatefulWidget {
 
 class _TodoListState extends State<TodoList> {
   ProgressDialog progressApiAction;
+  String tokenType, accessToken;
+String categoriesID;
+String categoriesName;
+bool isLoading, isError;
+
+bool isAllday;
   final _formKey = GlobalKey<FormState>();
 
   DateTime timeReplacement;

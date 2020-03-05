@@ -14,8 +14,10 @@ import 'package:todolist_app/src/storage/storage.dart';
 import 'package:todolist_app/src/utils/utils.dart';
 import 'package:http/http.dart' as http;
 import 'package:todolist_app/src/pages/dashboard.dart';
+import 'package:email_validator/email_validator.dart';
 
 String radioItem = 'Admin';
+int idChooseRole;
 enum PageEnum { editPeserta, hapusPeserta }
 
 class AddUserFileTodo extends StatefulWidget {
@@ -45,8 +47,9 @@ class _AddUserFileTodoState extends State<AddUserFileTodo>
   TabController _tabController;
   bool isLoading, isError, isAccess, isFilter, isErrorfilter, isCreate;
   String tokenType, accessToken;
-  final _debouncer = Debouncer(milliseconds: 500);
   List<User> listUserItem = [];
+  TextEditingController _controllerNamaMember = TextEditingController();
+  String _urutkanvalue;
   List<User> listFilterItem = [];
   List<Attachment> listAttachmentItem = [];
   ProgressDialog progressApiAction;
@@ -108,6 +111,8 @@ class _AddUserFileTodoState extends State<AddUserFileTodo>
               email: i['email'],
               todo: i['todo'],
               owner: i['owner'],
+              idaccess: i['idaccess'],
+              image: i['image'],
               access: i['access']);
           listUserItem.add(willcomex);
 
@@ -121,12 +126,7 @@ class _AddUserFileTodoState extends State<AddUserFileTodo>
             });
           }
         }
-
-        setState(() {
-          isLoading = false;
-          isError = false;
-        });
-        listAttachment();
+        return listAttachment();
       } else if (getUser.statusCode == 401) {
         Fluttertoast.showToast(
             msg: "Token Telah Kadaluwarsa, Silahkan Login Kembali");
@@ -157,81 +157,6 @@ class _AddUserFileTodoState extends State<AddUserFileTodo>
     return null;
   }
 
-  Future<List<List>> listUserfilter() async {
-    var storage = new DataStore();
-    var tokenTypeStorage = await storage.getDataString('token_type');
-    var accessTokenStorage = await storage.getDataString('access_token');
-
-    tokenType = tokenTypeStorage;
-    accessToken = accessTokenStorage;
-    requestHeaders['Accept'] = 'application/json';
-    requestHeaders['Authorization'] = '$tokenType $accessToken';
-
-    setState(() {
-      isFilter = true;
-    });
-    listFilterItem.clear();
-    try {
-      final getUserFilter = await http.get(
-        url('api/todo/search/peserta?email=${_searchQuery.text}'),
-        headers: requestHeaders,
-      );
-
-      if (getUserFilter.statusCode == 200) {
-        var listUsers = json.decode(getUserFilter.body);
-        // var listUsers = listuserJson['participant'];
-        print(getUserFilter.statusCode);
-        print(json.decode(getUserFilter.body));
-        for (var i in listUsers) {
-          User willcomex = User(id: i['id'], name: i['name'], email: i['email']
-              // image: i['us_image'],
-              );
-          listFilterItem.add(willcomex);
-        }
-        setState(() {
-          isFilter = false;
-          isErrorfilter = false;
-          isLoading = false;
-          isError = false;
-        });
-      } else if (getUserFilter.statusCode == 401) {
-        setState(() {
-          isFilter = false;
-          isErrorfilter = true;
-          isLoading = false;
-          isError = false;
-        });
-        Fluttertoast.showToast(
-            msg: "Token Telah Kadaluwarsa, Silahkan Login Kembali");
-      } else {
-        setState(() {
-          isFilter = false;
-          isErrorfilter = true;
-          isLoading = false;
-          isError = false;
-        });
-        return null;
-      }
-    } on TimeoutException catch (_) {
-      setState(() {
-        isFilter = false;
-        isErrorfilter = true;
-        isLoading = false;
-        isError = false;
-      });
-      Fluttertoast.showToast(msg: "Timed out, Try again");
-    } catch (e) {
-      // setState(() {
-      //   isFilter = false;
-      //   isErrorfilter = true;
-      //   isLoading = false;
-      //   isError = false;
-      // });
-      debugPrint('$e');
-    }
-    return null;
-  }
-
   Future<List<List>> listAttachment() async {
     var storage = new DataStore();
     var tokenTypeStorage = await storage.getDataString('token_type');
@@ -255,8 +180,6 @@ class _AddUserFileTodoState extends State<AddUserFileTodo>
 
       if (getUser.statusCode == 200) {
         var listUsers = json.decode(getUser.body);
-        // var listUsers = listuserJson['users'];
-        // var idOwner = listuserJson['idowner'];
         for (var i in listUsers) {
           Attachment willcomex =
               Attachment(id: i['id'], path: i['path'], todo: i['todo']);
@@ -297,138 +220,45 @@ class _AddUserFileTodoState extends State<AddUserFileTodo>
     return null;
   }
 
-  void _tambahpeserta(idpeserta) async {
+  void _updatestatusMember(idMember) async {
+    print(idChooseRole.toString());
+    Navigator.pop(context);
     await progressApiAction.show();
     try {
-      Fluttertoast.showToast(msg: "Mohon Tunggu Sebentar");
-      final addpeserta = await http
-          .post(url('api/todo/peserta/create'), headers: requestHeaders, body: {
-        'todo': widget.idTodo.toString(),
-        'user': idpeserta.toString(),
-        'role': radioItem.toString(),
-        'own': 'T'
-      });
-
-      if (addpeserta.statusCode == 200) {
-        var addpesertaJson = json.decode(addpeserta.body);
-        if (addpesertaJson['status'] == 'success') {
-          getHeaderHTTP();
-          setState(() {
-            isCreate = false;
+      final addMemberTodo = await http.post(
+          url('api/todo_edit/ganti_statusmember'),
+          headers: requestHeaders,
+          body: {
+            'todolist': widget.idTodo.toString(),
+            'member': idMember.toString(),
+            'role': idChooseRole.toString(),
           });
+      print(addMemberTodo.body);
+      if (addMemberTodo.statusCode == 200) {
+        var addMemberTodoJson = json.decode(addMemberTodo.body);
+        if (addMemberTodoJson['status'] == 'success') {
           Fluttertoast.showToast(msg: "Berhasil");
-          progressApiAction.hide().then((isHidden) {});
-          listUserItem.clear();
-        } else if (addpesertaJson['status'] == 'owner') {
-          Fluttertoast.showToast(msg: "Pengguna Ini Merupakan Pembuat ToDo");
-          progressApiAction.hide().then((isHidden) {});
-          setState(() {
-            isCreate = false;
+          progressApiAction.hide().then((isHidden) {
+            print(isHidden);
           });
-        } else if (addpesertaJson['status'] == 'exists') {
-          Fluttertoast.showToast(msg: "Pengguna Sudah Terdaftar");
-          progressApiAction.hide().then((isHidden) {});
-          setState(() {
-            isCreate = false;
-          });
-        } else {
-          Fluttertoast.showToast(msg: "Status Tidak Diketahui");
-          progressApiAction.hide().then((isHidden) {});
-          Navigator.pop(context);
-          setState(() {
-            isCreate = false;
-          });
+          getHeaderHTTP();
         }
       } else {
-        print(addpeserta.body);
-        Navigator.pop(context);
         Fluttertoast.showToast(msg: "Gagal, Silahkan Coba Kembali");
-        progressApiAction.hide().then((isHidden) {});
-        setState(() {
-          isCreate = false;
+        print(addMemberTodo.body);
+        progressApiAction.hide().then((isHidden) {
+          print(isHidden);
         });
       }
     } on TimeoutException catch (_) {
       Fluttertoast.showToast(msg: "Timed out, Try again");
-      progressApiAction.hide().then((isHidden) {});
-      setState(() {
-        isCreate = false;
+      progressApiAction.hide().then((isHidden) {
+        print(isHidden);
       });
-      Navigator.pop(context);
     } catch (e) {
-      Fluttertoast.showToast(msg: "${e.toString()}");
-      progressApiAction.hide().then((isHidden) {});
-      setState(() {
-        isCreate = false;
-      });
-      print(e);
-    }
-  }
-
-  void _tambahFile() async {
-    await progressApiAction.show();
-    try {
-      Fluttertoast.showToast(msg: "Mohon Tunggu Sebentar");
-      final addpeserta = await http
-          .post(url('api/todo/attachment'), headers: requestHeaders, body: {
-        'file64': fileImage.toString(),
-        'pathname': pathname,
-        'filename': filename,
-        'todolist': widget.idTodo.toString(),
-      });
-      print(widget.idTodo.toString());
-      if (addpeserta.statusCode == 200) {
-        var addpesertaJson = json.decode(addpeserta.body);
-        if (addpesertaJson['status'] == 'success') {
-          getHeaderHTTP();
-          setState(() {
-            pathname = '';
-            isCreate = false;
-          });
-          Navigator.pop(context);
-          Fluttertoast.showToast(msg: "Berhasil");
-          progressApiAction.hide().then((isHidden) {});
-        } else if (addpesertaJson['status'] == 'owner') {
-          Fluttertoast.showToast(msg: "Pengguna Ini Merupakan Pembuat ToDo");
-          progressApiAction.hide().then((isHidden) {});
-          setState(() {
-            isCreate = false;
-          });
-        } else if (addpesertaJson['status'] == 'exists') {
-          Fluttertoast.showToast(msg: "Pengguna Sudah Terdaftar");
-          progressApiAction.hide().then((isHidden) {});
-          setState(() {
-            isCreate = false;
-          });
-        } else {
-          Fluttertoast.showToast(msg: "Status Tidak Diketahui");
-          progressApiAction.hide().then((isHidden) {});
-          Navigator.pop(context);
-          setState(() {
-            isCreate = false;
-          });
-        }
-      } else {
-        print(addpeserta.body);
-        Navigator.pop(context);
-        Fluttertoast.showToast(msg: "Gagal, Silahkan Coba Kembali");
-        progressApiAction.hide().then((isHidden) {});
-        setState(() {
-          isCreate = false;
-        });
-      }
-    } on TimeoutException catch (_) {
-      Fluttertoast.showToast(msg: "Timed out, Try again");
-      progressApiAction.hide().then((isHidden) {});
-      setState(() {
-        isCreate = false;
-      });
-      Navigator.pop(context);
-    } catch (e) {
-      Fluttertoast.showToast(msg: "${e.toString()}");
-      progressApiAction.hide().then((isHidden) {});
-      setState(() {
-        isCreate = false;
+      Fluttertoast.showToast(msg: "Gagal, Silahkan Coba Kembali");
+      progressApiAction.hide().then((isHidden) {
+        print(isHidden);
       });
       print(e);
     }
@@ -499,6 +329,120 @@ class _AddUserFileTodoState extends State<AddUserFileTodo>
     }
   }
 
+  void tambahkanMember() async {
+    await progressApiAction.show();
+    try {
+      final addMemberTodo = await http.post(url('api/todo_edit/tambah_member'),
+          headers: requestHeaders,
+          body: {
+            'todolist': widget.idTodo.toString(),
+            'member': _controllerNamaMember.text,
+            'role': _urutkanvalue,
+          });
+      print(addMemberTodo.body);
+      if (addMemberTodo.statusCode == 200) {
+        var addMemberTodoJson = json.decode(addMemberTodo.body);
+        if (addMemberTodoJson['status'] == 'success') {
+          Fluttertoast.showToast(msg: "Berhasil");
+          progressApiAction.hide().then((isHidden) {
+            print(isHidden);
+          });
+          getHeaderHTTP();
+          setState(() {
+            _controllerNamaMember.text = '';
+            _urutkanvalue = null;
+          });
+        } else if (addMemberTodoJson['status'] == 'email belum terdaftar') {
+          Fluttertoast.showToast(msg: "Email Ini Belum Memiliki Akun Pengguna");
+          progressApiAction.hide().then((isHidden) {
+            print(isHidden);
+          });
+          setState(() {
+            _controllerNamaMember.text = '';
+            _urutkanvalue = null;
+          });
+        } else if (addMemberTodoJson['status'] == 'member sudah terdaftar') {
+          Fluttertoast.showToast(msg: "Member Ini Sudah Terdaftar Pada To Do");
+          progressApiAction.hide().then((isHidden) {
+            print(isHidden);
+          });
+          setState(() {
+            _controllerNamaMember.text = '';
+            _urutkanvalue = null;
+          });
+        }
+      } else {
+        Fluttertoast.showToast(msg: "Gagal, Silahkan Coba Kembali");
+        print(addMemberTodo.body);
+        progressApiAction.hide().then((isHidden) {
+          print(isHidden);
+        });
+        setState(() {
+          _controllerNamaMember.text = '';
+          _urutkanvalue = null;
+        });
+      }
+    } on TimeoutException catch (_) {
+      Fluttertoast.showToast(msg: "Timed out, Try again");
+      progressApiAction.hide().then((isHidden) {
+        print(isHidden);
+      });
+      setState(() {
+        _controllerNamaMember.text = '';
+        _urutkanvalue = null;
+      });
+    } catch (e) {
+      Fluttertoast.showToast(msg: "Gagal, Silahkan Coba Kembali");
+      progressApiAction.hide().then((isHidden) {
+        print(isHidden);
+      });
+      setState(() {
+        _controllerNamaMember.text = '';
+        _urutkanvalue = null;
+      });
+      print(e);
+    }
+  }
+
+  void tambahkanFile() async {
+    await progressApiAction.show();
+    try {
+      dynamic body = {
+        'file64': fileImage.toString(),
+        'pathname': pathname,
+        'filename': filename,
+        'todolist': widget.idTodo.toString(),
+      };
+      print(body);
+      final tambahfile = await http.post(url('api/todo_edit/tambah_file'),
+          headers: requestHeaders, body: body);
+      if (tambahfile.statusCode == 200) {
+        var tambahFileJson = json.decode(tambahfile.body);
+        if (tambahFileJson['status'] == 'success') {
+          progressApiAction.hide().then((isHidden) {});
+          Fluttertoast.showToast(msg: 'success');
+          setState(() {
+            fileImage = null;
+            pathname = null;
+            filename = null;
+          });
+          getHeaderHTTP();
+        }
+      } else {
+        print(tambahfile.body);
+        progressApiAction.hide().then((isHidden) {});
+        Fluttertoast.showToast(msg: "Gagal, Silahkan Coba Kembali");
+      }
+    } on TimeoutException catch (_) {
+      progressApiAction.hide().then((isHidden) {});
+      Fluttertoast.showToast(msg: "Timed out, Try again");
+    } catch (e) {
+      print(e.toString());
+      progressApiAction.hide().then((isHidden) {});
+      Fluttertoast.showToast(msg: "Gagal Silahkan Coba Kembali");
+    }
+  }
+
   void deletePeserta(index) async {
     await progressApiAction.show();
     try {
@@ -537,6 +481,7 @@ class _AddUserFileTodoState extends State<AddUserFileTodo>
   void initState() {
     getHeaderHTTP();
     _searchQuery.text = '';
+    idChooseRole = 2;
     _tabController = TabController(
         length: 2, vsync: _AddUserFileTodoState(), initialIndex: 0);
     _tabController.addListener(_handleTabIndex);
@@ -554,9 +499,7 @@ class _AddUserFileTodoState extends State<AddUserFileTodo>
   }
 
   Future<bool> _willPopCallback() async {
-    // await showDialog or Show add banners or whatever
-    // then
-    return false; // return true if the route to be popped
+    return false;
   }
 
   @override
@@ -629,7 +572,7 @@ class _AddUserFileTodoState extends State<AddUserFileTodo>
                             Padding(
                               padding:
                                   const EdgeInsets.only(top: 5.0, bottom: 5.0),
-                              child: Text('Tambah Attachment',
+                              child: Text('Document',
                                   style: TextStyle(
                                       fontSize: 14, color: Colors.black38)),
                             ),
@@ -645,7 +588,10 @@ class _AddUserFileTodoState extends State<AddUserFileTodo>
                   child: TabBarView(
                     controller: _tabController,
                     children: [
-                      Container(
+                      RefreshIndicator(
+                        onRefresh: () async {
+                          getHeaderHTTP();
+                        },
                         child: SingleChildScrollView(
                           child: Column(
                             children: <Widget>[
@@ -654,289 +600,636 @@ class _AddUserFileTodoState extends State<AddUserFileTodo>
                                   : Column(
                                       children: <Widget>[
                                         isError == true
-                                            ? Container(
-                                                color: Colors.white,
-                                                margin: EdgeInsets.only(
-                                                    top: 0.0,
-                                                    left: 10.0,
-                                                    right: 10.0),
-                                                padding: const EdgeInsets.only(
-                                                    top: 10.0, bottom: 15.0),
-                                                child: RefreshIndicator(
-                                                  onRefresh: () =>
-                                                      getHeaderHTTP(),
-                                                  child:
-                                                      Column(children: <Widget>[
-                                                    new Container(
-                                                      width: 100.0,
-                                                      height: 100.0,
-                                                      child: Image.asset(
-                                                          "images/system-eror.png"),
-                                                    ),
-                                                    Padding(
-                                                      padding:
-                                                          const EdgeInsets.only(
-                                                        top: 30.0,
-                                                        left: 15.0,
-                                                        right: 15.0,
-                                                      ),
-                                                      child: Center(
-                                                        child: Text(
-                                                          "Gagal memuat halaman, tekan tombol muat ulang halaman untuk refresh halaman",
-                                                          style: TextStyle(
-                                                            fontSize: 16,
-                                                            color:
-                                                                Colors.black54,
-                                                            height: 1.5,
-                                                          ),
-                                                          textAlign:
-                                                              TextAlign.center,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    Padding(
-                                                      padding:
-                                                          const EdgeInsets.only(
-                                                              top: 15.0,
-                                                              left: 15.0,
-                                                              right: 15.0,
-                                                              bottom: 15.0),
-                                                      child: SizedBox(
-                                                        width: double.infinity,
-                                                        child: RaisedButton(
-                                                          color: Colors.white,
-                                                          textColor:
-                                                              primaryAppBarColor,
-                                                          disabledColor:
-                                                              Colors.grey,
-                                                          disabledTextColor:
-                                                              Colors.black,
-                                                          padding:
-                                                              EdgeInsets.all(
-                                                                  15.0),
-                                                          onPressed: () async {
-                                                            // getDataProject();
-                                                          },
-                                                          child: Text(
-                                                            "Muat Ulang Halaman",
-                                                            style: TextStyle(
-                                                                fontSize: 14.0,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w500),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ]),
-                                                ),
-                                              )
+                                            ? errorView()
                                             : Container(
-                                                color: Colors.white,
+                                                padding: EdgeInsets.all(10.0),
                                                 margin: EdgeInsets.only(
-                                                  top: 0.0,
+                                                    bottom: 15.0),
+                                                color: Colors.white,
+                                                child: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.start,
+                                                  children: <Widget>[
+                                                    Container(
+                                                      margin: EdgeInsets.only(
+                                                          bottom: 10.0),
+                                                      child: Text(
+                                                        'Tambah Member',
+                                                        style: TextStyle(
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .w500),
+                                                      ),
+                                                    ),
+                                                    Divider(),
+                                                    Container(
+                                                        alignment:
+                                                            Alignment.center,
+                                                        height: 40.0,
+                                                        margin: EdgeInsets.only(
+                                                            bottom: 5.0,
+                                                            top: 5.0),
+                                                        child: TextField(
+                                                          textAlignVertical:
+                                                              TextAlignVertical
+                                                                  .center,
+                                                          controller:
+                                                              _controllerNamaMember,
+                                                          decoration:
+                                                              InputDecoration(
+                                                                  contentPadding:
+                                                                      EdgeInsets.only(
+                                                                          top:
+                                                                              2,
+                                                                          bottom:
+                                                                              2,
+                                                                          left:
+                                                                              10,
+                                                                          right:
+                                                                              10),
+                                                                  border:
+                                                                      OutlineInputBorder(),
+                                                                  hintText:
+                                                                      'Masukkan Email Pengguna',
+                                                                  hintStyle:
+                                                                      TextStyle(
+                                                                    fontSize:
+                                                                        12,
+                                                                    color: Colors
+                                                                        .black,
+                                                                  )),
+                                                        )),
+                                                    Container(
+                                                      margin: EdgeInsets.only(
+                                                          top: 0.0),
+                                                      padding: EdgeInsets.only(
+                                                          left: 10.0,
+                                                          right: 10.0),
+                                                      decoration: BoxDecoration(
+                                                          border: Border.all(
+                                                              color: Colors
+                                                                  .black45),
+                                                          borderRadius:
+                                                              BorderRadius.all(
+                                                                  Radius
+                                                                      .circular(
+                                                                          5.0))),
+                                                      child:
+                                                          DropdownButtonHideUnderline(
+                                                        child: DropdownButton<
+                                                            String>(
+                                                          isExpanded: true,
+                                                          items: [
+                                                            DropdownMenuItem<
+                                                                String>(
+                                                              child: Text(
+                                                                'Admin',
+                                                                style:
+                                                                    TextStyle(
+                                                                  fontSize: 12,
+                                                                ),
+                                                              ),
+                                                              value: '2',
+                                                            ),
+                                                            DropdownMenuItem<
+                                                                String>(
+                                                              child: Text(
+                                                                'Executor',
+                                                                style:
+                                                                    TextStyle(
+                                                                  fontSize: 12,
+                                                                ),
+                                                              ),
+                                                              value: '3',
+                                                            ),
+                                                            DropdownMenuItem<
+                                                                String>(
+                                                              child: Text(
+                                                                'Viewer',
+                                                                style:
+                                                                    TextStyle(
+                                                                  fontSize: 12,
+                                                                ),
+                                                              ),
+                                                              value: '4',
+                                                            ),
+                                                          ],
+                                                          value: _urutkanvalue ==
+                                                                  null
+                                                              ? null
+                                                              : _urutkanvalue,
+                                                          onChanged:
+                                                              (String value) {
+                                                            setState(() {
+                                                              _urutkanvalue =
+                                                                  value;
+                                                            });
+                                                          },
+                                                          hint: Text(
+                                                            'Pilih level Member',
+                                                            style: TextStyle(
+                                                                fontSize: 12,
+                                                                color: Colors
+                                                                    .black),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    Center(
+                                                        child: Container(
+                                                            margin: EdgeInsets
+                                                                .only(
+                                                                    top: 10.0),
+                                                            width:
+                                                                double.infinity,
+                                                            height: 40.0,
+                                                            child: RaisedButton(
+                                                                onPressed:
+                                                                    () async {
+                                                                  String
+                                                                      emailValid =
+                                                                      _controllerNamaMember
+                                                                          .text;
+                                                                  final bool
+                                                                      isValid =
+                                                                      EmailValidator
+                                                                          .validate(
+                                                                              emailValid);
+                                                                  print('Email is valid? ' +
+                                                                      (isValid
+                                                                          ? 'yes'
+                                                                          : 'no'));
+                                                                  if (_controllerNamaMember
+                                                                              .text ==
+                                                                          null ||
+                                                                      _controllerNamaMember
+                                                                              .text ==
+                                                                          '') {
+                                                                    Fluttertoast
+                                                                        .showToast(
+                                                                            msg:
+                                                                                "Email Tidak Boleh Kosong");
+                                                                  } else if (!isValid) {
+                                                                    Fluttertoast
+                                                                        .showToast(
+                                                                            msg:
+                                                                                "Masukkan Email Yang Valid");
+                                                                  } else if (_urutkanvalue ==
+                                                                      null) {
+                                                                    Fluttertoast
+                                                                        .showToast(
+                                                                            msg:
+                                                                                "Pilih Level Member");
+                                                                  } else {
+                                                                    tambahkanMember();
+                                                                  }
+                                                                },
+                                                                color:
+                                                                    primaryAppBarColor,
+                                                                textColor:
+                                                                    Colors
+                                                                        .white,
+                                                                disabledColor:
+                                                                    Color.fromRGBO(
+                                                                        254,
+                                                                        86,
+                                                                        14,
+                                                                        0.7),
+                                                                disabledTextColor:
+                                                                    Colors
+                                                                        .white,
+                                                                splashColor: Colors
+                                                                    .blueAccent,
+                                                                child: Text(
+                                                                    "Tambahkan Member",
+                                                                    style: TextStyle(
+                                                                        fontSize:
+                                                                            12,
+                                                                        color: Colors
+                                                                            .white)))))
+                                                  ],
                                                 ),
-                                                child: SingleChildScrollView(
-                                                  child: Container(
-                                                    child: Column(
-                                                        mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .center,
-                                                        children: <Widget>[
-                                                          for (int item = 0;
-                                                              item <
-                                                                  listUserItem
-                                                                      .length;
-                                                              item++)
-                                                            Card(
-                                                                elevation: 0.6,
-                                                                child: ListTile(
-                                                                    title: Text(
-                                                                        listUserItem[item].name == '' || listUserItem[item].name == null
-                                                                            ? 'Nama Peserta Tidak Diketahui'
-                                                                            : listUserItem[item]
-                                                                                .name,
-                                                                        overflow:
-                                                                            TextOverflow
-                                                                                .ellipsis,
-                                                                        softWrap:
-                                                                            true,
-                                                                        maxLines:
-                                                                            1,
-                                                                        style: TextStyle(
-                                                                            fontSize:
-                                                                                14,
-                                                                            fontWeight: FontWeight
-                                                                                .w500)),
-                                                                    trailing: isAccess ==
-                                                                            false
-                                                                        ? Icon(Icons
-                                                                            .lock)
-                                                                        : PopupMenuButton<
-                                                                            PageEnum>(
-                                                                            onSelected:
-                                                                                (PageEnum value) {
-                                                                              switch (value) {
-                                                                                case PageEnum.editPeserta:
-                                                                                  dialogAddPermision(item);
-                                                                                  break;
+                                              ),
+                                        Container(
+                                          color: Colors.white,
+                                          margin: EdgeInsets.only(
+                                            top: 0.0,
+                                          ),
+                                          padding: EdgeInsets.all(10.0),
+                                          child: Container(
+                                            child: Column(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                children: <Widget>[
+                                                  for (int item = 0;
+                                                      item <
+                                                          listUserItem.length;
+                                                      item++)
+                                                    Card(
+                                                        elevation: 0.6,
+                                                        child: ListTile(
+                                                            title: Text(
+                                                                listUserItem[item].name == '' || listUserItem[item].name == null
+                                                                    ? 'Nama Peserta Tidak Diketahui'
+                                                                    : listUserItem[item]
+                                                                        .name,
+                                                                overflow:
+                                                                    TextOverflow
+                                                                        .ellipsis,
+                                                                softWrap: true,
+                                                                maxLines: 1,
+                                                                style: TextStyle(
+                                                                    fontSize:
+                                                                        14,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .w500)),
+                                                            leading: Container(
+                                                              height: 40.0,
+                                                              width: 40.0,
+                                                              child: ClipOval(
+                                                                  child: FadeInImage
+                                                                      .assetNetwork(
+                                                                placeholder:
+                                                                    'images/loading.gif',
+                                                                image: listUserItem[item].image ==
+                                                                            null ||
+                                                                        listUserItem[item].image ==
+                                                                            ''
+                                                                    ? url(
+                                                                        'assets/images/imgavatar.png')
+                                                                    : url(
+                                                                        'storage/image/profile/${listUserItem[item].image}'),
+                                                              )),
+                                                            ),
+                                                            subtitle: Padding(
+                                                                padding: EdgeInsets.only(
+                                                                    top: 10.0),
+                                                                child: Text(
+                                                                  listUserItem[item].access ==
+                                                                              null ||
+                                                                          listUserItem[item].access ==
+                                                                              ''
+                                                                      ? 'Status Tidak Diketahui'
+                                                                      : listUserItem[
+                                                                              item]
+                                                                          .access,
+                                                                  style: TextStyle(
+                                                                      color: Colors
+                                                                          .green,
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .w500),
+                                                                )),
+                                                            trailing:
+                                                                listUserItem[item]
+                                                                            .idaccess ==
+                                                                        1
+                                                                    ? ButtonTheme(
+                                                                        minWidth:
+                                                                            0,
+                                                                        height:
+                                                                            0,
+                                                                        child: FlatButton(
+                                                                            padding:
+                                                                                EdgeInsets.all(0),
+                                                                            color: Colors.white,
+                                                                            onPressed: () async {},
+                                                                            child: Icon(Icons.lock, color: Colors.grey)))
+                                                                    : PopupMenuButton<PageEnum>(
+                                                                        onSelected:
+                                                                            (PageEnum
+                                                                                value) {
+                                                                          switch (
+                                                                              value) {
+                                                                            case PageEnum.editPeserta:
+                                                                              dialogAddPermision(listUserItem[item].id);
+                                                                              break;
 
-                                                                                case PageEnum.hapusPeserta:
-                                                                                  showDialog(
-                                                                                    context: context,
-                                                                                    builder: (BuildContext context) => AlertDialog(
-                                                                                      title: Text('Peringatan!'),
-                                                                                      content: Text("Apakah Anda Yakin?"),
-                                                                                      actions: <Widget>[
-                                                                                        FlatButton(
-                                                                                          child: Text('Tidak'),
-                                                                                          onPressed: () {
-                                                                                            Navigator.pop(context);
-                                                                                          },
-                                                                                        ),
-                                                                                        FlatButton(
-                                                                                          textColor: Colors.green,
-                                                                                          child: Text('Ya'),
-                                                                                          onPressed: () async {
-                                                                                            setState(() {
-                                                                                              isCreate = true;
-                                                                                            });
-                                                                                            Navigator.pop(context);
-                                                                                            deletePeserta(item);
-                                                                                          },
-                                                                                        )
-                                                                                      ],
+                                                                            case PageEnum.hapusPeserta:
+                                                                              showDialog(
+                                                                                context: context,
+                                                                                builder: (BuildContext context) => AlertDialog(
+                                                                                  title: Text('Peringatan!'),
+                                                                                  content: Text("Apakah Anda Yakin?"),
+                                                                                  actions: <Widget>[
+                                                                                    FlatButton(
+                                                                                      child: Text('Tidak'),
+                                                                                      onPressed: () {
+                                                                                        Navigator.pop(context);
+                                                                                      },
                                                                                     ),
-                                                                                  );
+                                                                                    FlatButton(
+                                                                                      textColor: Colors.green,
+                                                                                      child: Text('Ya'),
+                                                                                      onPressed: () async {
+                                                                                        Navigator.pop(context);
+                                                                                        deletePeserta(item);
+                                                                                      },
+                                                                                    )
+                                                                                  ],
+                                                                                ),
+                                                                              );
 
-                                                                                  break;
-                                                                                default:
-                                                                              }
-                                                                            },
-                                                                            itemBuilder: (context) =>
+                                                                              break;
+                                                                            default:
+                                                                          }
+                                                                        },
+                                                                        itemBuilder:
+                                                                            (context) =>
                                                                                 [
-                                                                              PopupMenuItem(
-                                                                                value: PageEnum.editPeserta,
-                                                                                child: Text("Edit"),
-                                                                              ),
-                                                                              PopupMenuItem(
-                                                                                value: PageEnum.hapusPeserta,
-                                                                                child: Text("Hapus"),
-                                                                              ),
-                                                                            ],
-                                                                          )
-
-                                                                    // subtitle:
-                                                                    //     Text(
-                                                                    //   '${item.start} - ${item.end}',
-                                                                    //   style: TextStyle(fontSize:12),
-                                                                    //   overflow:
-                                                                    //       TextOverflow
-                                                                    //           .ellipsis,
-                                                                    //   softWrap:
-                                                                    //       true,
-                                                                    //   maxLines:
-                                                                    //       1,
-                                                                    // ),
-                                                                    ))
-                                                        ]),
-                                                  ),
-                                                )),
+                                                                          PopupMenuItem(
+                                                                            value:
+                                                                                PageEnum.editPeserta,
+                                                                            child:
+                                                                                Text("Ganti Status"),
+                                                                          ),
+                                                                          PopupMenuItem(
+                                                                            value:
+                                                                                PageEnum.hapusPeserta,
+                                                                            child:
+                                                                                Text("Hapus"),
+                                                                          ),
+                                                                        ],
+                                                                      )))
+                                                ]),
+                                          ),
+                                        ),
                                       ],
                                     ),
                             ],
                           ),
                         ),
                       ),
-                      Container(
+                      RefreshIndicator(
+                        onRefresh: () async {
+                          getHeaderHTTP();
+                        },
                         child: SingleChildScrollView(
                           child: Column(
                             children: <Widget>[
                               isLoading == true
                                   ? _loadingview()
-                                  : Column(
-                                      children: <Widget>[
-                                        Container(
-                                          padding: EdgeInsets.all(15.0),
-                                          color: Colors.white,
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.start,
-                                            children: <Widget>[
-                                              for (int item = 0;
-                                                  item <
-                                                      listAttachmentItem.length;
-                                                  item++)
-                                                Container(
+                                  : isError == true
+                                      ? errorView()
+                                      : Column(
+                                          children: <Widget>[
+                                            Container(
+                                              padding: EdgeInsets.all(10.0),
+                                              margin:
+                                                  EdgeInsets.only(bottom: 15.0),
+                                              color: Colors.white,
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.start,
+                                                children: <Widget>[
+                                                  Container(
                                                     margin: EdgeInsets.only(
                                                         bottom: 10.0),
-                                                    child: Card(
-                                                      child: ListTile(
-                                                        leading: Icon(
-                                                          Icons
-                                                              .insert_drive_file,
-                                                          color: Colors.red,
-                                                        ),
-                                                        title: Text(
-                                                          "${listAttachmentItem[item].path}",
-                                                          overflow: TextOverflow
-                                                              .ellipsis,
-                                                          softWrap: true,
-                                                          maxLines: 1,
-                                                          style: TextStyle(
-                                                              fontSize: 14),
-                                                        ),
-                                                        trailing:
-                                                            isAccess == false
-                                                                ? Icon(
-                                                                    Icons.lock)
-                                                                : ButtonTheme(
-                                                                    minWidth: 0,
-                                                                    height: 0,
-                                                                    child: FlatButton(
-                                                                        padding: EdgeInsets.all(0),
-                                                                        onPressed: () {
-                                                                          showDialog(
-                                                                            context:
-                                                                                context,
-                                                                            builder: (BuildContext context) =>
-                                                                                AlertDialog(
-                                                                              title: Text('Peringatan!'),
-                                                                              content: Text("Apakah Anda Yakin?"),
-                                                                              actions: <Widget>[
-                                                                                FlatButton(
-                                                                                  child: Text('Tidak'),
-                                                                                  onPressed: () {
-                                                                                    Navigator.pop(context);
-                                                                                  },
-                                                                                ),
-                                                                                FlatButton(
-                                                                                  textColor: Colors.green,
-                                                                                  child: Text('Ya'),
-                                                                                  onPressed: () async {
-                                                                                    setState(() {
-                                                                                      isCreate = true;
-                                                                                    });
-                                                                                    Navigator.pop(context);
-                                                                                    deleteFile(item, listAttachmentItem[item].id);
-                                                                                  },
-                                                                                )
-                                                                              ],
-                                                                            ),
-                                                                          );
-                                                                        },
-                                                                        child: Icon(Icons.delete, color: Colors.red)),
-                                                                  ),
+                                                    child: Text(
+                                                      'Tambah Document',
+                                                      style: TextStyle(
+                                                          fontWeight:
+                                                              FontWeight.w500),
+                                                    ),
+                                                  ),
+                                                  Divider(),
+                                                  InkWell(
+                                                    onTap: () async {
+                                                      _openFileExplorer();
+                                                    },
+                                                    child: Container(
+                                                      padding: EdgeInsets.only(
+                                                          left: 10.0,
+                                                          right: 10.0,
+                                                          top: 15.0,
+                                                          bottom: 15.0),
+                                                      width: double.infinity,
+                                                      decoration: BoxDecoration(
+                                                          border: Border.all(
+                                                              color: Colors
+                                                                  .black45),
+                                                          borderRadius:
+                                                              BorderRadius.all(
+                                                                  Radius
+                                                                      .circular(
+                                                                          5.0))),
+                                                      child: Column(
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .start,
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .center,
+                                                        children: <Widget>[
+                                                          Text(
+                                                              filename == null ||
+                                                                      filename ==
+                                                                          ''
+                                                                  ? 'Pilih File'
+                                                                  : '$filename',
+                                                              style: TextStyle(
+                                                                  fontSize: 12,
+                                                                  color: Colors
+                                                                      .black),
+                                                              textAlign:
+                                                                  TextAlign
+                                                                      .left),
+                                                        ],
                                                       ),
-                                                    )),
-                                              Divider(),
-                                            ],
-                                          ),
-                                        )
-                                      ],
-                                    ),
+                                                    ),
+                                                  ),
+                                                  Center(
+                                                      child: Container(
+                                                          margin:
+                                                              EdgeInsets.only(
+                                                                  top: 10.0),
+                                                          width:
+                                                              double.infinity,
+                                                          height: 40.0,
+                                                          child: RaisedButton(
+                                                              onPressed:
+                                                                  () async {
+                                                                if (fileImage ==
+                                                                        null ||
+                                                                    fileImage ==
+                                                                        '') {
+                                                                  Fluttertoast
+                                                                      .showToast(
+                                                                          msg:
+                                                                              "Pilih File Terlebih Dahulu");
+                                                                } else {
+                                                                  tambahkanFile();
+                                                                }
+                                                              },
+                                                              color:
+                                                                  primaryAppBarColor,
+                                                              textColor:
+                                                                  Colors.white,
+                                                              disabledColor:
+                                                                  Color.fromRGBO(
+                                                                      254,
+                                                                      86,
+                                                                      14,
+                                                                      0.7),
+                                                              disabledTextColor:
+                                                                  Colors.white,
+                                                              splashColor: Colors
+                                                                  .blueAccent,
+                                                              child: Text(
+                                                                  "Tambahkan Document",
+                                                                  style: TextStyle(
+                                                                      fontSize:
+                                                                          12,
+                                                                      color: Colors
+                                                                          .white)))))
+                                                ],
+                                              ),
+                                            ),
+                                            Container(
+                                                padding: EdgeInsets.all(15.0),
+                                                color: Colors.white,
+                                                child: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.start,
+                                                  children: <Widget>[
+                                                    listAttachmentItem.length ==
+                                                            0
+                                                        ? Padding(
+                                                            padding:
+                                                                const EdgeInsets
+                                                                        .only(
+                                                                    top: 20.0),
+                                                            child: Column(
+                                                                children: <
+                                                                    Widget>[
+                                                                  new Container(
+                                                                    width:
+                                                                        100.0,
+                                                                    height:
+                                                                        100.0,
+                                                                    child: Image
+                                                                        .asset(
+                                                                            "images/icon_document.png"),
+                                                                  ),
+                                                                  Padding(
+                                                                    padding:
+                                                                        const EdgeInsets
+                                                                            .only(
+                                                                      top: 20.0,
+                                                                      left:
+                                                                          15.0,
+                                                                      right:
+                                                                          15.0,
+                                                                    ),
+                                                                    child:
+                                                                        Center(
+                                                                      child:
+                                                                          Text(
+                                                                        "Document To Do Belum Ditambahkan",
+                                                                        style:
+                                                                            TextStyle(
+                                                                          fontSize:
+                                                                              16,
+                                                                          color:
+                                                                              Colors.black54,
+                                                                          height:
+                                                                              1.5,
+                                                                        ),
+                                                                        textAlign:
+                                                                            TextAlign.center,
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                ]),
+                                                          )
+                                                        : Column(
+                                                            children: <Widget>[
+                                                              for (int item = 0;
+                                                                  item <
+                                                                      listAttachmentItem
+                                                                          .length;
+                                                                  item++)
+                                                                Container(
+                                                                    margin: EdgeInsets.only(
+                                                                        bottom:
+                                                                            10.0),
+                                                                    child: Card(
+                                                                      elevation:
+                                                                          0.5,
+                                                                      child:
+                                                                          ListTile(
+                                                                        leading:
+                                                                            Icon(
+                                                                          Icons
+                                                                              .insert_drive_file,
+                                                                          color:
+                                                                              Colors.red,
+                                                                        ),
+                                                                        title:
+                                                                            Text(
+                                                                          "${listAttachmentItem[item].path}",
+                                                                          overflow:
+                                                                              TextOverflow.ellipsis,
+                                                                          softWrap:
+                                                                              true,
+                                                                          maxLines:
+                                                                              1,
+                                                                          style:
+                                                                              TextStyle(fontSize: 14),
+                                                                        ),
+                                                                        trailing: isAccess ==
+                                                                                false
+                                                                            ? Icon(Icons.lock)
+                                                                            : ButtonTheme(
+                                                                                minWidth: 0,
+                                                                                height: 0,
+                                                                                child: FlatButton(
+                                                                                    padding: EdgeInsets.all(0),
+                                                                                    onPressed: () {
+                                                                                      showDialog(
+                                                                                        context: context,
+                                                                                        builder: (BuildContext context) => AlertDialog(
+                                                                                          title: Text('Peringatan!'),
+                                                                                          content: Text("Apakah Anda Yakin?"),
+                                                                                          actions: <Widget>[
+                                                                                            FlatButton(
+                                                                                              child: Text('Tidak'),
+                                                                                              onPressed: () {
+                                                                                                Navigator.pop(context);
+                                                                                              },
+                                                                                            ),
+                                                                                            FlatButton(
+                                                                                              textColor: Colors.green,
+                                                                                              child: Text('Ya'),
+                                                                                              onPressed: () async {
+                                                                                                setState(() {
+                                                                                                  isCreate = true;
+                                                                                                });
+                                                                                                Navigator.pop(context);
+                                                                                                deleteFile(item, listAttachmentItem[item].id);
+                                                                                              },
+                                                                                            )
+                                                                                          ],
+                                                                                        ),
+                                                                                      );
+                                                                                    },
+                                                                                    child: Icon(Icons.delete, color: Colors.red)),
+                                                                              ),
+                                                                      ),
+                                                                    )),
+                                                            ],
+                                                          ),
+                                                  ],
+                                                ))
+                                          ],
+                                        ),
                             ],
                           ),
                         ),
@@ -947,248 +1240,84 @@ class _AddUserFileTodoState extends State<AddUserFileTodo>
               ],
             ),
           ),
-          floatingActionButton: isAccess == false
-              ? Container()
-              : FloatingActionButton(
-                  backgroundColor: primaryAppBarColor,
-                  onPressed: () {
-                    _tabController.index == 0
-                        ? showModalAddPeserta()
-                        : showModalAddFile();
-                  },
-                  child: Icon(Icons.add),
-                ),
         ));
+  }
+
+  Widget errorView() {
+    return Container(
+      color: Colors.white,
+      margin: EdgeInsets.only(top: 0.0, left: 10.0, right: 10.0),
+      padding: const EdgeInsets.only(top: 10.0, bottom: 15.0),
+      child: RefreshIndicator(
+        onRefresh: () => getHeaderHTTP(),
+        child: Column(children: <Widget>[
+          new Container(
+            width: 100.0,
+            height: 100.0,
+            child: Image.asset("images/system-eror.png"),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(
+              top: 30.0,
+              left: 15.0,
+              right: 15.0,
+            ),
+            child: Center(
+              child: Text(
+                "Gagal memuat halaman, tekan tombol muat ulang halaman untuk refresh halaman",
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.black54,
+                  height: 1.5,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(
+                top: 15.0, left: 15.0, right: 15.0, bottom: 15.0),
+            child: SizedBox(
+              width: double.infinity,
+              child: RaisedButton(
+                elevation: 0.5,
+                color: Colors.white,
+                textColor: primaryAppBarColor,
+                disabledColor: Colors.grey,
+                disabledTextColor: Colors.black,
+                padding: EdgeInsets.all(15.0),
+                onPressed: () async {
+                  getHeaderHTTP();
+                },
+                child: Text(
+                  "Muat Ulang Halaman",
+                  style: TextStyle(fontSize: 14.0, fontWeight: FontWeight.w500),
+                ),
+              ),
+            ),
+          ),
+        ]),
+      ),
+    );
   }
 
   void _openFileExplorer() async {
     if (_pickingType != FileType.CUSTOM || _hasValidMime) {
-      // setState(() => _loadingPath = true);
       try {
-        //  _path = await FilePicker. getFilePath(
-        //     type: _pickingType, fileExtension: _extension,);
         File file = await FilePicker.getFile(type: FileType.ANY);
         setState(() {
           pathname = file.toString();
           fileImage = base64Encode(file.readAsBytesSync());
           filename = file.toString().split('/').last;
-
-          // _loadingPath = false;
         });
-        // print("Extensi");
-        // print(file.toString().split('/').last);
-
       } on PlatformException catch (e) {
         print("Unsupported operation" + e.toString());
       }
       if (!mounted) return;
-      // setState(() {
-      //   _loadingPath = false;
-      //   _fileName = _path != null
-      //       ? _path.split('/').last
-      //       : _paths != null ? _paths.keys.toString() : '...';
-      // });
     }
   }
 
-  void showModalAddPeserta() {
-    setState(() {
-      _searchQuery.text = '';
-      listFilterItem.clear();
-    });
-
-    showModalBottomSheet(
-        isScrollControlled: true,
-        context: context,
-        builder: (builder) {
-          return Container(
-            height: 400 + MediaQuery.of(context).viewInsets.bottom,
-            padding: EdgeInsets.only(
-                bottom: MediaQuery.of(context).viewInsets.bottom,
-                right: 5.0,
-                left: 5.0,
-                top: 40.0),
-            child: Column(children: <Widget>[
-              TextFormField(
-                autofocus: true,
-                controller: _searchQuery,
-                onChanged: (string) {
-                  if (string != null || string != '') {
-                    _debouncer.run(() {
-                      listUserfilter();
-                    });
-                  }
-                },
-                decoration: InputDecoration(
-                    prefixIcon: isFilter == true
-                        ? SizedBox(
-                            child: CircularProgressIndicator(),
-                            height: 1.0,
-                            width: 1.0,
-                          )
-                        : Icon(Icons.search),
-                    hintText: "Cari ...",
-                    border: new OutlineInputBorder(
-                      borderRadius: new BorderRadius.circular(25.0),
-                      borderSide: new BorderSide(),
-                    )),
-              ),
-              Expanded(
-                child: SingleChildScrollView(
-                  child: Column(children: <Widget>[
-                    for (int index = 0; index < listFilterItem.length; index++)
-                      listFilterItem[index].access == 'Owner'
-                          ? Container()
-                          : listFilterItem[index].access == null
-                              ? InkWell(
-                                  child: Container(
-                                    child: Card(
-                                        color: listFilterItem[index].access ==
-                                                'Owner'
-                                            ? Colors.grey[200]
-                                            : Colors.white,
-                                        child: ListTile(
-                                          title: Text(
-                                              listFilterItem[index].name == null
-                                                  ? 'Unknown Nama'
-                                                  : listFilterItem[index].name),
-                                          subtitle: Text(listFilterItem[index]
-                                                      .email ==
-                                                  null
-                                              ? 'Unknown Email'
-                                              : listFilterItem[index].email),
-                                          trailing: listFilterItem[index]
-                                                      .access !=
-                                                  null
-                                              ? listFilterItem[index].access ==
-                                                      'Owner'
-                                                  ? Icon(Icons.lock_outline)
-                                                  : Container(
-                                                      child: Text(
-                                                        listFilterItem[index]
-                                                            .access
-                                                            .toUpperCase(),
-                                                      ),
-                                                    )
-                                              : Icon(Icons.add),
-                                        )),
-                                  ),
-                                  onTap: isCreate == true
-                                      ? null
-                                      : () async {
-                                          listFilterItem[index].access ==
-                                                  'Owner'
-                                              ? Fluttertoast.showToast(
-                                                  msg:
-                                                      "Owner Tidak Dapat Diubah")
-                                              : isAccess != true
-                                                  ? Fluttertoast.showToast(
-                                                      msg:
-                                                          "Anda Tidak Memiliki Akses")
-                                                  : showDialog(
-                                                      context: context,
-                                                      builder: (BuildContext
-                                                              context) =>
-                                                          AlertDialog(
-                                                        title: Text(
-                                                            'Pilih Hak Akses!'),
-                                                        content: RadioGroup(),
-                                                        actions: <Widget>[
-                                                          FlatButton(
-                                                            child:
-                                                                Text('Tidak'),
-                                                            onPressed: () {
-                                                              Navigator.pop(
-                                                                  context);
-                                                            },
-                                                          ),
-                                                          FlatButton(
-                                                            textColor:
-                                                                Colors.green,
-                                                            child: Text('Ya'),
-                                                            onPressed:
-                                                                () async {
-                                                              setState(() {
-                                                                isCreate = true;
-                                                              });
-                                                              Navigator.pop(
-                                                                  context);
-                                                              _tambahpeserta(
-                                                                  listFilterItem[
-                                                                          index]
-                                                                      .id);
-                                                            },
-                                                          )
-                                                        ],
-                                                      ),
-                                                    );
-                                        },
-                                )
-                              : Container()
-                  ]),
-                ),
-              ),
-            ]),
-          );
-        });
-  }
-
-  void showModalAddFile() {
-    showModalBottomSheet(
-        isScrollControlled: true,
-        context: context,
-        builder: (builder) {
-          return Container(
-            height: 200 + MediaQuery.of(context).viewInsets.bottom,
-            padding: EdgeInsets.only(
-                bottom: MediaQuery.of(context).viewInsets.bottom,
-                right: 5.0,
-                left: 5.0,
-                top: 20.0),
-            child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: <Widget>[
-                  Text("Tambahkan File"),
-                  Divider(),
-                  Row(
-                    children: <Widget>[
-                      FlatButton(
-                        onPressed: () {
-                          _openFileExplorer();
-                        },
-                        child: Text("Pilih File : "),
-                      ),
-                      pathname != null
-                          ? Flexible(
-                              child: Text(
-                              "$pathname",
-                              overflow: TextOverflow.ellipsis,
-                              softWrap: false,
-                            ))
-                          : Container()
-                    ],
-                  ),
-                  Divider(),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: FlatButton(
-                      color: primaryAppBarColor,
-                      onPressed: () {
-                        _tambahFile();
-                      },
-                      child: Text(
-                        "Simpan",
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ),
-                  )
-                ]),
-          );
-        });
-  }
-
-  void dialogAddPermision(index) {
+  void dialogAddPermision(iduser) {
     showDialog(
       context: context,
       builder: (BuildContext context) => AlertDialog(
@@ -1205,11 +1334,7 @@ class _AddUserFileTodoState extends State<AddUserFileTodo>
             textColor: Colors.green,
             child: Text('Ya'),
             onPressed: () async {
-              setState(() {
-                isCreate = true;
-              });
-              Navigator.pop(context);
-              _tambahpeserta(listFilterItem[index].id);
+              _updatestatusMember(iduser);
             },
           )
         ],
@@ -1305,22 +1430,19 @@ class RoleList {
 }
 
 class RadioGroupWidget extends State {
-  // Default Radio Button Item
-
-  // Group Value for Radio Button.
-  int id = 1;
+  int id = 2;
 
   List<RoleList> fList = [
     RoleList(
-      index: 1,
+      index: 2,
       name: "Admin",
     ),
     RoleList(
-      index: 2,
+      index: 3,
       name: "Executor",
     ),
     RoleList(
-      index: 3,
+      index: 4,
       name: "Viewer",
     )
   ];
@@ -1339,6 +1461,7 @@ class RadioGroupWidget extends State {
                       setState(() {
                         radioItem = data.name;
                         id = data.index;
+                        idChooseRole = data.index;
                       });
                     },
                   ))

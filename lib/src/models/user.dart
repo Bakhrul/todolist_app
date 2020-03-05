@@ -15,6 +15,8 @@ class User {
     String access;
     int todo;
     int owner;
+    int idaccess;
+    String image;
 
     User({
         this.id,
@@ -22,7 +24,9 @@ class User {
         this.email,
         this.access,
         this.todo,
-        this.owner
+        this.owner,
+        this.idaccess,
+        this.image,
     });
 
     factory User.fromJson(Map<String, dynamic> json) => User(
