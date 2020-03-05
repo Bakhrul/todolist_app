@@ -17,6 +17,8 @@ import 'dart:convert';
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 import 'dart:core';
 import 'dart:io';
+import 'package:todolist_app/src/model/Todo.dart';
+import 'package:todolist_app/src/model/Project.dart';
 import 'manajemen_important/index.dart';
 import 'manajemen_searching/index.dart';
 
@@ -50,7 +52,6 @@ class _DashboardState extends State<Dashboard> {
     _tanggalawalProject = 'kosong';
     _tanggalakhirProject = 'kosong';
     datepickerfirst = FocusNode();
-    isLoading = true;
     getHeaderHTTP();
     _getStoreData();
     datepickerlast = FocusNode();
@@ -94,6 +95,172 @@ class _DashboardState extends State<Dashboard> {
     requestHeaders['Authorization'] = '$tokenType $accessToken';
     return requestHeaders;
   }
+  Future<List<List>> getDataProject() async {
+    var storage = new DataStore();
+    var tokenTypeStorage = await storage.getDataString('token_type');
+    var accessTokenStorage = await storage.getDataString('access_token');
+
+    tokenType = tokenTypeStorage;
+    accessToken = accessTokenStorage;
+    requestHeaders['Accept'] = 'application/json';
+    requestHeaders['Authorization'] = '$tokenType $accessToken';
+
+    setState(() {
+      isLoading = true;
+      isError = false;
+      listProject.clear();
+    });
+    try {
+      final participant =
+          await http.get(url('api/dashboard'), headers: requestHeaders);
+
+      if (participant.statusCode == 200) {
+        var listParticipantToJson = json.decode(participant.body);
+        var project = listParticipantToJson['project'];
+        print(project);
+
+        for (var i in project) {
+          Project participant = Project(
+            id: i['id'],
+            title: i['title'].toString(),
+            membertotal: i['member_total'],
+            listMember: i['members'],
+            percent: i['percent'].toString(),
+            start: i['created_date'].toString(),
+          );
+
+          listProject.add(participant);
+        }
+
+        return getDataToDo();
+      } else if (participant.statusCode == 401) {
+        Fluttertoast.showToast(
+            msg: "Token Telah Kadaluwarsa, Silahkan Login Kembali");
+        setState(() {
+          isLoading = false;
+          isError = true;
+          isFilter = false;
+          isErrorFilter = false;
+        });
+      } else {
+        setState(() {
+          isLoading = false;
+          isError = true;
+          isFilter = false;
+          isErrorFilter = false;
+        });
+        print(participant.body);
+        return null;
+      }
+    } on TimeoutException catch (_) {
+      setState(() {
+        isLoading = false;
+        isError = true;
+        isFilter = false;
+        isErrorFilter = false;
+      });
+      Fluttertoast.showToast(msg: "Timed out, Try again");
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+        isError = true;
+        isFilter = false;
+        isErrorFilter = false;
+      });
+      debugPrint('$e');
+    }
+    return null;
+  }
+
+  Future<List<List>> getDataToDo() async {
+    var storage = new DataStore();
+    var tokenTypeStorage = await storage.getDataString('token_type');
+    var accessTokenStorage = await storage.getDataString('access_token');
+
+    tokenType = tokenTypeStorage;
+    accessToken = accessTokenStorage;
+    requestHeaders['Accept'] = 'application/json';
+    requestHeaders['Authorization'] = '$tokenType $accessToken';
+
+    setState(() {
+      listTodo.clear();
+      listTodo = [];
+      isLoading = true;
+    });
+    try {
+      final participant = await http.get(url('api/todo/$currentFilter'),
+          headers: requestHeaders);
+
+      if (participant.statusCode == 200) {
+        var listParticipantToJson = json.decode(participant.body);
+        var todos = listParticipantToJson;
+        for (var i in todos) {
+          Todo todo = Todo(
+              id: i['id'],
+              title: i['title'].toString(),
+              timeend: i['end'].toString(),
+              timestart: i['start'].toString(),
+              statuspinned: i['statuspinned'].toString(),
+              allday: i['allday'],
+              statusProgress: i['statusprogress'],
+              coloredProgress: i['statusprogress'] == 'compleshed'
+                  ? Colors.green
+                  : i['statusprogress'] == 'overdue'
+                      ? Colors.red
+                      : i['statusprogress'] == 'pending'
+                          ? Colors.grey
+                          : i['statusprogress'] == 'working'
+                              ? Colors.blue
+                              : Colors.white);
+
+          listTodo.add(todo);
+        }
+
+        setState(() {
+          isLoading = false;
+          isError = false;
+          isFilter = false;
+          isErrorFilter = false;
+        });
+      } else if (participant.statusCode == 401) {
+        Fluttertoast.showToast(
+            msg: "Token Telah Kadaluwarsa, Silahkan Login Kembali");
+        setState(() {
+          isLoading = false;
+          isError = true;
+          isFilter = false;
+          isErrorFilter = false;
+        });
+      } else {
+        setState(() {
+          isLoading = false;
+          isError = true;
+          isFilter = false;
+          isErrorFilter = false;
+        });
+        print(participant.body);
+        return null;
+      }
+    } on TimeoutException catch (_) {
+      setState(() {
+        isLoading = false;
+        isError = true;
+        isFilter = false;
+        isErrorFilter = false;
+      });
+      Fluttertoast.showToast(msg: "Timed out, Try again");
+    } catch (e) {
+      debugPrint('$e');
+      setState(() {
+        isLoading = false;
+        isError = true;
+        isFilter = false;
+        isErrorFilter = false;
+      });
+    }
+    return null;
+  }
+
 
   void _showmodalChooseTodo() {
     showModalBottomSheet(
@@ -459,7 +626,8 @@ class _DashboardState extends State<Dashboard> {
         var addpesertaJson = json.decode(addadminevent.body);
         if (addpesertaJson['status'] == 'success') {
           progressApiAction.hide().then((isHidden) {});
-          Fluttertoast.showToast(msg: "Berhasil, Silahkan refresh halaman ini");
+          Fluttertoast.showToast(msg: "Berhasil.");
+          getDataProject();
         }
       } else {
         print(addadminevent.body);

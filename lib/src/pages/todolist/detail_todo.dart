@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:todolist_app/src/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
+import 'package:flutter/services.dart';
 import 'dart:convert';
 
 //import file kebutuhan auth
@@ -700,12 +701,31 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
                           ),
                           height: 60.0,
                           width: 60.0,
-                          child: ClipOval(
-                            child: FadeInImage.assetNetwork(
-                                placeholder: 'images/imgavatar.png',
-                                image: image == null || image == ''
-                                    ? url('assets/images/imgavatar.png')
-                                    : url('storage/image/profile/$image')),
+                          child: GestureDetector(
+                            child: Hero(
+                                tag: 'imageDetail',
+                                child: ClipOval(
+                                    child: FadeInImage.assetNetwork(
+                                        fit: BoxFit.cover,
+                                        placeholder: 'images/imgavatar.png',
+                                        image: image == null ||
+                                                image == '' ||
+                                                image == 'Tidak ditemukan'
+                                            ? url('assets/images/imgavatar.png')
+                                            : url(
+                                                'storage/image/profile/$image')))),
+                            onTap: () {
+                              Navigator.push(context,
+                                  MaterialPageRoute(builder: (_) {
+                                return DetailScreen(
+                                    tag: 'imageDetail',
+                                    url: image == null ||
+                                            image == '' ||
+                                            image == 'Tidak ditemukan'
+                                        ? url('assets/images/imgavatar.png')
+                                        : url('storage/image/profile/$image'));
+                              }));
+                            },
                           ),
                         ),
                         Padding(
@@ -1766,12 +1786,21 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
                       child: ButtonTheme(
                         child: FlatButton(
                             onPressed: () async {
-                              if (dataStatusKita == null) {
+                              if (dataTodo == null) {
+                              } else if (dataTodo['tl_status'] == 'Open' &&
+                                  dataTodo['tl_exestart'] == null) {
+                                Fluttertoast.showToast(
+                                    msg:
+                                        'Tidak Dapat Melakukan Realisasi, To Do Belum Mulai Dikerjakan');
+                              } else if (dataTodo['tl_status'] == 'Pending') {
+                                Fluttertoast.showToast(
+                                    msg:
+                                        'Tidak Dapat Melakukan Realisasi, To Do Masih Tahap Pending');
+                              } else if (dataStatusKita == null) {
                                 Fluttertoast.showToast(
                                     msg:
                                         'Anda Tidak Memiliki Akses Untuk Melakukan Aksi Ini');
-                              }
-                              if (dataStatusKita['tlr_role'] == 4 ||
+                              } else if (dataStatusKita['tlr_role'] == 4 ||
                                   dataStatusKita['tlr_role'] == '4') {
                                 Fluttertoast.showToast(
                                     msg:
@@ -2997,5 +3026,54 @@ class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
   @override
   bool shouldRebuild(_SliverAppBarDelegate oldDelegate) {
     return false;
+  }
+}
+
+class DetailScreen extends StatefulWidget {
+  final String tag;
+  final String url;
+
+  DetailScreen({Key key, @required this.tag, @required this.url})
+      : assert(tag != null),
+        assert(url != null),
+        super(key: key);
+
+  @override
+  _DetailScreenState createState() => _DetailScreenState();
+}
+
+class _DetailScreenState extends State<DetailScreen> {
+  @override
+  initState() {
+    SystemChrome.setEnabledSystemUIOverlays([]);
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    //SystemChrome.restoreSystemUIOverlays();
+    SystemChrome.setEnabledSystemUIOverlays(SystemUiOverlay.values);
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      body: GestureDetector(
+        child: Center(
+          child: Hero(
+            tag: widget.tag,
+            child: FadeInImage.assetNetwork(
+              placeholder: 'images/imgavatar.png',
+              image: widget.url,
+            ),
+          ),
+        ),
+        onTap: () {
+          Navigator.pop(context);
+        },
+      ),
+    );
   }
 }

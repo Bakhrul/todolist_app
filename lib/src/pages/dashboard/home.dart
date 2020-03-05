@@ -22,8 +22,12 @@ import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 final Widget placeholder = Container(color: Colors.grey);
 TextEditingController _namaprojectController = TextEditingController();
 String emailStore, imageStore, namaStore, phoneStore, locationStore;
+bool isFilter, isErrorFilter, isLoading, isError;
+int currentFilter = 1;
 TextEditingController _tanggalawalProjectController = TextEditingController();
 String _tanggalawalProject, _tanggalakhirProject;
+List<Project> listProject = [];
+List<Todo> listTodo = [];
 TextEditingController _tanggalakhirProjectController = TextEditingController();
 String imageData;
 List<T> map<T>(List list, Function handler) {
@@ -43,11 +47,11 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   ProgressDialog progressApiAction;
   final List<Color> listColor = [Colors.grey, Colors.red, Colors.blue];
-  List<Project> listProject = [];
-  bool isFilter, isErrorFilter, isLoading, isError;
+  
+  
   String tokenType, accessToken;
   Map<String, String> requestHeaders = Map();
-  List<Todo> listTodo = [];
+
   String namaUser;
 
   void getDataUser() async {
@@ -71,7 +75,7 @@ class _HomeState extends State<Home> {
     {'index': "7", 'name': "Pending"}
   ];
 
-  int currentFilter = 1;
+
 
   @override
   void initState() {
@@ -120,7 +124,8 @@ class _HomeState extends State<Home> {
         var addpesertaJson = json.decode(addadminevent.body);
         if (addpesertaJson['status'] == 'success') {
           progressApiAction.hide().then((isHidden) {});
-          Fluttertoast.showToast(msg: "Berhasil, Silahkan refresh halaman ini");
+          Fluttertoast.showToast(msg: "Berhasil");
+          getDataProject();
         }
       } else {
         print(addadminevent.body);
@@ -249,13 +254,15 @@ class _HomeState extends State<Home> {
               statuspinned: i['statuspinned'].toString(),
               allday: i['allday'],
               statusProgress: i['statusprogress'],
-               coloredProgress: i['statusprogress'] == 'compleshed'
+              coloredProgress: i['statusprogress'] == 'compleshed'
                   ? Colors.green
                   : i['statusprogress'] == 'overdue'
                       ? Colors.red
                       : i['statusprogress'] == 'pending'
                           ? Colors.grey
-                          : i['statusprogress'] == 'working' ? Colors.blue: Colors.white);
+                          : i['statusprogress'] == 'working'
+                              ? Colors.blue
+                              : Colors.white);
 
           listTodo.add(todo);
         }
@@ -342,7 +349,9 @@ class _HomeState extends State<Home> {
                       ? Colors.red
                       : i['statusprogress'] == 'pending'
                           ? Colors.grey
-                          : i['statusprogress'] == 'working' ? Colors.blue: Colors.white);
+                          : i['statusprogress'] == 'working'
+                              ? Colors.blue
+                              : Colors.white);
 
           listTodo.add(todo);
         }
@@ -591,9 +600,11 @@ class _HomeState extends State<Home> {
                               height: 40,
                               width: 40,
                               decoration: BoxDecoration(
-                                border: Border.all(color:Colors.white,width:1.0),
+                                border:
+                                    Border.all(color: Colors.white, width: 1.0),
                                 color: Colors.white,
-                                borderRadius: BorderRadius.all(Radius.circular(100.0)),
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(100.0)),
                               ),
                               child: GestureDetector(
                                 child: Hero(
@@ -615,8 +626,12 @@ class _HomeState extends State<Home> {
                                       MaterialPageRoute(builder: (_) {
                                     return DetailScreen(
                                         tag: 'imageHero',
-                                        url:
-                                            url('storage/image/profile/$imageData'));
+                                        url: imageData == null ||
+                                                imageData == '' ||
+                                                imageData == 'Tidak ditemukan'
+                                            ? url('assets/images/imgavatar.png')
+                                            : url(
+                                                'storage/image/profile/$imageData'));
                                   }));
                                 },
                               ),

@@ -11,9 +11,13 @@
   //  String host = 'http://alamraya.club/';
   
 
+<<<<<<< HEAD
    String host = 'http://192.168.43.41/alamraya/mobile/todo_list/bisniskita_todolist/';
+=======
+  //  String host = 'http://192.168.100.11/alamraya/mobile/todo_list/bisniskita_todolist/';
+>>>>>>> 02654f1199e468c2d609f74388626e2a1ad35f83
   //  String host = 'http://192.168.100.11/bisniskita_todolist/';
-  //  String host = 'http://todolist.bisniskita.com/';
+   String host = 'http://todolist.bisniskita.com/';
   // String host = 'http://192.168.137.1/myocin/';
   //  String host = 'http://192.168.43.115/bisniskita_todolist/';
    
