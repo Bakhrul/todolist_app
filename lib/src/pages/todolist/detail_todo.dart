@@ -158,7 +158,6 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
           todoAttachmentDetail = [];
         });
         var getDetailProjectJson = json.decode(getDetailProject.body);
-        print(getDetailProjectJson);
         var members = getDetailProjectJson['todo_member'];
         var filetodos = getDetailProjectJson['todo_file'];
         Map rawTodo = getDetailProjectJson['todo'];
@@ -1471,17 +1470,43 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
                   )
                 : Column(
                     children: <Widget>[
-                      Text(
-                        DateFormat('dd MMM yyyy').format(
-                                DateTime.parse(dataTodo['tl_planstart'])) +
-                            ' - ' +
-                            DateFormat('dd MMM yyyy HH:mm')
-                                .format(DateTime.parse(dataTodo['tl_planend'])),
-                        style: TextStyle(
-                            color: Colors.black45,
-                            fontWeight: FontWeight.w500,
-                            fontSize: 13),
-                      ),
+                      dataTodo == null
+                          ? Text('Belum Ada Keterangan Tanggal')
+                          : dataTodo['tl_allday'] == 0
+                              ? Column(
+                                  children: <Widget>[
+                                    Text(
+                                      DateFormat('dd MMM yyyy HH:mm').format(
+                                              DateTime.parse(
+                                                  dataTodo['tl_planstart'])) +
+                                          ' - ' +
+                                          DateFormat('dd MMM yyyy HH:mm')
+                                              .format(DateTime.parse(
+                                                  dataTodo['tl_planend'])),
+                                      style: TextStyle(
+                                          color: Colors.black45,
+                                          fontWeight: FontWeight.w500,
+                                          fontSize: 13),
+                                    ),
+                                  ],
+                                )
+                              : Column(
+                                  children: <Widget>[
+                                    Text(
+                                      DateFormat('dd MMM yyyy').format(
+                                              DateTime.parse(
+                                                  dataTodo['tl_planstart'])) +
+                                          ' - ' +
+                                          DateFormat('dd MMM yyyy').format(
+                                              DateTime.parse(
+                                                  dataTodo['tl_planend'])),
+                                      style: TextStyle(
+                                          color: Colors.black45,
+                                          fontWeight: FontWeight.w500,
+                                          fontSize: 13),
+                                    ),
+                                  ],
+                                ),
                     ],
                   ),
         Padding(
@@ -1938,11 +1963,9 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
                         Fluttertoast.showToast(
                             msg:
                                 'To Do Masih Tahap Pending, Tidak Dapat Melakukan Konfirmasi Selesai');
-                      }else if (dataTodo['tl_status'] == 'Finish') {
-                        Fluttertoast.showToast(
-                            msg:
-                                'To Do Sudah Selesai');
-                      }else if (dataStatusKita == null) {
+                      } else if (dataTodo['tl_status'] == 'Finish') {
+                        Fluttertoast.showToast(msg: 'To Do Sudah Selesai');
+                      } else if (dataStatusKita == null) {
                         Fluttertoast.showToast(
                             msg:
                                 'Anda Tidak Memiliki Akses Untuk Melakukan Aksi Ini');
@@ -2074,11 +2097,9 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
                         Fluttertoast.showToast(
                             msg:
                                 'To Do Masih Tahap Pending, Tidak Dapat Melakukan Konfirmasi Selesai');
-                      }else if (dataTodo['tl_status'] == 'Finish') {
-                        Fluttertoast.showToast(
-                            msg:
-                                'To Do Sudah Selesai');
-                      }else if (dataStatusKita == null) {
+                      } else if (dataTodo['tl_status'] == 'Finish') {
+                        Fluttertoast.showToast(msg: 'To Do Sudah Selesai');
+                      } else if (dataStatusKita == null) {
                         Fluttertoast.showToast(
                             msg:
                                 'Anda Tidak Memiliki Akses Untuk Melakukan Aksi Ini');
@@ -2210,11 +2231,9 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
                         Fluttertoast.showToast(
                             msg:
                                 'To Do Masih Tahap Pending, Tidak Dapat Melakukan Konfirmasi Selesai');
-                      }else if (dataTodo['tl_status'] == 'Finish') {
-                        Fluttertoast.showToast(
-                            msg:
-                                'To Do Sudah Selesai');
-                      }else if (dataStatusKita == null) {
+                      } else if (dataTodo['tl_status'] == 'Finish') {
+                        Fluttertoast.showToast(msg: 'To Do Sudah Selesai');
+                      } else if (dataStatusKita == null) {
                         Fluttertoast.showToast(
                             msg:
                                 'Anda Tidak Memiliki Akses Untuk Melakukan Aksi Ini');
@@ -2345,11 +2364,9 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
                         Fluttertoast.showToast(
                             msg:
                                 'To Do Masih Tahap Pending, Tidak Dapat Melakukan Konfirmasi Selesai');
-                      }else if (dataTodo['tl_status'] == 'Finish') {
-                        Fluttertoast.showToast(
-                            msg:
-                                'To Do Sudah Selesai');
-                      }else if (dataStatusKita == null) {
+                      } else if (dataTodo['tl_status'] == 'Finish') {
+                        Fluttertoast.showToast(msg: 'To Do Sudah Selesai');
+                      } else if (dataStatusKita == null) {
                         Fluttertoast.showToast(
                             msg:
                                 'Anda Tidak Memiliki Akses Untuk Melakukan Aksi Ini');

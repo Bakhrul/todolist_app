@@ -181,7 +181,7 @@ class _ResetPassword extends State<ResetPassword> {
                 Container(
                   margin: EdgeInsets.only(bottom: 30.0, top: 40.0),
                   child: Text(
-                    'Tudulis',
+                    'Todolist',
                     style: TextStyle(
                       color: Color.fromRGBO(254, 86, 14, 1),
                       fontSize: 38.0,

@@ -36,14 +36,15 @@ class _ManajemenSerachTodoState extends State<ManajemenSerachTodo>
   TextEditingController _searchQuery = TextEditingController();
   TabController _tabController;
   int jumlahTodosearch, jumlahProjectsearch;
-  List listFilter = [
+ List listFilter = [
     {'index': "1", 'name': "Molor"},
-    {'index': "2", 'name': "Hari Ini"},
-    {'index': "3", 'name': "Besok"},
-    {'index': "4", 'name': "Lusa"},
-    {'index': "5", 'name': "Minggu Ini"},
-    {'index': "6", 'name': "Bulan Ini"},
-    {'index': "7", 'name': "Pending"}
+    {'index': "2", 'name': "Bintang"},
+    {'index': "3", 'name': "Hari Ini"},
+    {'index': "4", 'name': "Besok"},
+    {'index': "5", 'name': "Lusa"},
+    {'index': "6", 'name': "Minggu Ini"},
+    {'index': "7", 'name': "Bulan Ini"},
+    {'index': "8", 'name': "Pending"}
   ];
   int currentFilter = 1;
 
@@ -114,6 +115,54 @@ class _ManajemenSerachTodoState extends State<ManajemenSerachTodo>
               int.parse(getDetailProjectJson['counttodo'].toString());
         });
         for (var i in todos) {
+
+          if(i['statusmolor'] == 0){
+             if(listFilter[0]['name'] == 'Molor'){
+              listFilter.removeAt(0);
+             }
+          }else if(i['statuspending'] == 0){
+             if(listFilter.last['name'] == 'Pending'){
+              listFilter.removeLast();
+             }
+          }else if(i['statusmolor'] == 1 && i['statuspending'] == 1){
+             List listFilter2 = [
+              {'index': "1", 'name': "Molor"},
+              {'index': "2", 'name': "Bintang"},
+              {'index': "3", 'name': "Hari Ini"},
+              {'index': "4", 'name': "Besok"},
+              {'index': "5", 'name': "Lusa"},
+              {'index': "6", 'name': "Minggu Ini"},
+              {'index': "7", 'name': "Bulan Ini"},
+              {'index': "8", 'name': "Pending"},
+            ];
+            listFilter = [];
+            listFilter.addAll(listFilter2);
+          }else if(i['statusmolor'] == 1 ){
+             List listFilter2 = [
+              {'index': "1", 'name': "Molor"},
+              {'index': "2", 'name': "Bintang"},
+              {'index': "3", 'name': "Hari Ini"},
+              {'index': "4", 'name': "Besok"},
+              {'index': "5", 'name': "Lusa"},
+              {'index': "6", 'name': "Minggu Ini"},
+              {'index': "7", 'name': "Bulan Ini"},
+            ];
+            listFilter = [];
+            listFilter.addAll(listFilter2);
+          }else if(i['statuspending'] == 1 ){
+             List listFilter2 = [
+              {'index': "2", 'name': "Bintang"},
+              {'index': "3", 'name': "Hari Ini"},
+              {'index': "4", 'name': "Besok"},
+              {'index': "5", 'name': "Lusa"},
+              {'index': "6", 'name': "Minggu Ini"},
+              {'index': "7", 'name': "Bulan Ini"},
+              {'index': "8", 'name': "Pending"},
+            ];
+            listFilter = [];
+            listFilter.addAll(listFilter2);
+          }
+          
           Todo todo = Todo(
               id: i['id'],
               title: i['title'].toString(),
@@ -150,6 +199,13 @@ class _ManajemenSerachTodoState extends State<ManajemenSerachTodo>
         }
 
         setState(() {
+           if(listTodoSearch.length < 1 && currentFilter == 1){
+           listFilter.removeAt(0);
+            currentFilter = 2;
+             Future.delayed(const Duration(seconds: 1));
+             getDataTodo();
+           
+          }
           isLoading = false;
           isError = false;
         });

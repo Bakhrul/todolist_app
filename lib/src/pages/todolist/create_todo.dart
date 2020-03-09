@@ -310,9 +310,11 @@ bool isAllday;
                                     margin: EdgeInsets.only(
                                         bottom: 10.0, top: 10.0),
                                     child: TextField(
-                                      textAlignVertical:
-                                          TextAlignVertical.center,
+                                      maxLines: 1,
+                                      // textAlignVertical:
+                                      //     TextAlignVertical.center,
                                       decoration: InputDecoration(
+                                        contentPadding: EdgeInsets.all(8),
                                           border: OutlineInputBorder(),
                                           hintText: 'Nama To Do',
                                           hintStyle: TextStyle(
