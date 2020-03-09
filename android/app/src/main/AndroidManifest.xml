@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.todolist_app">
+    package="com.bisniskita.todolist_app">
       <uses-permission android:name="android.permission.CAMERA" />
       <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
       <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
@@ -12,7 +12,7 @@
          FlutterApplication and put your custom class here. -->
     <application
         android:name="io.flutter.app.FlutterApplication"
-        android:label="todolist_app"
+        android:label="Tudulis"
         android:icon="@mipmap/ic_launcher">
         <activity
             android:name="com.yalantis.ucrop.UCropActivity"

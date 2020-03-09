@@ -118,7 +118,7 @@ class _LoginPageState extends State<LoginPage> {
             store.setDataString("photo", datauser['us_image']);
             Navigator.pushReplacementNamed(context, "/dashboard");
             Fluttertoast.showToast(
-                msg: 'Selamat Datang ${datauser['us_email']}');
+                msg: 'Selamat Datang ${datauser['us_name']}');
           } else {
             print(getUser.body);
             Fluttertoast.showToast(

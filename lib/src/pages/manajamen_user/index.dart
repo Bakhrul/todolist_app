@@ -9,7 +9,6 @@ import 'package:progress_dialog/progress_dialog.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:todolist_app/src/models/todo.dart';
 import 'package:todolist_app/src/pages/auth/login.dart';
-import 'package:todolist_app/src/pages/manajamen_user/edit.dart';
 import 'package:todolist_app/src/pages/manajamen_user/edit_photo_profile.dart';
 import 'package:todolist_app/src/pages/manajemen_project/detail_project.dart';
 import 'package:todolist_app/src/pages/todolist/detail_todo.dart';
@@ -18,7 +17,6 @@ import 'package:todolist_app/src/storage/storage.dart';
 import 'package:todolist_app/src/utils/utils.dart';
 import 'package:todolist_app/src/model/Project.dart';
 import 'package:http/http.dart' as http;
-import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'dart:async';
 
@@ -26,7 +24,7 @@ enum PageEnum {
   editProfile,
   changePassword,
 }
-
+String validatePasswordLama, validatePasswordBaru, validateConfirmPassword;
 class ManajemenUser extends StatefulWidget {
   @override
   _ManajemenUserState createState() => _ManajemenUserState();
@@ -614,9 +612,7 @@ class _ManajemenUserState extends State<ManajemenUser>
     super.dispose();
   }
 
-  void _refreshPage() {
-    print(_tabController.index);
-  }
+ 
 
   @override
   Widget build(BuildContext context) {

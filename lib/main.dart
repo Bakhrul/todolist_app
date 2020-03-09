@@ -49,7 +49,7 @@ class _MyApp extends State<MyApp> {
     
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'TodoList',
+      title: 'Tudulis',
       theme: ThemeData(
         // This is the theme of your application.
         //
