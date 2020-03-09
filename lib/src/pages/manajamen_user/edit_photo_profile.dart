@@ -19,7 +19,9 @@ enum PageEnum {
 class EditPhoto extends StatefulWidget {
    final String title;
    final String fileName;
-   EditPhoto({Key key, this.title,this.fileName});
+   final File filePath;
+
+   EditPhoto({Key key, this.title,this.fileName,this.filePath});
    
   @override
   _EditPhotoState createState() => _EditPhotoState();
@@ -43,7 +45,9 @@ class _EditPhotoState extends State<EditPhoto> {
     @override
   void initState() {
     super.initState();
-    state = AppState.free;
+    imageFile = widget.filePath != null ? widget.filePath : imageFile; 
+    state =  AppState.picked;
+
     defaultImage = widget.fileName;
   }
 
@@ -113,14 +117,13 @@ class _EditPhotoState extends State<EditPhoto> {
           child: imageFile != null 
           ? Image.file(imageFile) 
           :
-          defaultImage != '' 
-          ?
-          FadeInImage.assetNetwork(
-          placeholder:'images/imgavatar.png',
-          image: url('storage/profile/'+widget.fileName))
-          :
-          Image.asset('images/imgavatar.png',
-                                fit: BoxFit.fill)
+          Container()
+        
+          // FadeInImage.assetNetwork(
+          // placeholder:'images/imgavatar.png',
+          // image:   defaultImage != '' 
+          // ? url('storage/profile/'+widget.fileName) 
+          // : url('assets/images/imgavatar.png'))
           
           
           // Container()
@@ -209,13 +212,13 @@ class _EditPhotoState extends State<EditPhoto> {
               CropAspectRatioPreset.ratio16x9
             ],
       androidUiSettings: AndroidUiSettings(
-          toolbarTitle: 'Cropper',
+          toolbarTitle: 'Crop Image',
           toolbarColor: Colors.deepOrange,
           toolbarWidgetColor: Colors.white,
           initAspectRatio: CropAspectRatioPreset.original,
           lockAspectRatio: false),
       iosUiSettings: IOSUiSettings(
-        title: 'Cropper',
+        title: 'Crop Image',
       )
     );
     if (croppedFile != null) {

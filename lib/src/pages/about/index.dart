@@ -18,7 +18,7 @@ class About extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             RaisedButton(
-              child: Text("To Do List"),
+              child: Text("todolist"),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20),
               ),

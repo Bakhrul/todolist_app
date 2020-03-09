@@ -1,4 +1,4 @@
-package com.example.todolist_app
+package com.bisniskita.todolist_app
 
 import androidx.annotation.NonNull;
 import io.flutter.embedding.android.FlutterActivity

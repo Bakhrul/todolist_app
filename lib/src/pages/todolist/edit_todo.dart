@@ -767,69 +767,6 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
                                               crossAxisAlignment:
                                                   CrossAxisAlignment.start,
                                               children: <Widget>[
-                                                dataStatusKita == null
-                                                    ? Container()
-                                                    : dataStatusKita[
-                                                                    'tlr_role'] ==
-                                                                '1' ||
-                                                            dataStatusKita[
-                                                                    'tlr_role'] ==
-                                                                1
-                                                        ? Container(
-                                                            color:
-                                                                Colors.red[100],
-                                                            margin:
-                                                                EdgeInsets.only(
-                                                                    top: 0.0,
-                                                                    left: 5.0,
-                                                                    right: 5.0,
-                                                                    bottom:
-                                                                        15.0),
-                                                            padding:
-                                                                EdgeInsets.only(
-                                                                    left: 10.0,
-                                                                    right: 10.0,
-                                                                    top: 5.0,
-                                                                    bottom:
-                                                                        5.0),
-                                                            child: Row(
-                                                              mainAxisAlignment:
-                                                                  MainAxisAlignment
-                                                                      .spaceBetween,
-                                                              children: <
-                                                                  Widget>[
-                                                                Expanded(
-                                                                  child: Text(
-                                                                      'Ingin Menghapus To Do Ini ??',
-                                                                      style: TextStyle(
-                                                                          color:
-                                                                              Colors.black87)),
-                                                                ),
-                                                                ButtonTheme(
-                                                                    minWidth: 0,
-                                                                    height: 0,
-                                                                    child: FlatButton(
-                                                                        // borderSide: BorderSide(color:Colors.red),
-                                                                        color: Colors.red[400],
-                                                                        onPressed: () async {
-                                                                          Navigator.push(
-                                                                              context,
-                                                                              MaterialPageRoute(
-                                                                                  builder: (context) => ManageDeleteTodo(
-                                                                                        idtodo: dataTodo['tl_id'],
-                                                                                        namatodo: dataTodo['tl_title'],
-                                                                                      )));
-                                                                        },
-                                                                        padding: EdgeInsets.only(left: 15.0, right: 15.0, top: 10.0, bottom: 10.0),
-                                                                        child: Text(
-                                                                          'Hapus',
-                                                                          style:
-                                                                              TextStyle(color: Colors.white),
-                                                                        ))),
-                                                              ],
-                                                            ),
-                                                          )
-                                                        : Container(),
                                                 Container(
                                                     color: Colors.white,
                                                     padding:
@@ -876,7 +813,7 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
                                                                   border:
                                                                       OutlineInputBorder(),
                                                                   hintText:
-                                                                      'Nama To Do',
+                                                                      'Judul To Do',
                                                                   hintStyle: TextStyle(
                                                                       fontSize:
                                                                           12,
@@ -885,8 +822,128 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
                                                               controller:
                                                                   _titleController,
                                                             )),
-                                                        Text(
-                                                            "Pelaksanaan Kegiatan"),
+                                                        InkWell(
+                                                          onTap: () async {
+                                                            showCategory();
+                                                          },
+                                                          child: Container(
+                                                            height: 45.0,
+                                                            padding:
+                                                                EdgeInsets.only(
+                                                                    left: 10.0,
+                                                                    right:
+                                                                        10.0),
+                                                            width:
+                                                                double.infinity,
+                                                            decoration: BoxDecoration(
+                                                                border: Border.all(
+                                                                    color: Colors
+                                                                        .black45),
+                                                                borderRadius: BorderRadius
+                                                                    .all(Radius
+                                                                        .circular(
+                                                                            5.0))),
+                                                            child: Column(
+                                                              crossAxisAlignment:
+                                                                  CrossAxisAlignment
+                                                                      .start,
+                                                              mainAxisAlignment:
+                                                                  MainAxisAlignment
+                                                                      .center,
+                                                              children: <
+                                                                  Widget>[
+                                                                Text(
+                                                                    categoriesID ==
+                                                                            null
+                                                                        ? "Pilih Kategori"
+                                                                        : 'Kategori - $categoriesName',
+                                                                    style: TextStyle(
+                                                                        fontSize:
+                                                                            12,
+                                                                        color: Colors
+                                                                            .black),
+                                                                    textAlign:
+                                                                        TextAlign
+                                                                            .left),
+                                                              ],
+                                                            ),
+                                                          ),
+                                                        ),
+                                                        categoriesID == '1'
+                                                            ? GestureDetector(
+                                                                onTap:
+                                                                    () async {
+                                                                  await Navigator.push(
+                                                                      context,
+                                                                      MaterialPageRoute(
+                                                                          builder: (context) =>
+                                                                              ChooseProjectAvailable()));
+                                                                  setState(() {
+                                                                    namaProjectEditChoose =
+                                                                        namaProjectEditChoose;
+                                                                  });
+                                                                },
+                                                                child:
+                                                                    Container(
+                                                                  height: 45.0,
+                                                                  margin: EdgeInsets
+                                                                      .only(
+                                                                          top:
+                                                                              10.0),
+                                                                  padding: EdgeInsets.only(
+                                                                      left:
+                                                                          10.0,
+                                                                      right:
+                                                                          10.0),
+                                                                  width: double
+                                                                      .infinity,
+                                                                  decoration: BoxDecoration(
+                                                                      border: Border.all(
+                                                                          color: Colors
+                                                                              .black45),
+                                                                      borderRadius:
+                                                                          BorderRadius.all(
+                                                                              Radius.circular(5.0))),
+                                                                  child: Row(
+                                                                    mainAxisAlignment:
+                                                                        MainAxisAlignment
+                                                                            .spaceBetween,
+                                                                    children: <
+                                                                        Widget>[
+                                                                      Expanded(
+                                                                        child: Text(
+                                                                            namaProjectEditChoose == null
+                                                                                ? 'Pilih Project'
+                                                                                : 'Project $namaProjectEditChoose',
+                                                                            style:
+                                                                                TextStyle(
+                                                                              fontSize: 12,
+                                                                            ),
+                                                                            overflow: TextOverflow
+                                                                                .ellipsis,
+                                                                            softWrap:
+                                                                                true,
+                                                                            maxLines:
+                                                                                1,
+                                                                            textAlign:
+                                                                                TextAlign.left),
+                                                                      ),
+                                                                      Icon(Icons
+                                                                          .chevron_right),
+                                                                    ],
+                                                                  ),
+                                                                ),
+                                                              )
+                                                            : Container(),
+                                                        Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                      .only(
+                                                                  top: 8.0),
+                                                          child: Text(
+                                                              "Pelaksanaan Kegiatan"),
+                                                        ),
+                                                        Divider(),
                                                         Row(
                                                           children: <Widget>[
                                                             Container(
@@ -1204,119 +1261,7 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
                                                                   },
                                                                 ),
                                                               ),
-                                                        InkWell(
-                                                          onTap: () async {
-                                                            showCategory();
-                                                          },
-                                                          child: Container(
-                                                            height: 45.0,
-                                                            padding:
-                                                                EdgeInsets.only(
-                                                                    left: 10.0,
-                                                                    right:
-                                                                        10.0),
-                                                            width:
-                                                                double.infinity,
-                                                            decoration: BoxDecoration(
-                                                                border: Border.all(
-                                                                    color: Colors
-                                                                        .black45),
-                                                                borderRadius: BorderRadius
-                                                                    .all(Radius
-                                                                        .circular(
-                                                                            5.0))),
-                                                            child: Column(
-                                                              crossAxisAlignment:
-                                                                  CrossAxisAlignment
-                                                                      .start,
-                                                              mainAxisAlignment:
-                                                                  MainAxisAlignment
-                                                                      .center,
-                                                              children: <
-                                                                  Widget>[
-                                                                Text(
-                                                                    categoriesID ==
-                                                                            null
-                                                                        ? "Pilih Kategori"
-                                                                        : 'Kategori - $categoriesName',
-                                                                    style: TextStyle(
-                                                                        fontSize:
-                                                                            12,
-                                                                        color: Colors
-                                                                            .black),
-                                                                    textAlign:
-                                                                        TextAlign
-                                                                            .left),
-                                                              ],
-                                                            ),
-                                                          ),
-                                                        ),
-                                                        categoriesID == '1'
-                                                            ? GestureDetector(
-                                                                onTap:
-                                                                    () async {
-                                                                  await Navigator.push(
-                                                                      context,
-                                                                      MaterialPageRoute(
-                                                                          builder: (context) =>
-                                                                              ChooseProjectAvailable()));
-                                                                  setState(() {
-                                                                    namaProjectEditChoose =
-                                                                        namaProjectEditChoose;
-                                                                  });
-                                                                },
-                                                                child:
-                                                                    Container(
-                                                                  height: 45.0,
-                                                                  margin: EdgeInsets
-                                                                      .only(
-                                                                          top:
-                                                                              10.0),
-                                                                  padding: EdgeInsets.only(
-                                                                      left:
-                                                                          10.0,
-                                                                      right:
-                                                                          10.0),
-                                                                  width: double
-                                                                      .infinity,
-                                                                  decoration: BoxDecoration(
-                                                                      border: Border.all(
-                                                                          color: Colors
-                                                                              .black45),
-                                                                      borderRadius:
-                                                                          BorderRadius.all(
-                                                                              Radius.circular(5.0))),
-                                                                  child: Row(
-                                                                    mainAxisAlignment:
-                                                                        MainAxisAlignment
-                                                                            .spaceBetween,
-                                                                    children: <
-                                                                        Widget>[
-                                                                      Expanded(
-                                                                        child: Text(
-                                                                            namaProjectEditChoose == null
-                                                                                ? 'Pilih Project'
-                                                                                : 'Project $namaProjectEditChoose',
-                                                                            style:
-                                                                                TextStyle(
-                                                                              fontSize: 12,
-                                                                            ),
-                                                                            overflow: TextOverflow
-                                                                                .ellipsis,
-                                                                            softWrap:
-                                                                                true,
-                                                                            maxLines:
-                                                                                1,
-                                                                            textAlign:
-                                                                                TextAlign.left),
-                                                                      ),
-                                                                      Icon(Icons
-                                                                          .chevron_right),
-                                                                    ],
-                                                                  ),
-                                                                ),
-                                                              )
-                                                            : Container(),
+                                                        Divider(),
                                                         Container(
                                                             margin:
                                                                 EdgeInsets.only(
@@ -1342,6 +1287,77 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
                                                                       color: Colors
                                                                           .black)),
                                                             )),
+                                                        Container(
+                                                            width:
+                                                                double.infinity,
+                                                            margin:
+                                                                EdgeInsets.only(
+                                                                    bottom: 16),
+                                                            child: RaisedButton(
+                                                              color:
+                                                                  primaryAppBarColor,
+                                                              child: Text(
+                                                                  "Simpan",
+                                                                  style: TextStyle(
+                                                                      color: Colors
+                                                                          .white)),
+                                                              onPressed:
+                                                                  () async {
+                                                                if (_titleController
+                                                                        .text ==
+                                                                    '') {
+                                                                  Fluttertoast
+                                                                      .showToast(
+                                                                          msg:
+                                                                              "Nama To Do Tidak Boleh Kosong");
+                                                                } else if (categoriesID
+                                                                            .toString() ==
+                                                                        '' ||
+                                                                    categoriesID ==
+                                                                        null) {
+                                                                  Fluttertoast
+                                                                      .showToast(
+                                                                          msg:
+                                                                              "Kategori Tidak Boleh Kosong");
+                                                                } else if (_dateStartController
+                                                                        .text ==
+                                                                    '') {
+                                                                  Fluttertoast
+                                                                      .showToast(
+                                                                          msg:
+                                                                              "Tanggal Dimulainya To Do Tidak Boleh Kosong");
+                                                                } else if (_dateEndController
+                                                                        .text ==
+                                                                    '') {
+                                                                  Fluttertoast
+                                                                      .showToast(
+                                                                          msg:
+                                                                              "Tanggal Berakhirnya To Do Tidak Boleh Kosong");
+                                                                } else if (_descController
+                                                                        .text ==
+                                                                    '') {
+                                                                  Fluttertoast
+                                                                      .showToast(
+                                                                          msg:
+                                                                              "Deskripsi tidak boleh kosong");
+                                                                } else if (categoriesID
+                                                                        .toString() ==
+                                                                    '1') {
+                                                                  if (idProjectEditChoose ==
+                                                                      null) {
+                                                                    Fluttertoast
+                                                                        .showToast(
+                                                                            msg:
+                                                                                "Silahkan Pilih Project Terlebih Dahulu");
+                                                                  } else {
+                                                                    saveTodo();
+                                                                  }
+                                                                } else {
+                                                                  saveTodo();
+                                                                }
+                                                              },
+                                                            )),
+                                                        Divider()
                                                       ],
                                                     )),
                                               ],
@@ -1349,6 +1365,66 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
                                           ),
                                   ],
                                 ),
+                                isLoading == true ? Container() :
+                          dataStatusKita == null
+                              ? Container()
+                              : dataStatusKita['tlr_role'] == '1' ||
+                                      dataStatusKita['tlr_role'] == 1
+                                  ? Container(
+                                      color: Colors.red[100],
+                                      margin: EdgeInsets.only(
+                                          top: 0.0,
+                                          left: 5.0,
+                                          right: 5.0,
+                                          bottom: 15.0),
+                                      padding: EdgeInsets.only(
+                                          left: 10.0,
+                                          right: 10.0,
+                                          top: 5.0,
+                                          bottom: 5.0),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: <Widget>[
+                                          Expanded(
+                                            child: Text(
+                                                'Ingin Menghapus To Do Ini ?',
+                                                style: TextStyle(
+                                                    color: Colors.black87)),
+                                          ),
+                                          ButtonTheme(
+                                              minWidth: 0,
+                                              height: 0,
+                                              child: FlatButton(
+                                                  // borderSide: BorderSide(color:Colors.red),
+                                                  color: Colors.red[400],
+                                                  onPressed: () async {
+                                                    Navigator.push(
+                                                        context,
+                                                        MaterialPageRoute(
+                                                            builder: (context) =>
+                                                                ManageDeleteTodo(
+                                                                  idtodo: dataTodo[
+                                                                      'tl_id'],
+                                                                  namatodo:
+                                                                      dataTodo[
+                                                                          'tl_title'],
+                                                                )));
+                                                  },
+                                                  padding: EdgeInsets.only(
+                                                      left: 15.0,
+                                                      right: 15.0,
+                                                      top: 10.0,
+                                                      bottom: 10.0),
+                                                  child: Text(
+                                                    'Hapus',
+                                                    style: TextStyle(
+                                                        color: Colors.white),
+                                                  ))),
+                                        ],
+                                      ),
+                                    )
+                                  : Container(),
                         ],
                       ),
                     ),
@@ -1917,7 +1993,7 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
           ],
         ),
       ),
-      floatingActionButton: _bottomButtons(),
+      // floatingActionButton: _bottomButtons(),
     );
   }
 

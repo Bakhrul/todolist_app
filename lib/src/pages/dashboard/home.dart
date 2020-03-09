@@ -30,6 +30,7 @@ List<Project> listProject = [];
 List<Todo> listTodo = [];
 TextEditingController _tanggalakhirProjectController = TextEditingController();
 String imageData;
+bool isMolor,isPending;
 List<T> map<T>(List list, Function handler) {
   List<T> result = [];
   for (var i = 0; i < list.length; i++) {
@@ -67,12 +68,13 @@ class _HomeState extends State<Home> {
 
   List listFilter = [
     {'index': "1", 'name': "Molor"},
-    {'index': "2", 'name': "Hari Ini"},
-    {'index': "3", 'name': "Besok"},
-    {'index': "4", 'name': "Lusa"},
-    {'index': "5", 'name': "Minggu Ini"},
-    {'index': "6", 'name': "Bulan Ini"},
-    {'index': "7", 'name': "Pending"}
+    {'index': "2", 'name': "Bintang"},
+    {'index': "3", 'name': "Hari Ini"},
+    {'index': "4", 'name': "Besok"},
+    {'index': "5", 'name': "Lusa"},
+    {'index': "6", 'name': "Minggu Ini"},
+    {'index': "7", 'name': "Bulan Ini"},
+    {'index': "8", 'name': "Pending"}
   ];
 
 
@@ -85,6 +87,8 @@ class _HomeState extends State<Home> {
     getDataProject();
     getDataUser();
     isLoading = true;
+    isMolor = false;
+    isPending = false;
     _getStoreData();
   }
 
@@ -246,6 +250,7 @@ class _HomeState extends State<Home> {
         var listParticipantToJson = json.decode(participant.body);
         var todos = listParticipantToJson;
         for (var i in todos) {
+    
           Todo todo = Todo(
               id: i['id'],
               title: i['title'].toString(),
@@ -268,11 +273,20 @@ class _HomeState extends State<Home> {
         }
 
         setState(() {
+          if(listTodo.length < 1 && currentFilter == 1){
+           isMolor = true;
+           listFilter.removeAt(0);
+            currentFilter = 2;
+             Future.delayed(const Duration(seconds: 1));
+             getDataToDo();
+           
+          }
           isLoading = false;
           isError = false;
           isFilter = false;
           isErrorFilter = false;
         });
+        
       } else if (participant.statusCode == 401) {
         Fluttertoast.showToast(
             msg: "Token Telah Kadaluwarsa, Silahkan Login Kembali");
@@ -334,8 +348,58 @@ class _HomeState extends State<Home> {
       if (participant.statusCode == 200) {
         var listParticipantToJson = json.decode(participant.body);
         var todos = listParticipantToJson;
-        // print(todos);
+
         for (var i in todos) {
+
+           if(i['statusmolor'] == 0){
+             if(listFilter[0]['name'] == 'Molor'){
+              listFilter.removeAt(0);
+             }
+          }else if(i['statuspending'] == 0){
+             if(listFilter.last['name'] == 'Pending'){
+              listFilter.removeLast();
+             }
+          }else if(i['statusmolor'] == 1 && i['statuspending'] == 1){
+             List listFilter2 = [
+              {'index': "1", 'name': "Molor"},
+              {'index': "2", 'name': "Bintang"},
+              {'index': "3", 'name': "Hari Ini"},
+              {'index': "4", 'name': "Besok"},
+              {'index': "5", 'name': "Lusa"},
+              {'index': "6", 'name': "Minggu Ini"},
+              {'index': "7", 'name': "Bulan Ini"},
+              {'index': "8", 'name': "Pending"},
+            ];
+            listFilter = [];
+            listFilter.addAll(listFilter2);
+          }else if(i['statusmolor'] == 1 ){
+             List listFilter2 = [
+              {'index': "1", 'name': "Molor"},
+              {'index': "2", 'name': "Bintang"},
+              {'index': "3", 'name': "Hari Ini"},
+              {'index': "4", 'name': "Besok"},
+              {'index': "5", 'name': "Lusa"},
+              {'index': "6", 'name': "Minggu Ini"},
+              {'index': "7", 'name': "Bulan Ini"},
+            ];
+            listFilter = [];
+            listFilter.addAll(listFilter2);
+          }else if(i['statuspending'] == 1 ){
+             List listFilter2 = [
+              {'index': "2", 'name': "Bintang"},
+              {'index': "3", 'name': "Hari Ini"},
+              {'index': "4", 'name': "Besok"},
+              {'index': "5", 'name': "Lusa"},
+              {'index': "6", 'name': "Minggu Ini"},
+              {'index': "7", 'name': "Bulan Ini"},
+              {'index': "8", 'name': "Pending"},
+            ];
+            listFilter = [];
+            listFilter.addAll(listFilter2);
+          }
+          // if(i['statuspending'] == 1){
+          //   listFilter.removeAt(7);
+          // }
           Todo todo = Todo(
               id: i['id'],
               title: i['title'].toString(),
@@ -1089,7 +1153,9 @@ class _HomeState extends State<Home> {
                           child: Row(
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: <Widget>[
-                                for (var x in listFilter)
+                                for (var i = 0; i < listFilter.length; i++)
+                                 
+                                  
                                   Container(
                                       margin: EdgeInsets.only(right: 10.0),
                                       child: ButtonTheme(
@@ -1097,7 +1163,7 @@ class _HomeState extends State<Home> {
                                         height: 0,
                                         child: RaisedButton(
                                           color: currentFilter ==
-                                                  int.parse(x['index'])
+                                                  int.parse(listFilter[i]['index'])
                                               ? primaryAppBarColor
                                               : Colors.grey[100],
                                           elevation: 0.0,
@@ -1111,19 +1177,19 @@ class _HomeState extends State<Home> {
                                           onPressed: () {
                                             setState(() {
                                               currentFilter =
-                                                  int.parse(x['index']);
+                                                  int.parse(listFilter[i]['index']);
                                               if (isFilter == true) {
                                               } else {
                                                 filterDataTodo(
-                                                    int.parse(x['index']));
+                                                    int.parse(listFilter[i]['index']));
                                               }
                                             });
                                           },
                                           child: Text(
-                                            x['name'],
+                                            listFilter[i]['name'],
                                             style: TextStyle(
                                                 color: currentFilter ==
-                                                        int.parse(x['index'])
+                                                        int.parse(listFilter[i]['index'])
                                                     ? Colors.white
                                                     : Colors.black54,
                                                 fontWeight: FontWeight.w500),

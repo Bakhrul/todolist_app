@@ -1,12 +1,11 @@
 import 'dart:convert';
 import 'dart:async';
-import 'dart:io';
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
+
 import 'package:todolist_app/src/pages/todolist/adduserfile.dart';
 import 'package:todolist_app/src/utils/utils.dart';
 import 'package:todolist_app/src/models/category.dart';
@@ -15,7 +14,6 @@ import 'package:shimmer/shimmer.dart';
 import 'choose_project.dart';
 import 'package:todolist_app/src/storage/storage.dart';
 import 'package:progress_dialog/progress_dialog.dart';
-import 'package:flutter/services.dart';
 
 
 String idProjectChoose;
@@ -38,11 +36,7 @@ bool isAllday;
   DateTime timeReplacement;
   List<Category> listCategory = [];
 
-  String _dfileName;
   String fileImage;
-  bool _loadingPath = false;
-  bool _hasValidMime = false;
-  FileType _pickingType;
 
   TextEditingController _titleController = TextEditingController();
   TextEditingController _dateStartController = TextEditingController();
@@ -169,7 +163,7 @@ bool isAllday;
       } else {
         print(addadminevent.body);
         progressApiAction.hide().then((isHidden) {});
-        Fluttertoast.showToast(msg: "Gagal, Silahkan Coba Kembalis");
+        Fluttertoast.showToast(msg: "Gagal, Silahkan Coba Kembali");
       }
     } on TimeoutException catch (_) {
       progressApiAction.hide().then((isHidden) {});
@@ -197,7 +191,6 @@ bool isAllday;
     _descController.text = '';
     categoriesID = null;
     idProjectChoose = null;
-    _dfileName = null;
     fileImage = null;
     getDataCategory();
     timeSetToMinute();
@@ -317,17 +310,102 @@ bool isAllday;
                                     margin: EdgeInsets.only(
                                         bottom: 10.0, top: 10.0),
                                     child: TextField(
-                                      textAlignVertical:
-                                          TextAlignVertical.center,
+                                      maxLines: 1,
+                                      // textAlignVertical:
+                                      //     TextAlignVertical.center,
                                       decoration: InputDecoration(
+                                        contentPadding: EdgeInsets.all(8),
                                           border: OutlineInputBorder(),
-                                          hintText: 'Nama To Do',
+                                          hintText: 'Judul To Do',
                                           hintStyle: TextStyle(
                                               fontSize: 12,
                                               color: Colors.black)),
                                       controller: _titleController,
                                     )),
-                                Text("Pelaksanaan Kegiatan"),
+                                    InkWell(
+                                  onTap: () async {
+                                    showCategory();
+                                  },
+                                  child: Container(
+                                    height: 45.0,
+                                    padding: EdgeInsets.only(
+                                        left: 10.0, right: 10.0),
+                                    width: double.infinity,
+                                    decoration: BoxDecoration(
+                                        border:
+                                            Border.all(color: Colors.black45),
+                                        borderRadius: BorderRadius.all(
+                                            Radius.circular(5.0))),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: <Widget>[
+                                        Text(
+                                            categoriesID == null
+                                                ? "Pilih Kategori"
+                                                : 'Kategori - $categoriesName',
+                                            style: TextStyle(fontSize: 12),
+                                            textAlign: TextAlign.left),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                categoriesID == '1'
+                                    ? GestureDetector(
+                                        onTap: () async {
+                                          await Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      ChooseProjectAvailable()));
+                                          setState(() {
+                                            namaProjectChoose =
+                                                namaProjectChoose;
+                                          });
+                                        },
+                                        child: Container(
+                                          height: 45.0,
+                                          margin: EdgeInsets.only(top: 10.0),
+                                          padding: EdgeInsets.only(
+                                              left: 10.0, right: 10.0),
+                                          width: double.infinity,
+                                          decoration: BoxDecoration(
+                                              border: Border.all(
+                                                  color: Colors.black45),
+                                              borderRadius: BorderRadius.all(
+                                                  Radius.circular(5.0))),
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: <Widget>[
+                                              Expanded(
+                                                child: Text(
+                                                    namaProjectChoose == null
+                                                        ? 'Pilih Project'
+                                                        : 'Project $namaProjectChoose',
+                                                    style: TextStyle(
+                                                      fontSize: 12,
+                                                    ),
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                    softWrap: true,
+                                                    maxLines: 1,
+                                                    textAlign: TextAlign.left),
+                                              ),
+                                              Icon(Icons.chevron_right),
+                                            ],
+                                          ),
+                                        ),
+                                      )
+                                    : Container(),
+                                Padding(
+                                  padding: const EdgeInsets.only(top:8.0),
+                                  child: Text("Pelaksanaan Kegiatan"),
+                                ),
+                                    Divider(),
+
                                 Row(
                                   children: <Widget>[
                                     Container(
@@ -471,87 +549,9 @@ bool isAllday;
                                         }
                                       },
                                     )),
+                                    Divider(),
 
-                                InkWell(
-                                  onTap: () async {
-                                    showCategory();
-                                  },
-                                  child: Container(
-                                    height: 45.0,
-                                    padding: EdgeInsets.only(
-                                        left: 10.0, right: 10.0),
-                                    width: double.infinity,
-                                    decoration: BoxDecoration(
-                                        border:
-                                            Border.all(color: Colors.black45),
-                                        borderRadius: BorderRadius.all(
-                                            Radius.circular(5.0))),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: <Widget>[
-                                        Text(
-                                            categoriesID == null
-                                                ? "Pilih Kategori"
-                                                : 'Kategori - $categoriesName',
-                                            style: TextStyle(fontSize: 12),
-                                            textAlign: TextAlign.left),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                                categoriesID == '1'
-                                    ? GestureDetector(
-                                        onTap: () async {
-                                          await Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      ChooseProjectAvailable()));
-                                          setState(() {
-                                            namaProjectChoose =
-                                                namaProjectChoose;
-                                          });
-                                        },
-                                        child: Container(
-                                          height: 45.0,
-                                          margin: EdgeInsets.only(top: 10.0),
-                                          padding: EdgeInsets.only(
-                                              left: 10.0, right: 10.0),
-                                          width: double.infinity,
-                                          decoration: BoxDecoration(
-                                              border: Border.all(
-                                                  color: Colors.black45),
-                                              borderRadius: BorderRadius.all(
-                                                  Radius.circular(5.0))),
-                                          child: Row(
-                                            // crossAxisAlignment:
-                                            //     CrossAxisAlignment.start,
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
-                                            children: <Widget>[
-                                              Expanded(
-                                                child: Text(
-                                                    namaProjectChoose == null
-                                                        ? 'Pilih Project'
-                                                        : 'Project $namaProjectChoose',
-                                                    style: TextStyle(
-                                                      fontSize: 12,
-                                                    ),
-                                                    overflow:
-                                                        TextOverflow.ellipsis,
-                                                    softWrap: true,
-                                                    maxLines: 1,
-                                                    textAlign: TextAlign.left),
-                                              ),
-                                              Icon(Icons.chevron_right),
-                                            ],
-                                          ),
-                                        ),
-                                      )
-                                    : Container(),
+                                
                                 Container(
                                     margin: EdgeInsets.only(
                                         bottom: 10.0, top: 10.0),
@@ -568,112 +568,7 @@ bool isAllday;
                                               fontSize: 12,
                                               color: Colors.black)),
                                     )),
-                                // Container(
-                                //     margin: EdgeInsets.only(
-                                //         bottom: 10.0, top: 10.0),
-                                //     child: FlatButton(
-                                //       onPressed: () {
-                                //         Navigator.push(
-                                //             context,
-                                //             MaterialPageRoute(
-                                //                 builder: (context) =>
-                                //                     AddUserFileTodo()));
-                                //       },
-                                //       child: Text("Tambah Attachment",
-                                //           style: TextStyle(
-                                //               fontWeight: FontWeight.bold)),
-                                //     )),
-                                // Container(
-                                //     width: double.infinity,
-                                //     margin: EdgeInsets.only(
-                                //       bottom: 10.0,
-                                //     ),
-                                //     child: FlatButton(
-                                //       onPressed: () => _openFileExplorer(),
-                                //       child: SizedBox(
-                                //         width: double.infinity,
-                                //         child: Text(
-                                //           'Pilih File',
-                                //           textAlign: TextAlign.left,
-                                //         ),
-                                //       ),
-                                //     )),
-                                // new Builder(
-                                //   builder: (BuildContext context) =>
-                                //       // _loadingPath
-                                //       //     ? Padding(
-                                //       //         padding: const EdgeInsets.only(bottom: 10.0),
-                                //       //         child: const CircularProgressIndicator())
-                                //       //     :
-                                //       _dfileName != null
-                                //           ? new Container(
-                                //               // padding: const EdgeInsets.only(bottom: 10.0),
-                                //               // height: MediaQuery.of(context).size.height / 4,
-                                //               child: Text(_dfileName != null
-                                //                   ? _dfileName
-                                //                   : '..'),
-                                //             )
-                                //           : new Container(),
-                                // ),
-                                // Center(
-                                //     child: Container(
-                                //         margin: EdgeInsets.only(top: 10.0),
-                                //         width: double.infinity,
-                                //         height: 40.0,
-                                //         child: RaisedButton(
-                                //             onPressed: () async {
-                                //               if (_titleController.text == '') {
-                                //                 Fluttertoast.showToast(
-                                //                     msg:
-                                //                         "Nama To Do Tidak Boleh Kosong");
-                                //               } else if (categoriesID
-                                //                           .toString() ==
-                                //                       '' ||
-                                //                   categoriesID == null) {
-                                //                 Fluttertoast.showToast(
-                                //                     msg:
-                                //                         "Kategori Tidak Boleh Kosong");
-                                //               } else if (_dateStartController
-                                //                       .text ==
-                                //                   '') {
-                                //                 Fluttertoast.showToast(
-                                //                     msg:
-                                //                         "Tanggal Dimulainya To Do Tidak Boleh Kosong");
-                                //               } else if (_dateEndController
-                                //                       .text ==
-                                //                   '') {
-                                //                 Fluttertoast.showToast(
-                                //                     msg:
-                                //                         "Tanggal Berakhirnya To Do Tidak Boleh Kosong");
-                                //               } else if (_descController.text ==
-                                //                   '') {
-                                //                 Fluttertoast.showToast(
-                                //                     msg:
-                                //                         "Deskripsi tidak boleh kosong");
-                                //               } else if (categoriesID
-                                //                       .toString() ==
-                                //                   '1') {
-                                //                 if (idProjectChoose == null) {
-                                //                   Fluttertoast.showToast(
-                                //                       msg:
-                                //                           "Silahkan Pilih Project Terlebih Dahulu");
-                                //                 } else {
-                                //                   saveTodo();
-                                //                 }
-                                //               } else {
-                                //                 saveTodo();
-                                //               }
-                                //             },
-                                //             color: primaryAppBarColor,
-                                //             textColor: Colors.white,
-                                //             disabledColor: Color.fromRGBO(
-                                //                 254, 86, 14, 0.7),
-                                //             disabledTextColor: Colors.white,
-                                //             splashColor: Colors.blueAccent,
-                                //             child: Text("Tambahkan To Do",
-                                //                 style: TextStyle(
-                                //                     fontSize: 12,
-                                //                     color: Colors.white)))))
+                               
                               ],
                             )),
               ],
@@ -693,8 +588,6 @@ bool isAllday;
           } else if (_dateEndController.text == '') {
             Fluttertoast.showToast(
                 msg: "Tanggal Berakhirnya To Do Tidak Boleh Kosong");
-          } else if (_descController.text == '') {
-            Fluttertoast.showToast(msg: "Deskripsi tidak boleh kosong");
           } else if (categoriesID.toString() == '1') {
             if (idProjectChoose == null) {
               Fluttertoast.showToast(
@@ -835,31 +728,4 @@ bool isAllday;
         )));
   }
 
-  void _openFileExplorer() async {
-    if (_pickingType != FileType.CUSTOM || _hasValidMime) {
-      setState(() => _loadingPath = true);
-      try {
-        //  _path = await FilePicker. getFilePath(
-        //     type: _pickingType, fileExtension: _extension,);
-        File file = await FilePicker.getFile(type: FileType.ANY);
-        setState(() {
-          _dfileName = file.toString();
-          fileImage = base64Encode(file.readAsBytesSync());
-          _loadingPath = false;
-        });
-        // print("Extensi");
-        // print(file.toString().split('/').last);
-
-      } on PlatformException catch (e) {
-        print("Unsupported operation" + e.toString());
-      }
-      if (!mounted) return;
-      // setState(() {
-      //   _loadingPath = false;
-      //   _fileName = _path != null
-      //       ? _path.split('/').last
-      //       : _paths != null ? _paths.keys.toString() : '...';
-      // });
-    }
-  }
 }

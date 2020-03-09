@@ -113,6 +113,8 @@ class _LoginPageState extends State<LoginPage> {
             store.setDataString("id", datauser['us_id'].toString());
             store.setDataString("email", datauser['us_email']);
             store.setDataString("name", datauser['us_name']);
+            store.setDataString("phone", datauser['us_phone']);
+            store.setDataString("address", datauser['us_address']);
             store.setDataString("photo", datauser['us_image']);
             Navigator.pushReplacementNamed(context, "/dashboard");
             Fluttertoast.showToast(
@@ -267,7 +269,7 @@ class _LoginPageState extends State<LoginPage> {
                   Container(
                     margin: EdgeInsets.only(bottom: 30.0),
                     child: Text(
-                      'Tudulis',
+                      'Todolist',
                       style: TextStyle(
                         color: Color.fromRGBO(254, 86, 14, 1),
                         fontSize: 42.0,

@@ -985,7 +985,7 @@ class _ManajemenDetailProjectAllState extends State<ManajemenDetailProjectAll> {
                       margin: EdgeInsets.only(left: 15.0, right: 15.0),
                       child: ButtonTheme(
                         child: RaisedButton(
-                          color: primaryAppBarColor,
+                          color: Colors.blue,
                           textColor: Colors.white,
                           padding: EdgeInsets.all(0),
                           disabledColor: Color.fromRGBO(254, 86, 14, 0.8),
@@ -1028,7 +1028,7 @@ class _ManajemenDetailProjectAllState extends State<ManajemenDetailProjectAll> {
                       margin: EdgeInsets.only(left: 15.0, right: 3.0),
                       child: ButtonTheme(
                         child: RaisedButton(
-                          color: primaryAppBarColor,
+                          color: Colors.grey,
                           textColor: Colors.white,
                           padding: EdgeInsets.all(0),
                           disabledColor: Color.fromRGBO(254, 86, 14, 0.8),
@@ -1061,7 +1061,7 @@ class _ManajemenDetailProjectAllState extends State<ManajemenDetailProjectAll> {
                       margin: EdgeInsets.only(left: 3, right: 15.0),
                       child: ButtonTheme(
                         child: RaisedButton(
-                          color: primaryAppBarColor,
+                          color: Colors.green,
                           padding: EdgeInsets.all(0),
                           textColor: Colors.white,
                           disabledColor: Color.fromRGBO(254, 86, 14, 0.8),

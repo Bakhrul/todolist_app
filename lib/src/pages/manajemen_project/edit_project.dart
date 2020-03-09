@@ -1345,6 +1345,7 @@ class _DetailProjectState extends State<DetailProject>
                                                     controller:
                                                         _controllerAddpeserta,
                                                     decoration: InputDecoration(
+                                                      contentPadding: EdgeInsets.all(8),
                                                         border:
                                                             OutlineInputBorder(),
                                                         hintText:
@@ -1692,6 +1693,7 @@ class _DetailProjectState extends State<DetailProject>
                                                     controller:
                                                         _controllerNamaTodo,
                                                     decoration: InputDecoration(
+                                                      contentPadding: EdgeInsets.all(8),
                                                         border:
                                                             OutlineInputBorder(),
                                                         hintText:
