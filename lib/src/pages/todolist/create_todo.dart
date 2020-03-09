@@ -163,7 +163,7 @@ bool isAllday;
       } else {
         print(addadminevent.body);
         progressApiAction.hide().then((isHidden) {});
-        Fluttertoast.showToast(msg: "Gagal, Silahkan Coba Kembalis");
+        Fluttertoast.showToast(msg: "Gagal, Silahkan Coba Kembali");
       }
     } on TimeoutException catch (_) {
       progressApiAction.hide().then((isHidden) {});
@@ -316,13 +316,96 @@ bool isAllday;
                                       decoration: InputDecoration(
                                         contentPadding: EdgeInsets.all(8),
                                           border: OutlineInputBorder(),
-                                          hintText: 'Nama To Do',
+                                          hintText: 'Judul To Do',
                                           hintStyle: TextStyle(
                                               fontSize: 12,
                                               color: Colors.black)),
                                       controller: _titleController,
                                     )),
-                                Text("Pelaksanaan Kegiatan"),
+                                    InkWell(
+                                  onTap: () async {
+                                    showCategory();
+                                  },
+                                  child: Container(
+                                    height: 45.0,
+                                    padding: EdgeInsets.only(
+                                        left: 10.0, right: 10.0),
+                                    width: double.infinity,
+                                    decoration: BoxDecoration(
+                                        border:
+                                            Border.all(color: Colors.black45),
+                                        borderRadius: BorderRadius.all(
+                                            Radius.circular(5.0))),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: <Widget>[
+                                        Text(
+                                            categoriesID == null
+                                                ? "Pilih Kategori"
+                                                : 'Kategori - $categoriesName',
+                                            style: TextStyle(fontSize: 12),
+                                            textAlign: TextAlign.left),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                categoriesID == '1'
+                                    ? GestureDetector(
+                                        onTap: () async {
+                                          await Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      ChooseProjectAvailable()));
+                                          setState(() {
+                                            namaProjectChoose =
+                                                namaProjectChoose;
+                                          });
+                                        },
+                                        child: Container(
+                                          height: 45.0,
+                                          margin: EdgeInsets.only(top: 10.0),
+                                          padding: EdgeInsets.only(
+                                              left: 10.0, right: 10.0),
+                                          width: double.infinity,
+                                          decoration: BoxDecoration(
+                                              border: Border.all(
+                                                  color: Colors.black45),
+                                              borderRadius: BorderRadius.all(
+                                                  Radius.circular(5.0))),
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: <Widget>[
+                                              Expanded(
+                                                child: Text(
+                                                    namaProjectChoose == null
+                                                        ? 'Pilih Project'
+                                                        : 'Project $namaProjectChoose',
+                                                    style: TextStyle(
+                                                      fontSize: 12,
+                                                    ),
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                    softWrap: true,
+                                                    maxLines: 1,
+                                                    textAlign: TextAlign.left),
+                                              ),
+                                              Icon(Icons.chevron_right),
+                                            ],
+                                          ),
+                                        ),
+                                      )
+                                    : Container(),
+                                Padding(
+                                  padding: const EdgeInsets.only(top:8.0),
+                                  child: Text("Pelaksanaan Kegiatan"),
+                                ),
+                                    Divider(),
+
                                 Row(
                                   children: <Widget>[
                                     Container(
@@ -466,85 +549,9 @@ bool isAllday;
                                         }
                                       },
                                     )),
+                                    Divider(),
 
-                                InkWell(
-                                  onTap: () async {
-                                    showCategory();
-                                  },
-                                  child: Container(
-                                    height: 45.0,
-                                    padding: EdgeInsets.only(
-                                        left: 10.0, right: 10.0),
-                                    width: double.infinity,
-                                    decoration: BoxDecoration(
-                                        border:
-                                            Border.all(color: Colors.black45),
-                                        borderRadius: BorderRadius.all(
-                                            Radius.circular(5.0))),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: <Widget>[
-                                        Text(
-                                            categoriesID == null
-                                                ? "Pilih Kategori"
-                                                : 'Kategori - $categoriesName',
-                                            style: TextStyle(fontSize: 12),
-                                            textAlign: TextAlign.left),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                                categoriesID == '1'
-                                    ? GestureDetector(
-                                        onTap: () async {
-                                          await Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      ChooseProjectAvailable()));
-                                          setState(() {
-                                            namaProjectChoose =
-                                                namaProjectChoose;
-                                          });
-                                        },
-                                        child: Container(
-                                          height: 45.0,
-                                          margin: EdgeInsets.only(top: 10.0),
-                                          padding: EdgeInsets.only(
-                                              left: 10.0, right: 10.0),
-                                          width: double.infinity,
-                                          decoration: BoxDecoration(
-                                              border: Border.all(
-                                                  color: Colors.black45),
-                                              borderRadius: BorderRadius.all(
-                                                  Radius.circular(5.0))),
-                                          child: Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
-                                            children: <Widget>[
-                                              Expanded(
-                                                child: Text(
-                                                    namaProjectChoose == null
-                                                        ? 'Pilih Project'
-                                                        : 'Project $namaProjectChoose',
-                                                    style: TextStyle(
-                                                      fontSize: 12,
-                                                    ),
-                                                    overflow:
-                                                        TextOverflow.ellipsis,
-                                                    softWrap: true,
-                                                    maxLines: 1,
-                                                    textAlign: TextAlign.left),
-                                              ),
-                                              Icon(Icons.chevron_right),
-                                            ],
-                                          ),
-                                        ),
-                                      )
-                                    : Container(),
+                                
                                 Container(
                                     margin: EdgeInsets.only(
                                         bottom: 10.0, top: 10.0),
@@ -581,8 +588,6 @@ bool isAllday;
           } else if (_dateEndController.text == '') {
             Fluttertoast.showToast(
                 msg: "Tanggal Berakhirnya To Do Tidak Boleh Kosong");
-          } else if (_descController.text == '') {
-            Fluttertoast.showToast(msg: "Deskripsi tidak boleh kosong");
           } else if (categoriesID.toString() == '1') {
             if (idProjectChoose == null) {
               Fluttertoast.showToast(
