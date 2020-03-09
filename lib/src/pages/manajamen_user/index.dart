@@ -12,17 +12,23 @@ import 'package:todolist_app/src/pages/auth/login.dart';
 import 'package:todolist_app/src/pages/manajamen_user/edit_photo_profile.dart';
 import 'package:todolist_app/src/pages/manajemen_project/detail_project.dart';
 import 'package:todolist_app/src/pages/todolist/detail_todo.dart';
+import 'package:progress_dialog/progress_dialog.dart';
 import 'package:todolist_app/src/routes/env.dart';
 import 'package:todolist_app/src/storage/storage.dart';
 import 'package:todolist_app/src/utils/utils.dart';
 import 'package:todolist_app/src/model/Project.dart';
 import 'package:http/http.dart' as http;
+import 'package:email_validator/email_validator.dart';
+import 'package:draggable_fab/draggable_fab.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'dart:async';
+import 'package:todolist_app/src/model/FriendList.dart';
+import 'confirmation_friend.dart';
 
 enum PageEnum {
   editProfile,
-  changePassword,
+  permintaanTeman,
 }
 String validatePasswordLama, validatePasswordBaru, validateConfirmPassword;
 class ManajemenUser extends StatefulWidget {
@@ -34,13 +40,16 @@ class _ManajemenUserState extends State<ManajemenUser>
     with SingleTickerProviderStateMixin {
   TabController _tabController;
   String tokenType, accessToken;
+
+  TextEditingController _emailPenggunaController = TextEditingController();
   String nameUser = '';
   Map<String, String> requestHeaders = Map();
   List<Project> listProject = [];
   List<Todo> listHistory = [];
-  List<Todo> listArchive = [];
+  List<FriendList> listFriend = [];
   bool isLoading = true;
   bool isError = true;
+  ProgressDialog progressApiAction;
   String imageData;
   bool load = false;
 
@@ -59,7 +68,6 @@ class _ManajemenUserState extends State<ManajemenUser>
   TextEditingController _controllerPasswordBaru = new TextEditingController();
   TextEditingController _controllerConfirmPassword =
       new TextEditingController();
-  ProgressDialog progressApiAction;
 
   @override
   void initState() {
@@ -145,7 +153,7 @@ class _ManajemenUserState extends State<ManajemenUser>
       });
     } else {
       setState(() {
-        getDataArchive();
+        getDataFriend();
       });
     }
   }
@@ -389,15 +397,6 @@ class _ManajemenUserState extends State<ManajemenUser>
   }
 
   Future<List<List>> getDataProject() async {
-    var storage = new DataStore();
-    var tokenTypeStorage = await storage.getDataString('token_type');
-    var accessTokenStorage = await storage.getDataString('access_token');
-
-    tokenType = tokenTypeStorage;
-    accessToken = accessTokenStorage;
-    requestHeaders['Accept'] = 'application/json';
-    requestHeaders['Authorization'] = '$tokenType $accessToken';
-
     setState(() {
       listProject.clear();
       listProject = [];
@@ -464,15 +463,6 @@ class _ManajemenUserState extends State<ManajemenUser>
   }
 
   Future<List<List>> getDataHistory() async {
-    var storage = new DataStore();
-    var tokenTypeStorage = await storage.getDataString('token_type');
-    var accessTokenStorage = await storage.getDataString('access_token');
-
-    tokenType = tokenTypeStorage;
-    accessToken = accessTokenStorage;
-    requestHeaders['Accept'] = 'application/json';
-    requestHeaders['Authorization'] = '$tokenType $accessToken';
-
     setState(() {
       listHistory.clear();
       listHistory = [];
@@ -533,43 +523,35 @@ class _ManajemenUserState extends State<ManajemenUser>
     return null;
   }
 
-  Future<List<List>> getDataArchive() async {
-    var storage = new DataStore();
-    var tokenTypeStorage = await storage.getDataString('token_type');
-    var accessTokenStorage = await storage.getDataString('access_token');
-
-    tokenType = tokenTypeStorage;
-    accessToken = accessTokenStorage;
-    requestHeaders['Accept'] = 'application/json';
-    requestHeaders['Authorization'] = '$tokenType $accessToken';
-
+  Future<List<List>> getDataFriend() async {
     setState(() {
-      listArchive.clear();
-      listArchive = [];
+      listFriend.clear();
+      listFriend = [];
       isLoading = true;
     });
     try {
       await new Future.delayed(const Duration(seconds: 1));
 
       final participant =
-          await http.get(url('api/archive'), headers: requestHeaders);
+          await http.get(url('api/get_friendlist'), headers: requestHeaders);
 
       if (participant.statusCode == 200) {
         var listParticipantToJson = json.decode(participant.body);
         var project = listParticipantToJson;
-        listArchive.clear();
-        listArchive = [];
+        listFriend.clear();
+        listFriend = [];
 
         for (var i in project) {
-          Todo participant = Todo(
-            id: i['id'],
-            title: i['title'].toString(),
-            start: i['start'].toString(),
-            end: i['end'].toString(),
-            status: i['status'].toString(),
-            allday: i['allday'],
+          FriendList participant = FriendList(
+            users: i['fl_users'],
+            friend: i['fl_friend'],
+            namafriend: i['us_name'],
+            waktutambah: i['fl_added'],
+            waktuditolak: i['fl_approved'],
+            waktuditerima: i['fl_denied'],
+            imageFriend: i['us_image'],
           );
-          listArchive.add(participant);
+          listFriend.add(participant);
         }
         await new Future.delayed(const Duration(seconds: 1));
 
@@ -607,12 +589,98 @@ class _ManajemenUserState extends State<ManajemenUser>
   @override
   void dispose() {
     listHistory.clear();
-    listArchive.clear();
+    listFriend.clear();
     listProject.clear();
     super.dispose();
   }
 
- 
+  void _tambahteman() async {
+    Navigator.pop(context);
+    await progressApiAction.show();
+    try {
+      final addadminevent = await http
+          .post(url('api/tambah_teman'), headers: requestHeaders, body: {
+        'email': _emailPenggunaController.text,
+      });
+
+      if (addadminevent.statusCode == 200) {
+        var addpesertaJson = json.decode(addadminevent.body);
+        Fluttertoast.showToast(msg: addpesertaJson['message']);
+        setState(() {
+          _emailPenggunaController.text = '';
+        });
+        print(addadminevent.body);
+        progressApiAction.hide().then((isHidden) {
+          print(isHidden);
+        });
+        getDataFriend();
+      } else {
+        setState(() {
+          _emailPenggunaController.text = '';
+        });
+        print(addadminevent.body);
+        progressApiAction.hide().then((isHidden) {
+          print(isHidden);
+        });
+        Fluttertoast.showToast(msg: "Gagal, Silahkan Coba Kembali");
+      }
+    } on TimeoutException catch (_) {
+      setState(() {
+        _emailPenggunaController.text = '';
+      });
+      progressApiAction.hide().then((isHidden) {
+        print(isHidden);
+      });
+      Fluttertoast.showToast(msg: "Timed out, Try again");
+    } catch (e) {
+      setState(() {
+        _emailPenggunaController.text = '';
+      });
+      progressApiAction.hide().then((isHidden) {
+        print(isHidden);
+      });
+      Fluttertoast.showToast(msg: "Gagal, Silahkan Coba Kembali");
+      print(e);
+    }
+  }
+
+  void _deleteteman(friend) async {
+    await progressApiAction.show();
+    try {
+      final deleteTemanUrl = await http
+          .post(url('api/hapus_teman'), headers: requestHeaders, body: {
+        'friend': friend.toString(),
+      });
+
+      if (deleteTemanUrl.statusCode == 200) {
+        var deleteTemanUrJson = json.decode(deleteTemanUrl.body);
+        if (deleteTemanUrJson['status'] == 'success') {
+          Fluttertoast.showToast(msg: 'Berhasil!');
+        }
+        progressApiAction.hide().then((isHidden) {
+          print(isHidden);
+        });
+        getDataFriend();
+      } else {
+        print(deleteTemanUrl.body);
+        progressApiAction.hide().then((isHidden) {
+          print(isHidden);
+        });
+        Fluttertoast.showToast(msg: "Gagal, Silahkan Coba Kembali");
+      }
+    } on TimeoutException catch (_) {
+      progressApiAction.hide().then((isHidden) {
+        print(isHidden);
+      });
+      Fluttertoast.showToast(msg: "Timed out, Try again");
+    } catch (e) {
+      progressApiAction.hide().then((isHidden) {
+        print(isHidden);
+      });
+      Fluttertoast.showToast(msg: "Gagal, Silahkan Coba Kembali");
+      print(e);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -673,41 +741,53 @@ class _ManajemenUserState extends State<ManajemenUser>
                             //         builder: (context) => ProfileUserEdit()));
                             _editProfile();
                             break;
-                          case PageEnum.changePassword:
-                          _showPasswordModal();
+                          case PageEnum.permintaanTeman:
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => ConfirmationFriend()));
                             break;
                           default:
                         }
                       },
                       itemBuilder: (context) => [
                         PopupMenuItem(
+                          
                           value: PageEnum.editProfile,
-                          child: ListTile(
-                              // dense:true,
-                              contentPadding:
-                                  EdgeInsets.only(left: 0.0, right: 0.0),
-                              leading: Icon(
+                          child: Row(children: <Widget>[
+                            Padding(
+                              padding: const EdgeInsets.only(right:5.0),
+                              child: Icon(
                                 Icons.edit,
+                                size: 14,
+                                color:Colors.black54,
                               ),
-                              title: Text(
-                                "Edit Profile",
-                              )),
-                        ),
-                        PopupMenuItem(
-                          value: PageEnum.changePassword,
-                          child: ListTile(
-                              // dense:true,
-                              contentPadding:
-                                  EdgeInsets.only(left: 0.0, right: 0.0),
-                              leading: Icon(
-                                Icons.edit,
+                            ),
+                            Text(
+                              "Edit Data Akun",
+                              style: TextStyle(color:Colors.black54,fontSize:14),
+                            ),
+                          ]
                               ),
-                              title: Text(
-                                "Ganti Password",
-                              )),
                         ),
-                      ],
-                    ),
+                      PopupMenuItem(
+                          value: PageEnum.permintaanTeman,
+                          child: Row(children: <Widget>[
+                            Padding(
+                              padding: const EdgeInsets.only(right:8.0),
+                              child: Icon(
+                                Icons.people,
+                                size: 14,
+                                color:Colors.black54,
+                              ),
+                            ),
+                            Text(
+                              "Permintaan Teman",
+                              style: TextStyle(color:Colors.black54,fontSize:14),
+                            ),
+                          ]
+                              ),
+                      )])
                   ),
                   Center(
                       child: Stack(
@@ -833,7 +913,7 @@ class _ManajemenUserState extends State<ManajemenUser>
                           text: 'Riwayat',
                         ),
                         new Tab(
-                          text: 'Pending',
+                          text: 'Teman',
                         ),
                       ],
                     ),
@@ -1177,16 +1257,16 @@ class _ManajemenUserState extends State<ManajemenUser>
                                                 .toList(),
                                           )),
                                     ),
-                  // LIST ARCHIVE
+                  // LIST Friend
                   isError == true
                       ? Container()
                       : isLoading == true
                           ? listLoadingTodo()
                           : isError == true
                               ? errorSystemFilter(context)
-                              : listArchive.length == 0
+                              : listFriend.length == 0
                                   ? RefreshIndicator(
-                                      onRefresh: getDataArchive,
+                                      onRefresh: getDataFriend,
                                       child: SingleChildScrollView(
                                         child: Padding(
                                           padding:
@@ -1220,14 +1300,14 @@ class _ManajemenUserState extends State<ManajemenUser>
                                       ),
                                     )
                                   : RefreshIndicator(
-                                      onRefresh: getDataArchive,
+                                      onRefresh: getDataFriend,
                                       child: SingleChildScrollView(
                                           physics:
                                               AlwaysScrollableScrollPhysics(),
                                           child: Column(
-                                            children: listArchive
+                                            children: listFriend
                                                 .map(
-                                                  (Todo item) => InkWell(
+                                                  (FriendList item) => InkWell(
                                                     onTap: () async {},
                                                     child: Container(
                                                       child: Card(
@@ -1245,55 +1325,38 @@ class _ManajemenUserState extends State<ManajemenUser>
                                                                         BorderRadius.circular(
                                                                             3))),
                                                             child: Container(
-                                                              decoration: BoxDecoration(
-                                                                  border: Border(
-                                                                      right: BorderSide(
-                                                                          color: Colors
-                                                                              .grey,
-                                                                          width:
-                                                                              5))),
                                                               child: ListTile(
                                                                 leading:
-                                                                    Padding(
-                                                                  padding:
-                                                                      const EdgeInsets
-                                                                              .all(
-                                                                          0.0),
+                                                                    Container(
+                                                                  height: 40.0,
+                                                                  width: 40.0,
                                                                   child:
-                                                                      ClipRRect(
-                                                                    borderRadius:
-                                                                        BorderRadius.circular(
-                                                                            100.0),
-                                                                    child: Container(
-                                                                        height: 40.0,
-                                                                        alignment: Alignment.center,
-                                                                        width: 40.0,
-                                                                        decoration: BoxDecoration(
-                                                                          border: Border.all(
-                                                                              color: Colors.white,
-                                                                              width: 2.0),
-                                                                          borderRadius: BorderRadius.all(
-                                                                              Radius.circular(100.0) //                 <--- border radius here
-                                                                              ),
-                                                                          color:
-                                                                              primaryAppBarColor,
-                                                                        ),
-                                                                        child: Text(
-                                                                          '${item.title[0].toUpperCase()}',
-                                                                          style: TextStyle(
-                                                                              color: Colors.white,
-                                                                              fontWeight: FontWeight.bold),
-                                                                        )),
-                                                                  ),
+                                                                      ClipOval(
+                                                                          child:
+                                                                              FadeInImage.assetNetwork(
+                                                                    placeholder:
+                                                                        'images/loading.gif',
+                                                                    image: item.imageFriend ==
+                                                                                null ||
+                                                                            item.imageFriend ==
+                                                                                ''
+                                                                        ? url(
+                                                                            'assets/images/imgavatar.png')
+                                                                        : url(
+                                                                            'storage/image/profile/${item.imageFriend}'),
+                                                                  )),
                                                                 ),
+                                                                trailing: buttonFriend(
+                                                                    item.waktuditerima,
+                                                                    item.friend),
                                                                 title: Text(
-                                                                    item.title ==
+                                                                    item.namafriend ==
                                                                                 '' ||
-                                                                            item.title ==
+                                                                            item.namafriend ==
                                                                                 null
-                                                                        ? 'To Do Tidak Diketahui'
+                                                                        ? 'Teman Tidak Diketahui'
                                                                         : item
-                                                                            .title,
+                                                                            .namafriend,
                                                                     overflow:
                                                                         TextOverflow
                                                                             .ellipsis,
@@ -1305,27 +1368,9 @@ class _ManajemenUserState extends State<ManajemenUser>
                                                                             14,
                                                                         fontWeight:
                                                                             FontWeight.w500)),
-                                                                subtitle: Text(
-                                                                    DateFormat(item.allday > 0
-                                                                                ? 'd MMM y'
-                                                                                : 'd MMM y HH:mm')
-                                                                            .format(DateTime.parse(
-                                                                                "${item.start}"))
-                                                                            .toString() +
-                                                                        ' - ' +
-                                                                        DateFormat(item.allday > 0
-                                                                                ? 'd MMM y'
-                                                                                : 'd MMM y HH:mm')
-                                                                            .format(DateTime.parse(
-                                                                                "${item.end}"))
-                                                                            .toString(),
-                                                                    softWrap:
-                                                                        true,
-                                                                    overflow:
-                                                                        TextOverflow
-                                                                            .ellipsis,
-                                                                    maxLines:
-                                                                        1),
+                                                                subtitle: statusFriend(
+                                                                    item.waktuditerima,
+                                                                    item.waktuditolak),
                                                               ),
                                                             ),
                                                           )),
@@ -1341,7 +1386,173 @@ class _ManajemenUserState extends State<ManajemenUser>
           ),
         ],
       ),
+      floatingActionButton: _bottomButtons(),
     );
+  }
+
+  Widget statusFriend(terima, tolak) {
+    String textStatus;
+    Color statusColor;
+    if (terima == null && tolak == null) {
+      textStatus = 'Belum Dikonfirmasi';
+      statusColor = Colors.grey;
+    } else if (terima != null) {
+      textStatus = 'Terdaftar Sebagai Teman';
+      statusColor = Colors.green;
+    } else if (tolak != null) {
+      textStatus = 'Pertemanan Ditolak';
+      statusColor = Colors.red;
+    } else {
+      textStatus = 'Status Tidak Diketahui';
+      statusColor = Colors.grey;
+    }
+    return Padding(
+      padding: const EdgeInsets.only(top: 5.0, bottom: 10.0),
+      child: Text(textStatus,
+          style: TextStyle(color: statusColor, fontWeight: FontWeight.w500)),
+    );
+  }
+
+  Widget buttonFriend(terima, friend) {
+    if (terima != null) {
+      return ButtonTheme(
+          minWidth: 0,
+          height: 0,
+          child: RaisedButton(
+            elevation: 0,
+            padding: EdgeInsets.all(0),
+            color: Colors.white,
+            child: Icon(
+              Icons.delete,
+              color: Colors.red,
+            ),
+            onPressed: () async {
+              showDialog(
+                context: context,
+                builder: (BuildContext context) => AlertDialog(
+                  title: Text('Peringatan!'),
+                  content: Text('Apakah Anda Ingin Menghapus Teman Ini ? '),
+                  actions: <Widget>[
+                    FlatButton(
+                      child: Text('Tidak'),
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                    ),
+                    FlatButton(
+                      textColor: Colors.green,
+                      child: Text('Ya'),
+                      onPressed: () async {
+                        Navigator.pop(context);
+                        _deleteteman(friend);
+                      },
+                    )
+                  ],
+                ),
+              );
+            },
+          ));
+    } else {
+      return null;
+    }
+  }
+
+  void _showmodalcreatefriend() {
+    setState(() {
+      _emailPenggunaController.text = '';
+    });
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          // return object of type Dialog
+          return AlertDialog(
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(10.0))),
+            contentPadding: EdgeInsets.only(top: 10.0),
+            content: SingleChildScrollView(
+              child: Container(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
+                      children: <Widget>[
+                        Text(
+                          "Tambah Teman",
+                          style: TextStyle(fontSize: 14.0),
+                        ),
+                      ],
+                    ),
+                    SizedBox(
+                      height: 5.0,
+                    ),
+                    Divider(),
+                    Padding(
+                      padding: EdgeInsets.all(10.0),
+                      child: TextField(
+                        controller: _emailPenggunaController,
+                        decoration: InputDecoration(
+                          contentPadding: EdgeInsets.only(
+                              top: 5, bottom: 5, left: 10, right: 10),
+                          border: OutlineInputBorder(),
+                          hintText: 'Email Pengguna',
+                          hintStyle:
+                              TextStyle(fontSize: 12, color: Colors.black),
+                        ),
+                      ),
+                    ),
+                    InkWell(
+                      onTap: () async {
+                        String emailValid = _emailPenggunaController.text;
+                        final bool isValid =
+                            EmailValidator.validate(emailValid);
+                        if (_emailPenggunaController.text == '') {
+                          Fluttertoast.showToast(
+                              msg: 'Email Tidak Boleh Kosong');
+                        } else if (!isValid) {
+                          Fluttertoast.showToast(msg: 'Email Harus Valid');
+                        } else {
+                          _tambahteman();
+                        }
+                      },
+                      child: Container(
+                        margin: EdgeInsets.all(10.0),
+                        padding: EdgeInsets.all(15.0),
+                        decoration: BoxDecoration(
+                          color: primaryAppBarColor,
+                        ),
+                        child: Text(
+                          "Tambahkan",
+                          style: TextStyle(color: Colors.white, fontSize: 14),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        });
+  }
+
+  Widget _bottomButtons() {
+    return _tabController.index == 2
+        ? DraggableFab(
+            child: FloatingActionButton(
+                shape: StadiumBorder(),
+                onPressed: () async {
+                  _showmodalcreatefriend();
+                },
+                backgroundColor: Color.fromRGBO(254, 86, 14, 1),
+                child: Icon(
+                  Icons.add,
+                  size: 20.0,
+                )))
+        : null;
   }
 
   Widget listLoadingTodo() {
@@ -1461,7 +1672,7 @@ class _ManajemenUserState extends State<ManajemenUser>
                     ? getHeaderHTTP()
                     : _tabController.index == 1
                         ? getDataHistory()
-                        : getDataArchive();
+                        : getDataFriend();
               },
               child: Text(
                 "Muat Ulang Halaman",

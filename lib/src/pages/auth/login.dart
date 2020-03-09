@@ -154,6 +154,7 @@ class _LoginPageState extends State<LoginPage> {
         setState(() {
           _isLoading = false;
         });
+        print(getToken.body);
       }
     } on SocketException catch (_) {
       Fluttertoast.showToast(msg: "Connection Timed Out");
