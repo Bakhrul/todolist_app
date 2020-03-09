@@ -67,6 +67,7 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
   TextEditingController _dateEndController = TextEditingController();
   TextEditingController _descController = TextEditingController();
   Map<String, String> requestHeaders = Map();
+  TabController _tabControllerMember;
 
   void timeSetToMinute() {
     var time = DateTime.now();
@@ -266,6 +267,7 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
     _tabController = TabController(
         length: 3, vsync: _ManajemenEditTodoState(), initialIndex: 0);
     _tabController.addListener(_handleTabIndex);
+    _tabControllerMember = new TabController(length: 2, vsync: this);
     _alldayTipe = null;
     super.initState();
     _loadingPath = false;
@@ -1365,66 +1367,68 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
                                           ),
                                   ],
                                 ),
-                                isLoading == true ? Container() :
-                          dataStatusKita == null
+                          isLoading == true
                               ? Container()
-                              : dataStatusKita['tlr_role'] == '1' ||
-                                      dataStatusKita['tlr_role'] == 1
-                                  ? Container(
-                                      color: Colors.red[100],
-                                      margin: EdgeInsets.only(
-                                          top: 0.0,
-                                          left: 5.0,
-                                          right: 5.0,
-                                          bottom: 15.0),
-                                      padding: EdgeInsets.only(
-                                          left: 10.0,
-                                          right: 10.0,
-                                          top: 5.0,
-                                          bottom: 5.0),
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: <Widget>[
-                                          Expanded(
-                                            child: Text(
-                                                'Ingin Menghapus To Do Ini ?',
-                                                style: TextStyle(
-                                                    color: Colors.black87)),
-                                          ),
-                                          ButtonTheme(
-                                              minWidth: 0,
-                                              height: 0,
-                                              child: FlatButton(
-                                                  // borderSide: BorderSide(color:Colors.red),
-                                                  color: Colors.red[400],
-                                                  onPressed: () async {
-                                                    Navigator.push(
-                                                        context,
-                                                        MaterialPageRoute(
-                                                            builder: (context) =>
-                                                                ManageDeleteTodo(
-                                                                  idtodo: dataTodo[
-                                                                      'tl_id'],
-                                                                  namatodo:
-                                                                      dataTodo[
-                                                                          'tl_title'],
-                                                                )));
-                                                  },
-                                                  padding: EdgeInsets.only(
-                                                      left: 15.0,
-                                                      right: 15.0,
-                                                      top: 10.0,
-                                                      bottom: 10.0),
-                                                  child: Text(
-                                                    'Hapus',
+                              : dataStatusKita == null
+                                  ? Container()
+                                  : dataStatusKita['tlr_role'] == '1' ||
+                                          dataStatusKita['tlr_role'] == 1
+                                      ? Container(
+                                          color: Colors.red[100],
+                                          margin: EdgeInsets.only(
+                                              top: 0.0,
+                                              left: 5.0,
+                                              right: 5.0,
+                                              bottom: 15.0),
+                                          padding: EdgeInsets.only(
+                                              left: 10.0,
+                                              right: 10.0,
+                                              top: 5.0,
+                                              bottom: 5.0),
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: <Widget>[
+                                              Expanded(
+                                                child: Text(
+                                                    'Ingin Menghapus To Do Ini ?',
                                                     style: TextStyle(
-                                                        color: Colors.white),
-                                                  ))),
-                                        ],
-                                      ),
-                                    )
-                                  : Container(),
+                                                        color: Colors.black87)),
+                                              ),
+                                              ButtonTheme(
+                                                  minWidth: 0,
+                                                  height: 0,
+                                                  child: FlatButton(
+                                                      // borderSide: BorderSide(color:Colors.red),
+                                                      color: Colors.red[400],
+                                                      onPressed: () async {
+                                                        Navigator.push(
+                                                            context,
+                                                            MaterialPageRoute(
+                                                                builder:
+                                                                    (context) =>
+                                                                        ManageDeleteTodo(
+                                                                          idtodo:
+                                                                              dataTodo['tl_id'],
+                                                                          namatodo:
+                                                                              dataTodo['tl_title'],
+                                                                        )));
+                                                      },
+                                                      padding: EdgeInsets.only(
+                                                          left: 15.0,
+                                                          right: 15.0,
+                                                          top: 10.0,
+                                                          bottom: 10.0),
+                                                      child: Text(
+                                                        'Hapus',
+                                                        style: TextStyle(
+                                                            color:
+                                                                Colors.white),
+                                                      ))),
+                                            ],
+                                          ),
+                                        )
+                                      : Container(),
                         ],
                       ),
                     ),
@@ -1436,46 +1440,67 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
                           isLoading == true
                               ? _loadingview()
                               : Container(
-                                  padding: EdgeInsets.all(10.0),
-                                  margin: EdgeInsets.only(bottom: 15.0),
+                                  width: double.infinity,
+                                  height:
+                                      MediaQuery.of(context).size.height / 8,
+                                  margin: EdgeInsets.only(bottom: 8.0),
                                   color: Colors.white,
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    children: <Widget>[
-                                      Container(
-                                        margin: EdgeInsets.only(bottom: 10.0),
-                                        child: Text(
-                                          'Tambah Member',
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.w500),
-                                        ),
+                                  child: TabBar(
+                                    tabs: <Widget>[
+                                      Text(
+                                        'Tambah Member',
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.w500),
                                       ),
-                                      Divider(),
+                                      Text(
+                                        'Daftar Teman',
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.w500),
+                                      ),
+                                    ],
+                                    controller: _tabControllerMember,
+                                    labelColor: Colors.black,
+                                    unselectedLabelColor: Colors.grey,
+                                    indicatorColor: primaryAppBarColor,
+                                    indicatorSize: TabBarIndicatorSize.tab,
+                                  ),
+                                ),
+                          // Divider(),
+                          Container(
+                            height: MediaQuery.of(context).size.height / 3,
+                            child: TabBarView(
+                              physics: AlwaysScrollableScrollPhysics(),
+                              controller: _tabControllerMember,
+                              children: <Widget>[
+                                Container(
+                                  padding: EdgeInsets.all(8.0),
+                                  child: Column(
+                                    children: <Widget>[
                                       Container(
                                           alignment: Alignment.center,
                                           height: 40.0,
                                           margin: EdgeInsets.only(
                                               bottom: 5.0, top: 5.0),
-                                          child: TextField(
-                                            textAlignVertical:
-                                                TextAlignVertical.center,
-                                            controller: _controllerNamaMember,
-                                            decoration: InputDecoration(
-                                                contentPadding: EdgeInsets.only(
-                                                    top: 2,
-                                                    bottom: 2,
-                                                    left: 10,
-                                                    right: 10),
-                                                border: OutlineInputBorder(),
-                                                hintText:
-                                                    'Masukkan Email Pengguna',
-                                                hintStyle: TextStyle(
-                                                  fontSize: 12,
-                                                  color: Colors.black,
-                                                )),
-                                          )),
+                                         
+                                            child: TextField(
+                                              textAlignVertical:
+                                                  TextAlignVertical.center,
+                                              controller: _controllerNamaMember,
+                                              decoration: InputDecoration(
+                                                  contentPadding: EdgeInsets.only(
+                                                      top: 2,
+                                                      bottom: 2,
+                                                      left: 10,
+                                                      right: 10),
+                                                  border: OutlineInputBorder(),
+                                                  hintText:
+                                                      'Masukkan Email Pengguna',
+                                                  hintStyle: TextStyle(
+                                                    fontSize: 12,
+                                                    color: Colors.black,
+                                                  )),
+                                            ),
+                                          ),
                                       Container(
                                         margin: EdgeInsets.only(top: 0.0),
                                         padding: EdgeInsets.only(
@@ -1591,6 +1616,182 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
                                     ],
                                   ),
                                 ),
+// LIST FRIEND
+                                Container(
+                                  padding: EdgeInsets.all(8.0),
+                                  child: Column(
+                                    children: <Widget>[
+                                      Container(
+                                          alignment: Alignment.center,
+                                          height: 40.0,
+                                          margin: EdgeInsets.only(
+                                              bottom: 5.0, top: 5.0),
+                                          child: InkWell(
+                                                          onTap: () async {
+                                                            showCategory();
+                                                          },
+                                                          child: Container(
+                                                            height: 45.0,
+                                                            padding:
+                                                                EdgeInsets.only(
+                                                                    left: 10.0,
+                                                                    right:
+                                                                        10.0),
+                                                            width:
+                                                                double.infinity,
+                                                            decoration: BoxDecoration(
+                                                                border: Border.all(
+                                                                    color: Colors
+                                                                        .black45),
+                                                                borderRadius: BorderRadius
+                                                                    .all(Radius
+                                                                        .circular(
+                                                                            5.0))),
+                                                            child: Column(
+                                                              crossAxisAlignment:
+                                                                  CrossAxisAlignment
+                                                                      .start,
+                                                              mainAxisAlignment:
+                                                                  MainAxisAlignment
+                                                                      .center,
+                                                              children: <
+                                                                  Widget>[
+                                                                Text(
+                                                                    categoriesID ==
+                                                                            null
+                                                                        ? "Pilih Kategori"
+                                                                        : 'Kategori - $categoriesName',
+                                                                    style: TextStyle(
+                                                                        fontSize:
+                                                                            12,
+                                                                        color: Colors
+                                                                            .black),
+                                                                    textAlign:
+                                                                        TextAlign
+                                                                            .left),
+                                                              ],
+                                                            ),
+                                                          ),
+                                                        ),
+                                          ),
+                                      Container(
+                                        margin: EdgeInsets.only(top: 0.0),
+                                        padding: EdgeInsets.only(
+                                            left: 10.0, right: 10.0),
+                                        decoration: BoxDecoration(
+                                            border: Border.all(
+                                                color: Colors.black45),
+                                            borderRadius: BorderRadius.all(
+                                                Radius.circular(5.0))),
+                                        child: DropdownButtonHideUnderline(
+                                          child: DropdownButton<String>(
+                                            isExpanded: true,
+                                            items: [
+                                              DropdownMenuItem<String>(
+                                                child: Text(
+                                                  'Admin',
+                                                  style: TextStyle(
+                                                    fontSize: 12,
+                                                  ),
+                                                ),
+                                                value: '2',
+                                              ),
+                                              DropdownMenuItem<String>(
+                                                child: Text(
+                                                  'Executor',
+                                                  style: TextStyle(
+                                                    fontSize: 12,
+                                                  ),
+                                                ),
+                                                value: '3',
+                                              ),
+                                              DropdownMenuItem<String>(
+                                                child: Text(
+                                                  'Viewer',
+                                                  style: TextStyle(
+                                                    fontSize: 12,
+                                                  ),
+                                                ),
+                                                value: '4',
+                                              ),
+                                            ],
+                                            value: _urutkanvalue == null
+                                                ? null
+                                                : _urutkanvalue,
+                                            onChanged: (String value) {
+                                              setState(() {
+                                                _urutkanvalue = value;
+                                              });
+                                            },
+                                            hint: Text(
+                                              'Pilih level Member',
+                                              style: TextStyle(
+                                                  fontSize: 12,
+                                                  color: Colors.black),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      Center(
+                                          child: Container(
+                                              margin:
+                                                  EdgeInsets.only(top: 10.0),
+                                              width: double.infinity,
+                                              height: 40.0,
+                                              child: RaisedButton(
+                                                  onPressed: () async {
+                                                    String emailValid =
+                                                        _controllerNamaMember
+                                                            .text;
+                                                    final bool isValid =
+                                                        EmailValidator.validate(
+                                                            emailValid);
+                                                    print('Email is valid? ' +
+                                                        (isValid
+                                                            ? 'yes'
+                                                            : 'no'));
+                                                    if (_controllerNamaMember
+                                                                .text ==
+                                                            null ||
+                                                        _controllerNamaMember
+                                                                .text ==
+                                                            '') {
+                                                      Fluttertoast.showToast(
+                                                          msg:
+                                                              "Email Tidak Boleh Kosong");
+                                                    } else if (!isValid) {
+                                                      Fluttertoast.showToast(
+                                                          msg:
+                                                              "Masukkan Email Yang Valid");
+                                                    } else if (_urutkanvalue ==
+                                                        null) {
+                                                      Fluttertoast.showToast(
+                                                          msg:
+                                                              "Pilih Level Member");
+                                                    } else {
+                                                      tambahkanMember();
+                                                    }
+                                                  },
+                                                  color: primaryAppBarColor,
+                                                  textColor: Colors.white,
+                                                  disabledColor: Color.fromRGBO(
+                                                      254, 86, 14, 0.7),
+                                                  disabledTextColor:
+                                                      Colors.white,
+                                                  splashColor:
+                                                      Colors.blueAccent,
+                                                  child: Text(
+                                                      "Tambahkan Member",
+                                                      style: TextStyle(
+                                                          fontSize: 12,
+                                                          color:
+                                                              Colors.white)))))
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                           Container(
                             margin: EdgeInsets.only(top: 0.0),
                             padding: EdgeInsets.all(5.0),
@@ -2090,8 +2291,6 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
                   } else if (_dateEndController.text == '') {
                     Fluttertoast.showToast(
                         msg: "Tanggal Berakhirnya To Do Tidak Boleh Kosong");
-                  } else if (_descController.text == '') {
-                    Fluttertoast.showToast(msg: "Deskripsi tidak boleh kosong");
                   } else if (categoriesID.toString() == '1') {
                     if (idProjectEditChoose == null) {
                       Fluttertoast.showToast(
@@ -2148,6 +2347,43 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
   }
 
   void showCategory() {
+    showModalBottomSheet(
+        isScrollControlled: true,
+        context: context,
+        builder: (builder) {
+          return SingleChildScrollView(
+              child: Container(
+            // height: 200.0 + MediaQuery.of(context).viewInsets.bottom,
+            padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewInsets.bottom,
+                right: 5.0,
+                left: 5.0,
+                top: 40.0),
+            child: Column(children: <Widget>[
+              for (int i = 0; i < listCategory.length; i++)
+                InkWell(
+                    onTap: () async {
+                      setState(() {
+                        categoriesID = listCategory[i].id.toString();
+                        categoriesName = listCategory[i].name.toString();
+                      });
+                      Navigator.pop(context);
+                    },
+                    child: Container(
+                      width: double.infinity,
+                      child: Card(
+                        child: Padding(
+                          padding: const EdgeInsets.all(15.0),
+                          child: Text(listCategory[i].name),
+                        ),
+                      ),
+                    )),
+            ]),
+          ));
+        });
+  }
+
+  void showFriendList() {
     showModalBottomSheet(
         isScrollControlled: true,
         context: context,
