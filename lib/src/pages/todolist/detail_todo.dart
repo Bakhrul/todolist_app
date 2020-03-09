@@ -1475,7 +1475,7 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
                         DateFormat('dd MMM yyyy').format(
                                 DateTime.parse(dataTodo['tl_planstart'])) +
                             ' - ' +
-                            DateFormat('dd MMM yyyy HH:mm')
+                            DateFormat('dd MMM yyyy')
                                 .format(DateTime.parse(dataTodo['tl_planend'])),
                         style: TextStyle(
                             color: Colors.black45,
@@ -1924,10 +1924,17 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
               child: ListTile(
                   leading: Checkbox(
                     activeColor: primaryAppBarColor,
-                    value: listTodoReady[index].selesai == null ||
-                            listTodoReady[index].selesai == ''
+                    value: dataTodo == null
                         ? false
-                        : true,
+                        : dataTodo['tl_status'] == 'Open' &&
+                                dataTodo['tl_exestart'] == null
+                            ? false
+                            : dataTodo['tl_status'] == 'Pending'
+                                ? false
+                                : listTodoReady[index].selesai == null ||
+                                        listTodoReady[index].selesai == ''
+                                    ? false
+                                    : true,
                     onChanged: (bool value) async {
                       if (dataTodo['tl_status'] == 'Open' &&
                           dataTodo['tl_exestart'] == null) {
@@ -1938,11 +1945,9 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
                         Fluttertoast.showToast(
                             msg:
                                 'To Do Masih Tahap Pending, Tidak Dapat Melakukan Konfirmasi Selesai');
-                      }else if (dataTodo['tl_status'] == 'Finish') {
-                        Fluttertoast.showToast(
-                            msg:
-                                'To Do Sudah Selesai');
-                      }else if (dataStatusKita == null) {
+                      } else if (dataTodo['tl_status'] == 'Finish') {
+                        Fluttertoast.showToast(msg: 'To Do Sudah Selesai');
+                      } else if (dataStatusKita == null) {
                         Fluttertoast.showToast(
                             msg:
                                 'Anda Tidak Memiliki Akses Untuk Melakukan Aksi Ini');
@@ -1978,28 +1983,16 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
                             fontSize: 14,
                           ),
                         ),
-                  subtitle: Padding(
-                    padding: const EdgeInsets.only(top: 10.0, bottom: 5.0),
-                    child: Text(
-                      listTodoReady[index].selesai == null ||
-                              listTodoReady[index].selesai == ''
-                          ? 'Belum Selesai'
-                          : listTodoReady[index].validation == null ||
-                                  listTodoReady[index].validation == ''
-                              ? 'Belum Divalidasi'
-                              : 'Sudah Divalidasi',
-                      style: TextStyle(
-                          fontWeight: FontWeight.w500,
-                          color: listTodoReady[index].selesai == null ||
-                                  listTodoReady[index].selesai == ''
-                              ? Colors.grey
-                              : listTodoReady[index].validation == null ||
-                                      listTodoReady[index].validation == ''
-                                  ? Colors.grey
-                                  : Colors.green),
-                    ),
-                  ),
-                  trailing: listTodoReady[index].selesai == null ||
+                  subtitle: statusTodo(listTodoReady[index].selesai,
+                      listTodoReady[index].validation),
+                  trailing: dataTodo == null
+                        ? null
+                        : dataTodo['tl_status'] == 'Open' &&
+                                dataTodo['tl_exestart'] == null
+                            ? null
+                            : dataTodo['tl_status'] == 'Pending'
+                                ? null
+                                : listTodoReady[index].selesai == null ||
                           listTodoReady[index].selesai == ''
                       ? null
                       : dataStatusKita == null
@@ -2060,10 +2053,17 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
               child: ListTile(
                   leading: Checkbox(
                     activeColor: primaryAppBarColor,
-                    value: listTodoAction[index].selesai == null ||
-                            listTodoAction[index].selesai == ''
+                    value: dataTodo == null
                         ? false
-                        : true,
+                        : dataTodo['tl_status'] == 'Open' &&
+                                dataTodo['tl_exestart'] == null
+                            ? false
+                            : dataTodo['tl_status'] == 'Pending'
+                                ? false
+                                : listTodoAction[index].selesai == null ||
+                                        listTodoAction[index].selesai == ''
+                                    ? false
+                                    : true,
                     onChanged: (bool value) async {
                       if (dataTodo['tl_status'] == 'Open' &&
                           dataTodo['tl_exestart'] == null) {
@@ -2074,11 +2074,9 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
                         Fluttertoast.showToast(
                             msg:
                                 'To Do Masih Tahap Pending, Tidak Dapat Melakukan Konfirmasi Selesai');
-                      }else if (dataTodo['tl_status'] == 'Finish') {
-                        Fluttertoast.showToast(
-                            msg:
-                                'To Do Sudah Selesai');
-                      }else if (dataStatusKita == null) {
+                      } else if (dataTodo['tl_status'] == 'Finish') {
+                        Fluttertoast.showToast(msg: 'To Do Sudah Selesai');
+                      } else if (dataStatusKita == null) {
                         Fluttertoast.showToast(
                             msg:
                                 'Anda Tidak Memiliki Akses Untuk Melakukan Aksi Ini');
@@ -2114,28 +2112,16 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
                             fontSize: 14,
                           ),
                         ),
-                  subtitle: Padding(
-                    padding: const EdgeInsets.only(top: 10.0, bottom: 5.0),
-                    child: Text(
-                      listTodoAction[index].selesai == null ||
-                              listTodoAction[index].selesai == ''
-                          ? 'Belum Selesai'
-                          : listTodoAction[index].validation == null ||
-                                  listTodoAction[index].validation == ''
-                              ? 'Belum Divalidasi'
-                              : 'Sudah Divalidasi',
-                      style: TextStyle(
-                          fontWeight: FontWeight.w500,
-                          color: listTodoAction[index].selesai == null ||
-                                  listTodoAction[index].selesai == ''
-                              ? Colors.grey
-                              : listTodoAction[index].validation == null ||
-                                      listTodoAction[index].validation == ''
-                                  ? Colors.grey
-                                  : Colors.green),
-                    ),
-                  ),
-                  trailing: listTodoAction[index].selesai == null ||
+                  subtitle: statusTodo(listTodoAction[index].selesai,
+                      listTodoAction[index].validation),
+                  trailing: dataTodo == null
+                        ? null
+                        : dataTodo['tl_status'] == 'Open' &&
+                                dataTodo['tl_exestart'] == null
+                            ? null
+                            : dataTodo['tl_status'] == 'Pending'
+                                ? null
+                                : listTodoAction[index].selesai == null ||
                           listTodoAction[index].selesai == ''
                       ? null
                       : dataStatusKita == null
@@ -2196,10 +2182,17 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
               child: ListTile(
                   leading: Checkbox(
                     activeColor: primaryAppBarColor,
-                    value: listTodoDone[index].selesai == null ||
-                            listTodoDone[index].selesai == ''
+                    value: dataTodo == null
                         ? false
-                        : true,
+                        : dataTodo['tl_status'] == 'Open' &&
+                                dataTodo['tl_exestart'] == null
+                            ? false
+                            : dataTodo['tl_status'] == 'Pending'
+                                ? false
+                                : listTodoDone[index].selesai == null ||
+                                        listTodoDone[index].selesai == ''
+                                    ? false
+                                    : true,
                     onChanged: (bool value) async {
                       if (dataTodo['tl_status'] == 'Open' &&
                           dataTodo['tl_exestart'] == null) {
@@ -2210,11 +2203,9 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
                         Fluttertoast.showToast(
                             msg:
                                 'To Do Masih Tahap Pending, Tidak Dapat Melakukan Konfirmasi Selesai');
-                      }else if (dataTodo['tl_status'] == 'Finish') {
-                        Fluttertoast.showToast(
-                            msg:
-                                'To Do Sudah Selesai');
-                      }else if (dataStatusKita == null) {
+                      } else if (dataTodo['tl_status'] == 'Finish') {
+                        Fluttertoast.showToast(msg: 'To Do Sudah Selesai');
+                      } else if (dataStatusKita == null) {
                         Fluttertoast.showToast(
                             msg:
                                 'Anda Tidak Memiliki Akses Untuk Melakukan Aksi Ini');
@@ -2250,28 +2241,16 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
                             fontSize: 14,
                           ),
                         ),
-                  subtitle: Padding(
-                    padding: const EdgeInsets.only(top: 10.0, bottom: 5.0),
-                    child: Text(
-                      listTodoDone[index].selesai == null ||
-                              listTodoDone[index].selesai == ''
-                          ? 'Belum Selesai'
-                          : listTodoDone[index].validation == null ||
-                                  listTodoDone[index].validation == ''
-                              ? 'Belum Divalidasi'
-                              : 'Sudah Divalidasi',
-                      style: TextStyle(
-                          fontWeight: FontWeight.w500,
-                          color: listTodoDone[index].selesai == null ||
-                                  listTodoDone[index].selesai == ''
-                              ? Colors.grey
-                              : listTodoDone[index].validation == null ||
-                                      listTodoDone[index].validation == ''
-                                  ? Colors.grey
-                                  : Colors.green),
-                    ),
-                  ),
-                  trailing: listTodoDone[index].selesai == null ||
+                  subtitle: statusTodo(listTodoDone[index].selesai,
+                      listTodoDone[index].validation),
+                  trailing:dataTodo == null
+                        ? null
+                        : dataTodo['tl_status'] == 'Open' &&
+                                dataTodo['tl_exestart'] == null
+                            ? null
+                            : dataTodo['tl_status'] == 'Pending'
+                                ? null
+                                : listTodoDone[index].selesai == null ||
                           listTodoDone[index].selesai == ''
                       ? null
                       : dataStatusKita == null
@@ -2331,10 +2310,17 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
               child: ListTile(
                   leading: Checkbox(
                     activeColor: primaryAppBarColor,
-                    value: listTodoNormal[index].selesai == null ||
-                            listTodoNormal[index].selesai == ''
+                    value: dataTodo == null
                         ? false
-                        : true,
+                        : dataTodo['tl_status'] == 'Open' &&
+                                dataTodo['tl_exestart'] == null
+                            ? false
+                            : dataTodo['tl_status'] == 'Pending'
+                                ? false
+                                : listTodoNormal[index].selesai == null ||
+                                        listTodoNormal[index].selesai == ''
+                                    ? false
+                                    : true,
                     onChanged: (bool value) async {
                       if (dataTodo['tl_status'] == 'Open' &&
                           dataTodo['tl_exestart'] == null) {
@@ -2345,11 +2331,9 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
                         Fluttertoast.showToast(
                             msg:
                                 'To Do Masih Tahap Pending, Tidak Dapat Melakukan Konfirmasi Selesai');
-                      }else if (dataTodo['tl_status'] == 'Finish') {
-                        Fluttertoast.showToast(
-                            msg:
-                                'To Do Sudah Selesai');
-                      }else if (dataStatusKita == null) {
+                      } else if (dataTodo['tl_status'] == 'Finish') {
+                        Fluttertoast.showToast(msg: 'To Do Sudah Selesai');
+                      } else if (dataStatusKita == null) {
                         Fluttertoast.showToast(
                             msg:
                                 'Anda Tidak Memiliki Akses Untuk Melakukan Aksi Ini');
@@ -2385,28 +2369,16 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
                             fontSize: 14,
                           ),
                         ),
-                  subtitle: Padding(
-                    padding: const EdgeInsets.only(top: 10.0, bottom: 5.0),
-                    child: Text(
-                      listTodoNormal[index].selesai == null ||
-                              listTodoNormal[index].selesai == ''
-                          ? 'Belum Selesai'
-                          : listTodoNormal[index].validation == null ||
-                                  listTodoNormal[index].validation == ''
-                              ? 'Belum Divalidasi'
-                              : 'Sudah Divalidasi',
-                      style: TextStyle(
-                          fontWeight: FontWeight.w500,
-                          color: listTodoNormal[index].selesai == null ||
-                                  listTodoNormal[index].selesai == ''
-                              ? Colors.grey
-                              : listTodoNormal[index].validation == null ||
-                                      listTodoNormal[index].validation == ''
-                                  ? Colors.grey
-                                  : Colors.green),
-                    ),
-                  ),
-                  trailing: listTodoNormal[index].selesai == null ||
+                  subtitle: statusTodo(listTodoNormal[index].selesai,
+                      listTodoNormal[index].validation),
+                  trailing:dataTodo == null
+                        ? null
+                        : dataTodo['tl_status'] == 'Open' &&
+                                dataTodo['tl_exestart'] == null
+                            ? null
+                            : dataTodo['tl_status'] == 'Pending'
+                                ? null
+                                : listTodoNormal[index].selesai == null ||
                           listTodoNormal[index].selesai == ''
                       ? null
                       : dataStatusKita == null
@@ -2506,6 +2478,38 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
                 .toList(),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget statusTodo(selesai, validation) {
+    String textstatus;
+    Color textColor;
+    if (dataTodo == null) {
+      textstatus = 'Belum Selesai';
+      textColor = Colors.grey;
+    } else if (dataTodo['tl_status'] == 'Open' &&
+        dataTodo['tl_exestart'] == null) {
+      textstatus = 'Belum Selesai';
+      textColor = Colors.grey;
+    } else if (dataTodo['tl_status'] == 'Pending') {
+      textstatus = 'Belum Selesai';
+      textColor = Colors.grey;
+    } else if (selesai == null || selesai == '') {
+      textstatus = 'Belum Selesai';
+      textColor = Colors.grey;
+    } else if (validation == null || validation == '') {
+      textstatus = 'Belum Divalidasi';
+      textColor = Colors.grey;
+    } else {
+      textstatus = 'Sudah Divalidasi';
+      textColor = Colors.green;
+    }
+    return Padding(
+      padding: const EdgeInsets.only(top: 10.0, bottom: 5.0),
+      child: Text(
+        textstatus,
+        style: TextStyle(fontWeight: FontWeight.w500, color: textColor),
       ),
     );
   }

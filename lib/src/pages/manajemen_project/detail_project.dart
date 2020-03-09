@@ -111,9 +111,11 @@ class _ManajemenDetailProjectAllState extends State<ManajemenDetailProjectAll> {
               id: i['tl_id'],
               title: i['tl_title'],
               desc: i['tl_desc'],
-              timestart: DateFormat("dd MMMM yyyy HH:mm")
+              timestart: i['tl_allday'] == '0' || i['tl_allday'] == 0 ? DateFormat("dd MMMM yyyy HH:mm")
+                  .format(DateTime.parse(i['tl_planstart'])) : DateFormat("dd MMMM yyyy")
                   .format(DateTime.parse(i['tl_planstart'])),
-              timeend: DateFormat("dd MMMM yyyy HH:mm")
+              timeend: i['tl_allday'] == '0' || i['tl_allday'] == 0 ? DateFormat("dd MMMM yyyy HH:mm")
+                  .format(DateTime.parse(i['tl_planend'])) : DateFormat("dd MMMM yyyy")
                   .format(DateTime.parse(i['tl_planend'])),
               progress: i['tl_progress'].toString(),
               status: i['tl_status'],
@@ -920,7 +922,7 @@ class _ManajemenDetailProjectAllState extends State<ManajemenDetailProjectAll> {
                                                                       bottom:
                                                                           10.0),
                                                               child: Text(
-                                                                  '${item.timestart}'),
+                                                                  '${item.timestart} - ${item.timeend}'),
                                                             ),
                                                             Container(
                                                               padding: EdgeInsets
