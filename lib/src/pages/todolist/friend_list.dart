@@ -58,7 +58,7 @@ class _WidgetFriendListState extends State<WidgetFriendList> {
 
     requestHeaders['Accept'] = 'application/json';
     requestHeaders['Authorization'] = '$tokenType $accessToken';
-    return filterDataFriendList('all');
+    return filterDataFriendList('unknown');
   }
 
   Future<List<List>> filterDataFriendList(nama) async {
@@ -78,7 +78,8 @@ class _WidgetFriendListState extends State<WidgetFriendList> {
       isLoading = true;
     });
     try {
-      final participant = await http.get(url('api/get_friendlist/filter/$nama'),
+      final participant = await http.get(
+          url('api/get_friendlist/filter/$nama'),
           headers: requestHeaders);
 
       if (participant.statusCode == 200) {
@@ -162,92 +163,106 @@ class _WidgetFriendListState extends State<WidgetFriendList> {
       body: isLoading == true
           ? _loadingview()
           : isError == true
-              ? Container(
-                  color: Colors.white,
-                  margin: EdgeInsets.only(top: 0.0, left: 10.0, right: 10.0),
-                  padding: const EdgeInsets.only(top: 10.0, bottom: 15.0),
-                  child: RefreshIndicator(
-                    onRefresh: () => getHeaderHTTP(),
-                    child: Column(children: <Widget>[
-                      new Container(
-                        width: 100.0,
-                        height: 100.0,
-                        child: Image.asset("images/system-eror.png"),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(
-                          top: 30.0,
-                          left: 15.0,
-                          right: 15.0,
-                        ),
-                        child: Center(
-                          child: Text(
-                            "Gagal memuat halaman, tekan tombol muat ulang halaman untuk refresh halaman",
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.black54,
-                              height: 1.5,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(
-                            top: 15.0, left: 15.0, right: 15.0, bottom: 15.0),
-                        child: SizedBox(
-                          width: double.infinity,
-                          child: RaisedButton(
-                            color: Colors.white,
-                            textColor: primaryAppBarColor,
-                            disabledColor: Colors.grey,
-                            disabledTextColor: Colors.black,
-                            padding: EdgeInsets.all(15.0),
-                            onPressed: () async {
-                              getHeaderHTTP();
-                            },
-                            child: Text(
-                              "Muat Ulang Halaman",
-                              style: TextStyle(
-                                  fontSize: 14.0, fontWeight: FontWeight.w500),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ]),
-                  ),
-                )
-              : isNotFound == true
-                  ?
-                  RefreshIndicator(
-                    onRefresh: getHeaderHTTP,
+              ? RefreshIndicator(
+                  onRefresh: () => filterDataFriendList(_searchQuery.text),
                   child: SingleChildScrollView(
-                    physics: AlwaysScrollableScrollPhysics(),
-                   child: Container(
-                      child: Center(
-                        child: Column(
-                          children: <Widget>[
+                      physics: AlwaysScrollableScrollPhysics(),
+                      child: Container(
+                        color: Colors.white,
+                        margin:
+                            EdgeInsets.only(top: 0.0, left: 10.0, right: 10.0),
+                        padding: const EdgeInsets.only(top: 10.0, bottom: 15.0),
+                        child: RefreshIndicator(
+                          onRefresh: () =>
+                              filterDataFriendList(_searchQuery.text),
+                          child: Column(children: <Widget>[
                             new Container(
-                              margin: EdgeInsets.only(top: 16),
-                              width: 200.0,
-                              height: 200.0,
-                              child: Image.asset("images/icon_person.png"),
+                              width: 100.0,
+                              height: 100.0,
+                              child: Image.asset("images/system-eror.png"),
                             ),
-                            Container(
-                                margin: EdgeInsets.only(top: 16.0,bottom: 10.0),
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                top: 30.0,
+                                left: 15.0,
+                                right: 15.0,
+                              ),
+                              child: Center(
                                 child: Text(
-                                  "Upss... Member Tidak Ditemukan",
-                                  style: TextStyle(fontSize: 14),
-                                )),
-                          ],
+                                  "Gagal memuat halaman, tekan tombol muat ulang halaman untuk refresh halaman",
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.black54,
+                                    height: 1.5,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                  top: 15.0,
+                                  left: 15.0,
+                                  right: 15.0,
+                                  bottom: 15.0),
+                              child: SizedBox(
+                                width: double.infinity,
+                                child: RaisedButton(
+                                  color: Colors.white,
+                                  textColor: primaryAppBarColor,
+                                  disabledColor: Colors.grey,
+                                  disabledTextColor: Colors.black,
+                                  padding: EdgeInsets.all(15.0),
+                                  onPressed: () async {
+                                    filterDataFriendList(_searchQuery.text);
+                                  },
+                                  child: Text(
+                                    "Muat Ulang Halaman",
+                                    style: TextStyle(
+                                        fontSize: 14.0,
+                                        fontWeight: FontWeight.w500),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ]),
                         ),
-                      ),
-                   ),
-                    ))
+                      )))
+              : isNotFound == true
+                  ? RefreshIndicator(
+                      onRefresh: () async {
+                        filterDataFriendList(_searchQuery.text);
+                      },
+                      child: SingleChildScrollView(
+                        physics: AlwaysScrollableScrollPhysics(),
+                        child: Container(
+                          child: Center(
+                            child: Column(
+                              children: <Widget>[
+                                new Container(
+                                  margin: EdgeInsets.only(top: 16),
+                                  width: 200.0,
+                                  height: 200.0,
+                                  child: Image.asset("images/icon_person.png"),
+                                ),
+                                Container(
+                                    margin: EdgeInsets.only(
+                                        top: 16.0, bottom: 10.0),
+                                    child: Text(
+                                      "Upss... Member Tidak Ditemukan",
+                                      style: TextStyle(fontSize: 14),
+                                    )),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ))
                   : Center(
                       child: Scrollbar(
                           child: RefreshIndicator(
-                        onRefresh: getHeaderHTTP,
+                        onRefresh: () async {
+                          filterDataFriendList(_searchQuery.text);
+                        },
                         child: ListView.builder(
                           itemCount: listFriends.length,
                           itemBuilder: (BuildContext context, int index) {
@@ -289,9 +304,14 @@ class _WidgetFriendListState extends State<WidgetFriendList> {
                                     overflow: TextOverflow.ellipsis,
                                     softWrap: true,
                                   ),
-                                  subtitle: Padding(padding: EdgeInsets.only(top:5.0,bottom:10.0),child: Text( listFriends[index].emailfriend == null
-                                        ? 'Email Tidak Diketahui'
-                                        : listFriends[index].emailfriend)),
+                                  subtitle: Padding(
+                                      padding: EdgeInsets.only(
+                                          top: 5.0, bottom: 10.0),
+                                      child: Text(
+                                          listFriends[index].emailfriend == null
+                                              ? 'Email Tidak Diketahui'
+                                              : listFriends[index]
+                                                  .emailfriend)),
                                   trailing: Icon(Icons.chevron_right),
                                 ),
                               ),
@@ -402,7 +422,7 @@ class _WidgetFriendListState extends State<WidgetFriendList> {
           fontSize: 14,
         ),
       );
-      filterDataFriendList('all');
+      filterDataFriendList(_searchQuery.text);
       _debouncer.run(() {
         _searchQuery.clear();
       });

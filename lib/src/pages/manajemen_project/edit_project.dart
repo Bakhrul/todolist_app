@@ -1275,13 +1275,6 @@ class _DetailProjectState extends State<DetailProject>
                                                                   .showToast(
                                                                       msg:
                                                                           'Nama Project Tidak Boleh Kosong');
-                                                            } else if (_deskripsiProjectController
-                                                                    .text ==
-                                                                '') {
-                                                              Fluttertoast
-                                                                  .showToast(
-                                                                      msg:
-                                                                          'Deskripsi Project Tidak Boleh Kosong');
                                                             } else if (_dateStartController
                                                                     .text ==
                                                                 '') {
@@ -2197,13 +2190,6 @@ class _DetailProjectState extends State<DetailProject>
                                                                   .showToast(
                                                                       msg:
                                                                           'Tanggal Berakhirnya To Do Tidak Boleh Kosong');
-                                                            } else if (_controllerdeskripsiTodo
-                                                                    .text ==
-                                                                '') {
-                                                              Fluttertoast
-                                                                  .showToast(
-                                                                      msg:
-                                                                          'Deskripsi To Do Tidak Boleh Kosong');
                                                             } else {
                                                               _tambahtodo();
                                                             }

@@ -1409,6 +1409,7 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
                                                                 EdgeInsets.only(
                                                                     bottom: 16),
                                                             child: RaisedButton(
+                                                              padding: EdgeInsets.all(15.0),
                                                               color:
                                                                   primaryAppBarColor,
                                                               child: Text(
@@ -1472,7 +1473,6 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
                                                                 }
                                                               },
                                                             )),
-                                                        Divider()
                                                       ],
                                                     )),
                                               ],

@@ -58,7 +58,7 @@ class _WidgetFriendListState extends State<WidgetFriendList> {
 
     requestHeaders['Accept'] = 'application/json';
     requestHeaders['Authorization'] = '$tokenType $accessToken';
-    return filterDataFriendList('all');
+    return filterDataFriendList('unknown');
   }
 
   Future<List<List>> filterDataFriendList(nama) async {
@@ -162,64 +162,72 @@ class _WidgetFriendListState extends State<WidgetFriendList> {
       body: isLoading == true
           ? _loadingview()
           : isError == true
-              ? Container(
-                  color: Colors.white,
-                  margin: EdgeInsets.only(top: 0.0, left: 10.0, right: 10.0),
-                  padding: const EdgeInsets.only(top: 10.0, bottom: 15.0),
-                  child: RefreshIndicator(
-                    onRefresh: () => getHeaderHTTP(),
-                    child: Column(children: <Widget>[
-                      new Container(
-                        width: 100.0,
-                        height: 100.0,
-                        child: Image.asset("images/system-eror.png"),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(
-                          top: 30.0,
-                          left: 15.0,
-                          right: 15.0,
-                        ),
-                        child: Center(
-                          child: Text(
-                            "Gagal memuat halaman, tekan tombol muat ulang halaman untuk refresh halaman",
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.black54,
-                              height: 1.5,
-                            ),
-                            textAlign: TextAlign.center,
+              ? 
+              
+              RefreshIndicator(
+                onRefresh: () => filterDataFriendList(_searchQuery.text),
+                child: SingleChildScrollView(
+                  physics: AlwaysScrollableScrollPhysics(),
+                  child: Container(
+                      color: Colors.white,
+                      margin: EdgeInsets.only(top: 0.0, left: 10.0, right: 10.0),
+                      padding: const EdgeInsets.only(top: 10.0, bottom: 15.0),
+                      child: RefreshIndicator(
+                        onRefresh: () => filterDataFriendList(_searchQuery.text),
+                        child: Column(children: <Widget>[
+                          new Container(
+                            width: 100.0,
+                            height: 100.0,
+                            child: Image.asset("images/system-eror.png"),
                           ),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(
-                            top: 15.0, left: 15.0, right: 15.0, bottom: 15.0),
-                        child: SizedBox(
-                          width: double.infinity,
-                          child: RaisedButton(
-                            color: Colors.white,
-                            textColor: primaryAppBarColor,
-                            disabledColor: Colors.grey,
-                            disabledTextColor: Colors.black,
-                            padding: EdgeInsets.all(15.0),
-                            onPressed: () async {
-                              getHeaderHTTP();
-                            },
-                            child: Text(
-                              "Muat Ulang Halaman",
-                              style: TextStyle(
-                                  fontSize: 14.0, fontWeight: FontWeight.w500),
+                          Padding(
+                            padding: const EdgeInsets.only(
+                              top: 30.0,
+                              left: 15.0,
+                              right: 15.0,
+                            ),
+                            child: Center(
+                              child: Text(
+                                "Gagal memuat halaman, tekan tombol muat ulang halaman untuk refresh halaman",
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.black54,
+                                  height: 1.5,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
                             ),
                           ),
-                        ),
+                          Padding(
+                            padding: const EdgeInsets.only(
+                                top: 15.0, left: 15.0, right: 15.0, bottom: 15.0),
+                            child: SizedBox(
+                              width: double.infinity,
+                              child: RaisedButton(
+                                color: Colors.white,
+                                textColor: primaryAppBarColor,
+                                disabledColor: Colors.grey,
+                                disabledTextColor: Colors.black,
+                                padding: EdgeInsets.all(15.0),
+                                onPressed: () async {
+                                 filterDataFriendList(_searchQuery.text);
+                                },
+                                child: Text(
+                                  "Muat Ulang Halaman",
+                                  style: TextStyle(
+                                      fontSize: 14.0, fontWeight: FontWeight.w500),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ]),
                       ),
-                    ]),
-                  ),
-                )
+                    ),
+                ),
+              )
               : isNotFound == true
                   ? RefreshIndicator(
-                    onRefresh: getHeaderHTTP,
+                    onRefresh: () =>  filterDataFriendList(_searchQuery.text),
                     child: SingleChildScrollView(
                       physics: AlwaysScrollableScrollPhysics(),
                       child: Container(
@@ -246,7 +254,7 @@ class _WidgetFriendListState extends State<WidgetFriendList> {
                   )
                   : Center(
                       child: RefreshIndicator(
-                        onRefresh: getHeaderHTTP,
+                        onRefresh: () =>  filterDataFriendList(_searchQuery.text),
                         child: ListView.builder(
                           physics: AlwaysScrollableScrollPhysics(),
                           itemCount: listFriends.length,
@@ -401,7 +409,7 @@ class _WidgetFriendListState extends State<WidgetFriendList> {
           fontSize: 14,
         ),
       );
-      filterDataFriendList('all');
+       filterDataFriendList(_searchQuery.text);
       _debouncer.run(() {
         _searchQuery.clear();
       });
