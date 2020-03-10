@@ -95,16 +95,7 @@ class _DashboardState extends State<Dashboard> {
     requestHeaders['Authorization'] = '$tokenType $accessToken';
     return requestHeaders;
   }
-  Future<List<List>> getDataProject() async {
-    var storage = new DataStore();
-    var tokenTypeStorage = await storage.getDataString('token_type');
-    var accessTokenStorage = await storage.getDataString('access_token');
-
-    tokenType = tokenTypeStorage;
-    accessToken = accessTokenStorage;
-    requestHeaders['Accept'] = 'application/json';
-    requestHeaders['Authorization'] = '$tokenType $accessToken';
-
+  Future<List<List>> getDataProject() async {   
     setState(() {
       isLoading = true;
       isError = false;
@@ -193,7 +184,7 @@ class _DashboardState extends State<Dashboard> {
 
       if (participant.statusCode == 200) {
         var listParticipantToJson = json.decode(participant.body);
-        var todos = listParticipantToJson;
+        var todos = listParticipantToJson['todo'];
         for (var i in todos) {
           Todo todo = Todo(
               id: i['id'],
@@ -443,7 +434,8 @@ class _DashboardState extends State<Dashboard> {
         isScrollControlled: true,
         context: context,
         builder: (builder) {
-          return Container(
+          return SingleChildScrollView(
+          child: Container(
             height: 330.0 + MediaQuery.of(context).viewInsets.bottom,
             padding: EdgeInsets.only(
                 bottom: MediaQuery.of(context).viewInsets.bottom,
@@ -567,6 +559,7 @@ class _DashboardState extends State<Dashboard> {
                                 style: TextStyle(color: Colors.white)))))
               ],
             ),
+          ),
           );
         });
   }

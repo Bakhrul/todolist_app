@@ -968,6 +968,7 @@ class _ManajemenUserState extends State<ManajemenUser>
                               : RefreshIndicator(
                                   onRefresh: getHeaderHTTP,
                                   child: SingleChildScrollView(
+                                    physics: AlwaysScrollableScrollPhysics(),
                                       child: Column(
                                     children: listProject
                                         .map(
@@ -1088,9 +1089,7 @@ class _ManajemenUserState extends State<ManajemenUser>
                                   )),
                                 ),
                   // LIST HISTORY
-                  isError == true
-                      ? Container()
-                      : isLoading == true
+                isLoading == true
                           ? listLoadingTodo()
                           : isError == true
                               ? errorSystemFilter(context)
@@ -1255,10 +1254,7 @@ class _ManajemenUserState extends State<ManajemenUser>
                                                 .toList(),
                                           )),
                                     ),
-                  // LIST Friend
-                  isError == true
-                      ? Container()
-                      : isLoading == true
+             isLoading == true
                           ? listLoadingTodo()
                           : isError == true
                               ? errorSystemFilter(context)
@@ -1626,7 +1622,8 @@ class _ManajemenUserState extends State<ManajemenUser>
   }
 
   Widget errorSystemFilter(BuildContext context) {
-    return Container(
+    return SingleChildScrollView(
+    child: Container(
       color: Colors.white,
       margin: EdgeInsets.only(top: 0.0, left: 10.0, right: 10.0),
       padding: const EdgeInsets.only(top: 10.0, bottom: 15.0),
@@ -1681,7 +1678,7 @@ class _ManajemenUserState extends State<ManajemenUser>
           ),
         ),
       ]),
-    );
+    ));
   }
 
   void _editProfile() {

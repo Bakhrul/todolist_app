@@ -160,7 +160,7 @@ class _ListFriendProjectState extends State<ListFriendProject> {
                 decoration: InputDecoration(
                   border: InputBorder.none,
                   prefixIcon: new Icon(Icons.search, color: Colors.black87),
-                  hintText: "Cari...",
+                  hintText: "Cari Berdasarkan Nama",
                   hintStyle: TextStyle(
                     color: Colors.black87,
                     fontSize: 14,
