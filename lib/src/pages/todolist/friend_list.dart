@@ -12,7 +12,13 @@ import 'package:todolist_app/src/utils/utils.dart';
 
 bool actionBackAppBar, iconButtonAppbarColor;
 List<FriendList> listFriends = [];
-bool isLoading, isError, isFilter, isErrorfilter, isDelete, isCreate,isNotFound;
+bool isLoading,
+    isError,
+    isFilter,
+    isErrorfilter,
+    isDelete,
+    isCreate,
+    isNotFound;
 final _debouncer = Debouncer(milliseconds: 500);
 
 class Debouncer {
@@ -75,29 +81,27 @@ class _WidgetFriendListState extends State<WidgetFriendList> {
         var listParticipantToJson = json.decode(participant.body);
         var participants = listParticipantToJson;
         listFriends = [];
-        if(participants ==  ''){
-        setState(() {
-          isLoading = false;
-          isError = false;
-          isNotFound = true;
-        });
-        }else{
+        if (participants == '') {
+          setState(() {
+            isLoading = false;
+            isError = false;
+            isNotFound = true;
+          });
+        } else {
           for (var i in participants) {
-          FriendList participant = FriendList(
-              users: i['fl_users'],
-              namafriend: i['us_name'],
-              friend: i['fl_friend'],
-              imageFriend: i['us_image']);
-          listFriends.add(participant);
+            FriendList participant = FriendList(
+                users: i['fl_users'],
+                namafriend: i['us_name'],
+                friend: i['fl_friend'],
+                imageFriend: i['us_image']);
+            listFriends.add(participant);
+          }
+          setState(() {
+            isLoading = false;
+            isError = false;
+            isNotFound = false;
+          });
         }
-         setState(() {
-          isLoading = false;
-          isError = false;
-        });
-        }
-        
-
-       
       } else if (participant.statusCode == 401) {
         Fluttertoast.showToast(
             msg: "Token Telah Kadaluwarsa, Silahkan Login Kembali");
@@ -130,9 +134,9 @@ class _WidgetFriendListState extends State<WidgetFriendList> {
   }
 
   Future<List<List>> filterDataFriendList(nama) async {
-   if(nama == ''){
-     nama = 'unknown';
-   }
+    if (nama == '') {
+      nama = 'unknown';
+    }
     var storage = new DataStore();
     var tokenTypeStorage = await storage.getDataString('token_type');
     var accessTokenStorage = await storage.getDataString('access_token');
@@ -145,10 +149,7 @@ class _WidgetFriendListState extends State<WidgetFriendList> {
     setState(() {
       isLoading = true;
     });
-    print(nama);
-    
     try {
-      
       final participant = await http.get(url('api/get_friendlist/filter/$nama'),
           headers: requestHeaders);
 
@@ -156,28 +157,27 @@ class _WidgetFriendListState extends State<WidgetFriendList> {
         var listParticipantToJson = json.decode(participant.body);
         var participants = listParticipantToJson;
         listFriends = [];
-        if(participants ==  'notfound'){
-        setState(() {
-          isLoading = false;
-          isError = false;
-          isNotFound = true;
-        });
-        }else{
+        if (participants == 'notfound') {
+          setState(() {
+            isLoading = false;
+            isError = false;
+            isNotFound = true;
+          });
+        } else {
           for (var i in participants) {
-          FriendList participant = FriendList(
-              users: i['user'],
-              namafriend: i['name'],
-              friend: i['friend'],
-              imageFriend: i['image']);
-          listFriends.add(participant);
+            FriendList participant = FriendList(
+                users: i['user'],
+                namafriend: i['name'],
+                friend: i['friend'],
+                imageFriend: i['image']);
+            listFriends.add(participant);
+          }
+          setState(() {
+            isLoading = false;
+            isError = false;
+            isNotFound = false;
+          });
         }
-        setState(() {
-          isLoading = false;
-          isError = false;
-          isNotFound = false;
-        });
-        }
-        
       } else if (participant.statusCode == 401) {
         Fluttertoast.showToast(
             msg: "Token Telah Kadaluwarsa, Silahkan Login Kembali");
@@ -214,6 +214,7 @@ class _WidgetFriendListState extends State<WidgetFriendList> {
     getHeaderHTTP();
     actionBackAppBar = true;
     isLoading = true;
+    isNotFound = false;
     isError = false;
     isFilter = false;
     isCreate = false;
@@ -287,51 +288,53 @@ class _WidgetFriendListState extends State<WidgetFriendList> {
                     ]),
                   ),
                 )
-              : isNotFound == true 
-              ? Center(child: Column(
-                children: <Widget>[
-                  new Container(
-                        width: 100.0,
-                        height: 100.0,
-                        child: Image.asset("images/system-eror.png"),
-                      ),
-                  Text("Tidak Ditemukan"),
-                ],
-              ),)
-              :
-              Center(
-                  child: Container(
-                    child: ListView.builder(
-                      itemCount: listFriends.length,
-                      itemBuilder: (BuildContext context, int index) {
-                        return Card(
-                          child: ListTile(
-                            leading: Container(
-                              height: 40.0,
-                              width: 40.0,
-                              child: ClipOval(
-                                  child: FadeInImage.assetNetwork(
-                                placeholder: 'images/loading.gif',
-                                image: listFriends[index].imageFriend == null ||
-                                        listFriends[index].imageFriend == ''
-                                    ? url('assets/images/imgavatar.png')
-                                    : url(
-                                        'storage/image/profile/${listFriends[index].imageFriend}'),
-                              )),
-                            ),
-                            title: Text(
-                              listFriends[index].namafriend == null
-                                  ? 'Member Tidak Diketahui'
-                                  : listFriends[index].namafriend,
-                              overflow: TextOverflow.ellipsis,
-                              softWrap: true,
-                            ),
+              : isNotFound == true
+                  ? Center(
+                      child: Column(
+                        children: <Widget>[
+                          new Container(
+                            // width: 100.0,
+                            // height: 100.0,
+                            child: Image.asset("images/todo_icon2.png"),
                           ),
-                        );
-                      },
+                          Text("Tidak Ditemukan"),
+                        ],
+                      ),
+                    )
+                  : Center(
+                      child: Container(
+                        child: ListView.builder(
+                          itemCount: listFriends.length,
+                          itemBuilder: (BuildContext context, int index) {
+                            return Card(
+                              child: ListTile(
+                                leading: Container(
+                                  height: 40.0,
+                                  width: 40.0,
+                                  child: ClipOval(
+                                      child: FadeInImage.assetNetwork(
+                                    placeholder: 'images/loading.gif',
+                                    image: listFriends[index].imageFriend ==
+                                                null ||
+                                            listFriends[index].imageFriend == ''
+                                        ? url('assets/images/imgavatar.png')
+                                        : url(
+                                            'storage/image/profile/${listFriends[index].imageFriend}'),
+                                  )),
+                                ),
+                                title: Text(
+                                  listFriends[index].namafriend == null
+                                      ? 'Member Tidak Diketahui'
+                                      : listFriends[index].namafriend,
+                                  overflow: TextOverflow.ellipsis,
+                                  softWrap: true,
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
                     ),
-                  ),
-                ),
     );
   }
 
@@ -360,14 +363,13 @@ class _WidgetFriendListState extends State<WidgetFriendList> {
                             child: Row(
                               children: <Widget>[
                                 Container(
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.all(
-                                        Radius.circular(100.0)),
-                                  ),
-                                  width: 35.0,
-                                  height: 35.0
-                                ),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.all(
+                                          Radius.circular(100.0)),
+                                    ),
+                                    width: 35.0,
+                                    height: 35.0),
                                 Expanded(
                                   flex: 9,
                                   child: Column(

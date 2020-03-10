@@ -11,16 +11,18 @@ import 'dart:async';
 import 'package:progress_dialog/progress_dialog.dart';
 import 'package:todolist_app/src/storage/storage.dart';
 import 'package:todolist_app/src/utils/utils.dart';
+import 'edit_project.dart';
 
-class ConfirmationFriend extends StatefulWidget {
+class ListFriendProject extends StatefulWidget {
   @override
-  ConfirmationFriendState createState() => ConfirmationFriendState();
+  _ListFriendProjectState createState() => _ListFriendProjectState();
 }
 
-class ConfirmationFriendState extends State<ConfirmationFriend> {
+class _ListFriendProjectState extends State<ListFriendProject> {
   String tokenType, accessToken;
   Map<String, String> requestHeaders = Map();
   List<FriendList> listFriend = [];
+  TextEditingController _searchQuery = TextEditingController();
   bool isLoading, isError;
   ProgressDialog progressApiAction;
 
@@ -53,7 +55,10 @@ class ConfirmationFriendState extends State<ConfirmationFriend> {
       listFriend = [];
     });
     try {
-      final getFriendUrl = await http.get(url('api/get_confirmation_friend'),
+      final getFriendUrl = await http.post(url('api/get_friend_acc'),
+          body: {
+            'search': _searchQuery.text,
+          },
           headers: requestHeaders);
 
       if (getFriendUrl.statusCode == 200) {
@@ -63,9 +68,10 @@ class ConfirmationFriendState extends State<ConfirmationFriend> {
 
         for (var i in friends) {
           FriendList participant = FriendList(
-            users: i['fl_friend'],
-            friend: i['fl_users'],
+            users: i['fl_users'],
+            friend: i['fl_friend'],
             namafriend: i['us_name'],
+            emailfriend: i['us_email'],
             waktutambah: i['fl_added'] == null || i['fl_added'] == ''
                 ? null
                 : DateFormat('dd MMM yyyy HH:mm')
@@ -108,46 +114,6 @@ class ConfirmationFriendState extends State<ConfirmationFriend> {
     return null;
   }
 
-  void _gantistatusfriend(friend, type) async {
-    print(friend);
-    await progressApiAction.show();
-    try {
-      final gantiStatusTemanUrl = await http
-          .post(url('api/konfirmasiTeman'), headers: requestHeaders, body: {
-        'friend': friend.toString(),
-        'type_confirmation': type,
-      });
-
-      if (gantiStatusTemanUrl.statusCode == 200) {
-        var gantiStatusTemanJson = json.decode(gantiStatusTemanUrl.body);
-        if (gantiStatusTemanJson['status'] == 'success') {
-          Fluttertoast.showToast(msg: 'Berhasil!');
-          progressApiAction.hide().then((isHidden) {
-            print(isHidden);
-          });
-          getHeaderHTTP();
-        }
-      } else {
-        print(gantiStatusTemanUrl.body);
-        progressApiAction.hide().then((isHidden) {
-          print(isHidden);
-        });
-        Fluttertoast.showToast(msg: "Gagal, Silahkan Coba Kembali");
-      }
-    } on TimeoutException catch (_) {
-      progressApiAction.hide().then((isHidden) {
-        print(isHidden);
-      });
-      Fluttertoast.showToast(msg: "Timed out, Try again");
-    } catch (e) {
-      progressApiAction.hide().then((isHidden) {
-        print(isHidden);
-      });
-      Fluttertoast.showToast(msg: "Gagal, Silahkan Coba Kembali");
-      print(e);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     progressApiAction = new ProgressDialog(context,
@@ -164,12 +130,45 @@ class ConfirmationFriendState extends State<ConfirmationFriend> {
 
     return Scaffold(
         backgroundColor: Colors.white,
-        appBar: AppBar(
-          title: Text(
-            "Permintaan Teman",
-            style: TextStyle(fontSize: 14),
+        appBar: PreferredSize(
+          preferredSize: Size.fromHeight(50.0),
+          child: AppBar(
+          titleSpacing: 0.0,
+          automaticallyImplyLeading: false,
+            title: Container(
+              height: 50.0,
+              alignment: Alignment.center,
+              padding: EdgeInsets.all(0),
+              margin: EdgeInsets.all(0),
+              decoration: BoxDecoration(
+                color: Colors.white,
+              ),
+              child: TextField(
+                autofocus: true,
+                textInputAction: TextInputAction.search,
+                controller: _searchQuery,
+                onSubmitted: (string) {
+                  if (string != null || string != '') {
+                    getDataProject();
+                  }
+                },
+                style: TextStyle(
+                  color: Colors.black87,
+                  fontSize: 14,
+                ),
+                textAlignVertical: TextAlignVertical.center,
+                decoration: InputDecoration(
+                  border: InputBorder.none,
+                  prefixIcon: new Icon(Icons.search, color: Colors.black87),
+                  hintText: "Cari...",
+                  hintStyle: TextStyle(
+                    color: Colors.black87,
+                    fontSize: 14,
+                  ),
+                ),
+              ),
+            ),
           ),
-          backgroundColor: primaryAppBarColor,
         ),
         body: isLoading != false
             ? listLoadingTodo()
@@ -196,7 +195,7 @@ class ConfirmationFriendState extends State<ConfirmationFriend> {
                                     bottom: 35.0),
                                 child: Center(
                                   child: Text(
-                                    "Anda Tidak Memiliki Daftar Permintaan Teman",
+                                    "Oops, Teman Yang Anda Cari Tidak Ditemukan",
                                     style: TextStyle(
                                       fontSize: 16,
                                       height: 1.5,
@@ -220,7 +219,14 @@ class ConfirmationFriendState extends State<ConfirmationFriend> {
                                 itemBuilder: (BuildContext context, int index) {
                                   return InkWell(
                                     onTap: () async {
-                                      detailUser(listFriend[index].friend);
+                                      setState(() {
+                                        idFriendEditProject =
+                                            listFriend[index].friend.toString();
+                                        namaFriendEditProject =
+                                            listFriend[index].namafriend;
+                                        isFriendEditProject = true;
+                                      });
+                                      Navigator.pop(context);
                                     },
                                     child: Container(
                                       child: Card(
@@ -276,120 +282,20 @@ class ConfirmationFriendState extends State<ConfirmationFriend> {
                                                         fontSize: 14,
                                                         fontWeight:
                                                             FontWeight.w500)),
-                                                trailing:
-                                                    PopupMenuButton<String>(
-                                                  onSelected: (String value) {
-                                                    switch (value) {
-                                                      case 'Terima':
-                                                        showDialog(
-                                                          context: context,
-                                                          builder: (BuildContext
-                                                                  context) =>
-                                                              AlertDialog(
-                                                            title: Text(
-                                                                'Peringatan!'),
-                                                            content: Text(
-                                                                'Apakah Anda Ingin Menerima Pertemanan?'),
-                                                            actions: <Widget>[
-                                                              FlatButton(
-                                                                child: Text(
-                                                                    'Tidak'),
-                                                                onPressed: () {
-                                                                  Navigator.pop(
-                                                                      context);
-                                                                },
-                                                              ),
-                                                              FlatButton(
-                                                                textColor:
-                                                                    Colors
-                                                                        .green,
-                                                                child:
-                                                                    Text('Ya'),
-                                                                onPressed:
-                                                                    () async {
-                                                                  Navigator.pop(
-                                                                      context);
-                                                                  _gantistatusfriend(
-                                                                      listFriend[
-                                                                              index]
-                                                                          .friend,
-                                                                      'terima');
-                                                                },
-                                                              )
-                                                            ],
-                                                          ),
-                                                        );
-
-                                                        break;
-                                                      case 'Tolak':
-                                                        showDialog(
-                                                          context: context,
-                                                          builder: (BuildContext
-                                                                  context) =>
-                                                              AlertDialog(
-                                                            title: Text(
-                                                                'Peringatan!'),
-                                                            content: Text(
-                                                                'Apakah Anda Ingin Menolak Pertemanan?'),
-                                                            actions: <Widget>[
-                                                              FlatButton(
-                                                                child: Text(
-                                                                    'Tidak'),
-                                                                onPressed: () {
-                                                                  Navigator.pop(
-                                                                      context);
-                                                                },
-                                                              ),
-                                                              FlatButton(
-                                                                textColor:
-                                                                    Colors
-                                                                        .green,
-                                                                child:
-                                                                    Text('Ya'),
-                                                                onPressed:
-                                                                    () async {
-                                                                  Navigator.pop(
-                                                                      context);
-                                                                  _gantistatusfriend(
-                                                                      listFriend[
-                                                                              index]
-                                                                          .friend,
-                                                                      'tolak');
-                                                                },
-                                                              )
-                                                            ],
-                                                          ),
-                                                        );
-                                                        break;
-
-                                                      default:
-                                                        break;
-                                                    }
-                                                  },
-                                                  icon: Icon(Icons.more_vert),
-                                                  itemBuilder: (context) => [
-                                                    PopupMenuItem(
-                                                      value: 'Terima',
-                                                      child: Text("Terima"),
-                                                    ),
-                                                    PopupMenuItem(
-                                                      value: 'Tolak',
-                                                      child: Text("Tolak"),
-                                                    ),
-                                                  ],
-                                                ),
                                                 subtitle: Padding(
                                                   padding:
                                                       const EdgeInsets.only(
                                                           top: 5.0,
                                                           bottom: 10.0),
                                                   child: Text(listFriend[index]
-                                                              .waktutambah ==
+                                                              .emailfriend ==
                                                           null
-                                                      ? 'Waktu Permintaan Tidak Diketahui'
+                                                      ? 'Email Tidak Dapat Ditemukan'
                                                       : listFriend[index]
-                                                          .waktutambah),
+                                                          .emailfriend),
                                                 ),
+                                                trailing:
+                                                    Icon(Icons.chevron_right),
                                               ),
                                             ),
                                           )),
@@ -422,9 +328,12 @@ class ConfirmationFriendState extends State<ConfirmationFriend> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(100.0),
+                                    color: Colors.white,
+                                  ),
                                   width: 40.0,
                                   height: 40.0,
-                                  color: Colors.white,
                                 ),
                                 Padding(
                                   padding: const EdgeInsets.symmetric(

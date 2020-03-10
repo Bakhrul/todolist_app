@@ -1210,7 +1210,7 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
                       child: ButtonTheme(
                         child: RaisedButton(
                           padding: EdgeInsets.all(0),
-                          color: primaryAppBarColor,
+                          color: Colors.blue,
                           textColor: Colors.white,
                           disabledColor: Color.fromRGBO(254, 86, 14, 0.8),
                           disabledTextColor: Colors.white,

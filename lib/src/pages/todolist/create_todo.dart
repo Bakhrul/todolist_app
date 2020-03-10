@@ -298,7 +298,7 @@ bool isAllday;
                             padding: EdgeInsets.only(
                               left: 10.0,
                               right: 10.0,
-                              top: 20.0,
+                              top: 0.0,
                               bottom: 15.0,
                             ),
                             child: Column(
@@ -400,12 +400,11 @@ bool isAllday;
                                         ),
                                       )
                                     : Container(),
+                                Container(margin:EdgeInsets.only(top:10.0),child: Divider()),
                                 Padding(
                                   padding: const EdgeInsets.only(top:8.0),
                                   child: Text("Pelaksanaan Kegiatan"),
                                 ),
-                                    Divider(),
-
                                 Row(
                                   children: <Widget>[
                                     Container(
@@ -415,7 +414,6 @@ bool isAllday;
                                         width: 24.0,
                                         child: Checkbox(
                                           value: isAllday,
-
                                           // checkColor: Colors.green,
                                           activeColor: primaryAppBarColor,
                                           onChanged: (bool value) {
@@ -428,7 +426,10 @@ bool isAllday;
                                         ),
                                       ),
                                     ),
-                                    Text("All Day")
+                                    Padding(
+                                      padding: const EdgeInsets.only(left:5.0),
+                                      child: Text("All Day"),
+                                    )
                                   ],
                                 ),
                                 Container(

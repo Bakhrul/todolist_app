@@ -148,6 +148,13 @@ class _LoginPageState extends State<LoginPage> {
         setState(() {
           _isLoading = false;
         });
+      } else if(getToken.statusCode == 400){
+        Fluttertoast.showToast(
+            msg: "Username Atau Password Salah");
+        setState(() {
+          _isLoading = false;
+        });
+
       } else {
         Fluttertoast.showToast(
             msg: "Request failed with status: ${getToken.statusCode}");

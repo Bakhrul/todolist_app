@@ -1008,6 +1008,9 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
                                                                 ),
                                                               )
                                                             : Container(),
+                                                              Container(
+                                                                margin: EdgeInsets.only(top:15.0),
+                                                                child: Divider()),
                                                         Padding(
                                                           padding:
                                                               const EdgeInsets
@@ -1016,7 +1019,7 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
                                                           child: Text(
                                                               "Pelaksanaan Kegiatan"),
                                                         ),
-                                                        Divider(),
+                                                      
                                                         Row(
                                                           children: <Widget>[
                                                             Container(
@@ -1436,70 +1439,69 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
                                               ],
                                             ),
                                           ),
+                                           isLoading == true ? Container() :
+                          dataStatusKita == null
+                              ? Container()
+                              : dataStatusKita['tlr_role'] == '1' ||
+                                      dataStatusKita['tlr_role'] == 1
+                                  ? Container(
+                                      color: Colors.red[100],
+                                      margin: EdgeInsets.only(
+                                          top: 15.0,
+                                          left: 5.0,
+                                          right: 5.0,
+                                          bottom: 15.0),
+                                      padding: EdgeInsets.only(
+                                          left: 10.0,
+                                          right: 10.0,
+                                          top: 5.0,
+                                          bottom: 5.0),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: <Widget>[
+                                          Expanded(
+                                            child: Text(
+                                                'Ingin Menghapus To Do Ini ?',
+                                                style: TextStyle(
+                                                    color: Colors.black87)),
+                                          ),
+                                          ButtonTheme(
+                                              minWidth: 0,
+                                              height: 0,
+                                              child: FlatButton(
+                                                  // borderSide: BorderSide(color:Colors.red),
+                                                  color: Colors.red[400],
+                                                  onPressed: () async {
+                                                    Navigator.push(
+                                                        context,
+                                                        MaterialPageRoute(
+                                                            builder: (context) =>
+                                                                ManageDeleteTodo(
+                                                                  idtodo: dataTodo[
+                                                                      'tl_id'],
+                                                                  namatodo:
+                                                                      dataTodo[
+                                                                          'tl_title'],
+                                                                )));
+                                                  },
+                                                  padding: EdgeInsets.only(
+                                                      left: 15.0,
+                                                      right: 15.0,
+                                                      top: 10.0,
+                                                      bottom: 10.0),
+                                                  child: Text(
+                                                    'Hapus',
+                                                    style: TextStyle(
+                                                        color: Colors.white),
+                                                  ))),
+                                        ],
+                                      ),
+                                    )
+                                  : Container(),
                                   ],
                                 ),
-                          isLoading == true
-                              ? Container()
-                              : dataStatusKita == null
-                                  ? Container()
-                                  : dataStatusKita['tlr_role'] == '1' ||
-                                          dataStatusKita['tlr_role'] == 1
-                                      ? Container(
-                                          color: Colors.red[100],
-                                          margin: EdgeInsets.only(
-                                              top: 0.0,
-                                              left: 5.0,
-                                              right: 5.0,
-                                              bottom: 15.0),
-                                          padding: EdgeInsets.only(
-                                              left: 10.0,
-                                              right: 10.0,
-                                              top: 5.0,
-                                              bottom: 5.0),
-                                          child: Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
-                                            children: <Widget>[
-                                              Expanded(
-                                                child: Text(
-                                                    'Ingin Menghapus To Do Ini ?',
-                                                    style: TextStyle(
-                                                        color: Colors.black87)),
-                                              ),
-                                              ButtonTheme(
-                                                  minWidth: 0,
-                                                  height: 0,
-                                                  child: FlatButton(
-                                                      // borderSide: BorderSide(color:Colors.red),
-                                                      color: Colors.red[400],
-                                                      onPressed: () async {
-                                                        Navigator.push(
-                                                            context,
-                                                            MaterialPageRoute(
-                                                                builder:
-                                                                    (context) =>
-                                                                        ManageDeleteTodo(
-                                                                          idtodo:
-                                                                              dataTodo['tl_id'],
-                                                                          namatodo:
-                                                                              dataTodo['tl_title'],
-                                                                        )));
-                                                      },
-                                                      padding: EdgeInsets.only(
-                                                          left: 15.0,
-                                                          right: 15.0,
-                                                          top: 10.0,
-                                                          bottom: 10.0),
-                                                      child: Text(
-                                                        'Hapus',
-                                                        style: TextStyle(
-                                                            color:
-                                                                Colors.white),
-                                                      ))),
-                                            ],
-                                          ),
-                                        )
-                                      : Container(),
+                               
                         ],
                       ),
                     ),
