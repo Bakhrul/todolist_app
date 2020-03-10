@@ -12,7 +12,6 @@ import 'package:todolist_app/src/pages/auth/login.dart';
 import 'package:todolist_app/src/pages/manajamen_user/edit_photo_profile.dart';
 import 'package:todolist_app/src/pages/manajemen_project/detail_project.dart';
 import 'package:todolist_app/src/pages/todolist/detail_todo.dart';
-import 'package:progress_dialog/progress_dialog.dart';
 import 'package:todolist_app/src/routes/env.dart';
 import 'package:todolist_app/src/storage/storage.dart';
 import 'package:todolist_app/src/utils/utils.dart';
@@ -20,7 +19,6 @@ import 'package:todolist_app/src/model/Project.dart';
 import 'package:http/http.dart' as http;
 import 'package:email_validator/email_validator.dart';
 import 'package:draggable_fab/draggable_fab.dart';
-import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'dart:async';
 import 'package:todolist_app/src/model/FriendList.dart';
@@ -131,9 +129,9 @@ class _ManajemenUserState extends State<ManajemenUser>
       imageData = imageStored;
       locationData = locationUser;
       _controllerNama.text = namaUser;
-      _controllerEmail.text = emailUser;
-      _controllerPhone.text = phoneUser;
-      _controllerLocation.text = locationUser;
+      _controllerEmail.text = emailUser == 'Tidak ditemukan' ? '' : emailUser;
+      _controllerPhone.text = phoneUser == 'Tidak ditemukan' ? '' : phoneUser;
+      _controllerLocation.text = locationUser == 'Tidak ditemukan' ? '' : locationUser;
     });
   }
 
@@ -547,8 +545,8 @@ class _ManajemenUserState extends State<ManajemenUser>
             friend: i['fl_friend'],
             namafriend: i['us_name'],
             waktutambah: i['fl_added'],
-            waktuditolak: i['fl_approved'],
-            waktuditerima: i['fl_denied'],
+            waktuditolak: i['fl_denied'],
+            waktuditerima: i['fl_approved'],
             imageFriend: i['us_image'],
           );
           listFriend.add(participant);
@@ -1268,15 +1266,16 @@ class _ManajemenUserState extends State<ManajemenUser>
                                   ? RefreshIndicator(
                                       onRefresh: getDataFriend,
                                       child: SingleChildScrollView(
+                                        physics: AlwaysScrollableScrollPhysics(),
                                         child: Padding(
                                           padding:
                                               const EdgeInsets.only(top: 20.0),
                                           child: Column(children: <Widget>[
                                             new Container(
-                                              width: 100.0,
-                                              height: 100.0,
+                                              width: 140.0,
+                                              height: 140.0,
                                               child: Image.asset(
-                                                  "images/todo_icon2.png"),
+                                                  "images/icon_person.png"),
                                             ),
                                             Padding(
                                               padding: const EdgeInsets.only(
@@ -1286,7 +1285,7 @@ class _ManajemenUserState extends State<ManajemenUser>
                                                   bottom: 35.0),
                                               child: Center(
                                                 child: Text(
-                                                  "To Do Yang Anda Cari Tidak Ditemukan",
+                                                  "Anda Belum Memiliki Daftar Teman",
                                                   style: TextStyle(
                                                     fontSize: 16,
                                                     height: 1.5,
@@ -1686,14 +1685,24 @@ class _ManajemenUserState extends State<ManajemenUser>
   }
 
   void _editProfile() {
-    showBottomSheet(
+    showModalBottomSheet(
         context: context,
         builder: (context) => Container(
-              color: Colors.grey[100],
-              height: MediaQuery.of(context).size.height / 2,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            border: Border(
+              top:BorderSide(color: Colors.grey[300],width: 1.0,
+              ),
+            )
+            
+          ),
+              
+              height: 350.0 + MediaQuery.of(context).viewInsets.bottom,
+              padding: EdgeInsets.only(bottom: 25.0 + MediaQuery.of(context).viewInsets.bottom,),
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: Form(
+                // child: Form(
+                  
                   child: SingleChildScrollView(
                     child: Column(
                       children: <Widget>[
@@ -1734,7 +1743,6 @@ class _ManajemenUserState extends State<ManajemenUser>
                                     borderSide: new BorderSide(
                                         color: primaryAppBarColor)),
                                 hintText: 'Nama',
-                                labelText: 'Nama',
                                 prefixIcon: const Icon(
                                   Icons.person,
                                   color: Colors.deepOrange,
@@ -1760,7 +1768,6 @@ class _ManajemenUserState extends State<ManajemenUser>
                                     borderSide: new BorderSide(
                                         color: primaryAppBarColor)),
                                 hintText: 'Email',
-                                labelText: 'Email',
                                 prefixIcon: const Icon(
                                   Icons.email,
                                   color: Colors.deepOrange,
@@ -1779,13 +1786,13 @@ class _ManajemenUserState extends State<ManajemenUser>
                               primaryColorDark: Colors.blue,
                             ),
                             child: new TextField(
+                              keyboardType: TextInputType.phone,
                               controller: _controllerPhone,
                               decoration: new InputDecoration(
                                 border: new OutlineInputBorder(
                                     borderSide:
                                         new BorderSide(color: Colors.blue)),
                                 hintText: 'No telp',
-                                labelText: 'No Telp',
                                 prefixIcon: const Icon(
                                   Icons.phone,
                                   color: Colors.deepOrange,
@@ -1796,7 +1803,7 @@ class _ManajemenUserState extends State<ManajemenUser>
                           ),
                         ),
                         Container(
-                            height: 5 * 18.0,
+                            // height: 5 * 18.0,
                             child: TextField(
                               controller: _controllerLocation,
                               maxLines: 5,
@@ -1805,16 +1812,16 @@ class _ManajemenUserState extends State<ManajemenUser>
                                     borderSide:
                                         new BorderSide(color: Colors.blue)),
                                 hintText: "Alamat",
-                                labelText: 'Alamat',
+                                // labelText: 'Alamat',
                                 // fillColor: Colors.grey[300],
-                                filled: true,
+                                // filled: true,
                               ),
                             ))
                       ],
                     ),
                   ),
                 ),
-              ),
+              // ),
             ));
   }
 }

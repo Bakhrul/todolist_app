@@ -17,11 +17,14 @@ import 'package:progress_dialog/progress_dialog.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:todolist_app/src/pages/todolist/detail_todo.dart';
 import 'delete_project.dart';
+import 'listFriend.dart';
 
 enum PageMember {
   hapusMember,
   gantiStatusMember,
 }
+String namaFriendEditProject, idFriendEditProject;
+bool isFriendEditProject;
 
 enum PageTodo {
   hapusTodo,
@@ -81,6 +84,9 @@ class _DetailProjectState extends State<DetailProject>
     _alldayTipe = '0';
     iconButtonAppbarColor = true;
     datepickerfirstTodo = FocusNode();
+    namaFriendEditProject = null;
+    idFriendEditProject = null;
+    isFriendEditProject = false;
     getHeaderHTTP();
     datepickerlastTodo = FocusNode();
     _tabController =
@@ -445,9 +451,12 @@ class _DetailProjectState extends State<DetailProject>
     try {
       final addadminevent = await http
           .post(url('api/add_member_project'), headers: requestHeaders, body: {
-        'member': _controllerAddpeserta.text,
+        'member': isFriendEditProject == true
+            ? idFriendEditProject.toString()
+            : _controllerAddpeserta.text,
         'status': _urutkanvalue,
         'project': widget.idproject.toString(),
+        'type': isFriendEditProject == true ? 'teman' : 'email',
       });
 
       if (addadminevent.statusCode == 200) {
@@ -455,6 +464,9 @@ class _DetailProjectState extends State<DetailProject>
         if (addpesertaJson['status'] == 'success') {
           setState(() {
             _controllerAddpeserta.text = '';
+            isFriendEditProject = false;
+            idFriendEditProject = null;
+            namaFriendEditProject = null;
             _urutkanvalue = null;
           });
           progressApiAction.hide().then((isHidden) {
@@ -465,6 +477,9 @@ class _DetailProjectState extends State<DetailProject>
         } else if (addpesertaJson['status'] == 'user tidak ada') {
           setState(() {
             _controllerAddpeserta.text = '';
+            isFriendEditProject = false;
+            idFriendEditProject = null;
+            namaFriendEditProject = null;
             _urutkanvalue = null;
           });
           progressApiAction.hide().then((isHidden) {
@@ -475,6 +490,9 @@ class _DetailProjectState extends State<DetailProject>
         } else if (addpesertaJson['status'] == 'member sudah ada') {
           setState(() {
             _controllerAddpeserta.text = '';
+            isFriendEditProject = false;
+            idFriendEditProject = null;
+            namaFriendEditProject = null;
             _urutkanvalue = null;
           });
           progressApiAction.hide().then((isHidden) {
@@ -487,6 +505,9 @@ class _DetailProjectState extends State<DetailProject>
       } else {
         setState(() {
           _controllerAddpeserta.text = '';
+          isFriendEditProject = false;
+          idFriendEditProject = null;
+          namaFriendEditProject = null;
           _urutkanvalue = null;
         });
         print(addadminevent.body);
@@ -498,6 +519,9 @@ class _DetailProjectState extends State<DetailProject>
     } on TimeoutException catch (_) {
       setState(() {
         _controllerAddpeserta.text = '';
+        isFriendEditProject = false;
+        idFriendEditProject = null;
+        namaFriendEditProject = null;
         _urutkanvalue = null;
       });
       progressApiAction.hide().then((isHidden) {
@@ -507,6 +531,9 @@ class _DetailProjectState extends State<DetailProject>
     } catch (e) {
       setState(() {
         _controllerAddpeserta.text = '';
+        isFriendEditProject = false;
+        idFriendEditProject = null;
+        namaFriendEditProject = null;
         _urutkanvalue = null;
       });
       progressApiAction.hide().then((isHidden) {
@@ -920,6 +947,14 @@ class _DetailProjectState extends State<DetailProject>
     }
   }
 
+  void changeFriend() {
+    setState(() {
+      idFriendEditProject = idFriendEditProject;
+      namaFriendEditProject = namaFriendEditProject;
+      isFriendEditProject = idFriendEditProject == null ? false : true;
+    });
+  }
+
   void _updatestatusTodo(idtodo, status) async {
     Navigator.pop(context);
     await progressApiAction.show();
@@ -1059,73 +1094,6 @@ class _DetailProjectState extends State<DetailProject>
                                   ? errorSystem(context)
                                   : Column(
                                       children: <Widget>[
-                                        dataStatusKita == null
-                                            ? Container()
-                                            : dataStatusKita['mp_role'] ==
-                                                        '1' ||
-                                                    dataStatusKita['mp_role'] ==
-                                                        1
-                                                ? Container(
-                                                    color: Colors.red[100],
-                                                    margin: EdgeInsets.only(
-                                                        top: 0.0,
-                                                        left: 5.0,
-                                                        right: 5.0,
-                                                        bottom: 15.0),
-                                                    padding: EdgeInsets.only(
-                                                        left: 10.0,
-                                                        right: 10.0,
-                                                        top: 5.0,
-                                                        bottom: 5.0),
-                                                    child: Row(
-                                                      mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .spaceBetween,
-                                                      children: <Widget>[
-                                                        Expanded(
-                                                          child: Text(
-                                                              'Ingin Menghapus Project Ini ??',
-                                                              style: TextStyle(
-                                                                  color: Colors
-                                                                      .black87)),
-                                                        ),
-                                                        ButtonTheme(
-                                                            minWidth: 0,
-                                                            height: 0,
-                                                            child: FlatButton(
-                                                                // borderSide: BorderSide(color:Colors.red),
-                                                                color: Colors
-                                                                    .red[400],
-                                                                onPressed:
-                                                                    () async {
-                                                                  Navigator.push(
-                                                                      context,
-                                                                      MaterialPageRoute(
-                                                                          builder: (context) => ManageDeleteProject(
-                                                                                idproject: dataProject['p_id'],
-                                                                                namaproject: dataProject['p_name'],
-                                                                              )));
-                                                                },
-                                                                padding: EdgeInsets
-                                                                    .only(
-                                                                        left:
-                                                                            15.0,
-                                                                        right:
-                                                                            15.0,
-                                                                        top:
-                                                                            10.0,
-                                                                        bottom:
-                                                                            10.0),
-                                                                child: Text(
-                                                                  'Hapus',
-                                                                  style: TextStyle(
-                                                                      color: Colors
-                                                                          .white),
-                                                                ))),
-                                                      ],
-                                                    ),
-                                                  )
-                                                : Container(),
                                         Container(
                                           color: Colors.white,
                                           padding: EdgeInsets.all(10.0),
@@ -1293,9 +1261,136 @@ class _DetailProjectState extends State<DetailProject>
                                                     controller:
                                                         _deskripsiProjectController,
                                                   )),
+                                              Center(
+                                                  child: Container(
+                                                      margin: EdgeInsets.only(
+                                                          top: 10.0),
+                                                      width: double.infinity,
+                                                      height: 45.0,
+                                                      child: RaisedButton(
+                                                          onPressed: () async {
+                                                            if (_titleProjectController
+                                                                    .text ==
+                                                                '') {
+                                                              Fluttertoast
+                                                                  .showToast(
+                                                                      msg:
+                                                                          'Nama Project Tidak Boleh Kosong');
+                                                            } else if (_deskripsiProjectController
+                                                                    .text ==
+                                                                '') {
+                                                              Fluttertoast
+                                                                  .showToast(
+                                                                      msg:
+                                                                          'Deskripsi Project Tidak Boleh Kosong');
+                                                            } else if (_dateStartController
+                                                                    .text ==
+                                                                '') {
+                                                              Fluttertoast
+                                                                  .showToast(
+                                                                      msg:
+                                                                          'Tanggal Dimulainya Project Tidak Boleh Kosong');
+                                                            } else if (_dateEndController
+                                                                    .text ==
+                                                                '') {
+                                                              Fluttertoast
+                                                                  .showToast(
+                                                                      msg:
+                                                                          'Tanggal Berakhirnya Project Tidak Boleh Kosong');
+                                                            } else {
+                                                              updateproject();
+                                                            }
+                                                          },
+                                                          color:
+                                                              primaryAppBarColor,
+                                                          textColor:
+                                                              Colors.white,
+                                                          disabledColor:
+                                                              Color.fromRGBO(
+                                                                  254,
+                                                                  86,
+                                                                  14,
+                                                                  0.7),
+                                                          disabledTextColor:
+                                                              Colors.white,
+                                                          splashColor:
+                                                              Colors.blueAccent,
+                                                          child: Text(
+                                                              "Memperbarui Data Project",
+                                                              style: TextStyle(
+                                                                  fontSize: 12,
+                                                                  color: Colors
+                                                                      .white)))))
                                             ],
                                           ),
                                         ),
+                                        dataStatusKita == null
+                                            ? Container()
+                                            : dataStatusKita['mp_role'] ==
+                                                        '1' ||
+                                                    dataStatusKita['mp_role'] ==
+                                                        1
+                                                ? Container(
+                                                    color: Colors.red[100],
+                                                    margin: EdgeInsets.only(
+                                                        top: 15.0,
+                                                        left: 10.0,
+                                                        right: 10.0,
+                                                        bottom: 15.0),
+                                                    padding: EdgeInsets.only(
+                                                        left: 10.0,
+                                                        right: 10.0,
+                                                        top: 5.0,
+                                                        bottom: 5.0),
+                                                    child: Row(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .spaceBetween,
+                                                      children: <Widget>[
+                                                        Expanded(
+                                                          child: Text(
+                                                              'Ingin Menghapus Project Ini ?',
+                                                              style: TextStyle(
+                                                                  color: Colors
+                                                                      .black87)),
+                                                        ),
+                                                        ButtonTheme(
+                                                            minWidth: 0,
+                                                            height: 0,
+                                                            child: FlatButton(
+                                                                // borderSide: BorderSide(color:Colors.red),
+                                                                color: Colors
+                                                                    .red[400],
+                                                                onPressed:
+                                                                    () async {
+                                                                  Navigator.push(
+                                                                      context,
+                                                                      MaterialPageRoute(
+                                                                          builder: (context) => ManageDeleteProject(
+                                                                                idproject: dataProject['p_id'],
+                                                                                namaproject: dataProject['p_name'],
+                                                                              )));
+                                                                },
+                                                                padding: EdgeInsets
+                                                                    .only(
+                                                                        left:
+                                                                            15.0,
+                                                                        right:
+                                                                            15.0,
+                                                                        top:
+                                                                            10.0,
+                                                                        bottom:
+                                                                            10.0),
+                                                                child: Text(
+                                                                  'Hapus',
+                                                                  style: TextStyle(
+                                                                      color: Colors
+                                                                          .white),
+                                                                ))),
+                                                      ],
+                                                    ),
+                                                  )
+                                                : Container(),
                                       ],
                                     ),
                         ],
@@ -1338,6 +1433,11 @@ class _DetailProjectState extends State<DetailProject>
                                                   margin: EdgeInsets.only(
                                                       bottom: 5.0, top: 5.0),
                                                   child: TextField(
+                                                    enabled:
+                                                        isFriendEditProject ==
+                                                                true
+                                                            ? false
+                                                            : true,
                                                     textAlignVertical:
                                                         TextAlignVertical
                                                             .center,
@@ -1345,9 +1445,18 @@ class _DetailProjectState extends State<DetailProject>
                                                     controller:
                                                         _controllerAddpeserta,
                                                     decoration: InputDecoration(
-                                                      contentPadding: EdgeInsets.all(8),
+                                                        contentPadding:
+                                                            EdgeInsets.all(8),
                                                         border:
                                                             OutlineInputBorder(),
+                                                        disabledBorder:
+                                                            const OutlineInputBorder(
+                                                          borderSide:
+                                                              const BorderSide(
+                                                                  color: Colors
+                                                                      .black54,
+                                                                  width: 1.0),
+                                                        ),
                                                         hintText:
                                                             'Masukkan Email Pengguna',
                                                         hintStyle: TextStyle(
@@ -1355,6 +1464,116 @@ class _DetailProjectState extends State<DetailProject>
                                                           color: Colors.black,
                                                         )),
                                                   )),
+                                              Container(
+                                                margin: EdgeInsets.only(
+                                                    top: 5.0, bottom: 5.0),
+                                                width: double.infinity,
+                                                child: Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.center,
+                                                  children: <Widget>[
+                                                    Padding(
+                                                      padding: EdgeInsets.only(
+                                                          right: 5.0),
+                                                      child: Text(
+                                                        'Atau Dari Daftar Teman ?',
+                                                        textAlign:
+                                                            TextAlign.center,
+                                                        style: TextStyle(
+                                                            fontFamily:
+                                                                'Roboto',
+                                                            color:
+                                                                Colors.black54,
+                                                            fontWeight:
+                                                                FontWeight.w600,
+                                                            fontSize: 12),
+                                                      ),
+                                                    ),
+                                                    Expanded(
+                                                      flex: 6,
+                                                      child: Container(
+                                                        decoration: BoxDecoration(
+                                                            border: BorderDirectional(
+                                                                bottom: BorderSide(
+                                                          width: 1 / 2,
+                                                          color: Colors.black54,
+                                                        ))),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                              GestureDetector(
+                                                onTap: () async {
+                                                  if (_controllerAddpeserta
+                                                          .text ==
+                                                      '') {
+                                                    await Navigator.push(
+                                                        context,
+                                                        MaterialPageRoute(
+                                                            builder: (context) =>
+                                                                ListFriendProject()));
+                                                    changeFriend();
+                                                  } else {
+                                                    Fluttertoast.showToast(
+                                                        msg:
+                                                            'Kosongkan terlebih dahulu pada input email pengguna');
+                                                  }
+                                                },
+                                                child: Container(
+                                                  height: 40.0,
+                                                  padding: EdgeInsets.only(
+                                                      left: 5.0, right: 5.0),
+                                                  margin: EdgeInsets.only(
+                                                      top: 5.0, bottom: 10.0),
+                                                  decoration: BoxDecoration(
+                                                    border: Border.all(
+                                                        color: Colors.black45,
+                                                        width: 1.0),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            5.0),
+                                                  ),
+                                                  child: Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .spaceBetween,
+                                                    children: <Widget>[
+                                                      Text(
+                                                        isFriendEditProject ==
+                                                                true
+                                                            ? '$namaFriendEditProject'
+                                                            : 'Pilih Dari Daftar Teman',
+                                                        style: TextStyle(
+                                                            fontSize: 12),
+                                                      ),
+                                                      isFriendEditProject ==
+                                                              true
+                                                          ? GestureDetector(
+                                                              onTap: () {
+                                                                setState(() {
+                                                                  isFriendEditProject =
+                                                                      false;
+                                                                  namaFriendEditProject =
+                                                                      null;
+                                                                  idFriendEditProject =
+                                                                      null;
+                                                                });
+                                                              },
+                                                              child: Container(
+                                                                  child: Icon(
+                                                                Icons.close,
+                                                                color:
+                                                                    Colors.red,
+                                                              )),
+                                                            )
+                                                          : Container(),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ),
                                               Container(
                                                 height: 40.0,
                                                 alignment: Alignment.center,
@@ -1424,7 +1643,7 @@ class _DetailProjectState extends State<DetailProject>
                                                       margin: EdgeInsets.only(
                                                           top: 10.0),
                                                       width: double.infinity,
-                                                      height: 40.0,
+                                                      height: 45.0,
                                                       child: RaisedButton(
                                                           onPressed: () async {
                                                             String emailValid =
@@ -1439,21 +1658,41 @@ class _DetailProjectState extends State<DetailProject>
                                                                     (isValid
                                                                         ? 'yes'
                                                                         : 'no'));
-                                                            if (_controllerAddpeserta
-                                                                        .text ==
-                                                                    null ||
+                                                            if (isFriendEditProject ==
+                                                                    false &&
                                                                 _controllerAddpeserta
                                                                         .text ==
                                                                     '') {
                                                               Fluttertoast
                                                                   .showToast(
                                                                       msg:
-                                                                          "Email Tidak Boleh Kosong");
-                                                            } else if (!isValid) {
-                                                              Fluttertoast
-                                                                  .showToast(
-                                                                      msg:
-                                                                          "Masukkan Email Yang Valid");
+                                                                          "Masukkan Email Pengguna Atau Pilih Dari Daftar Teman");
+                                                            } else if (isFriendEditProject ==
+                                                                false) {
+                                                              if (_controllerAddpeserta
+                                                                          .text ==
+                                                                      null ||
+                                                                  _controllerAddpeserta
+                                                                          .text ==
+                                                                      '') {
+                                                                Fluttertoast
+                                                                    .showToast(
+                                                                        msg:
+                                                                            "Email Tidak Boleh Kosong");
+                                                              } else if (!isValid) {
+                                                                Fluttertoast
+                                                                    .showToast(
+                                                                        msg:
+                                                                            "Masukkan Email Yang Valid");
+                                                              } else if (_urutkanvalue ==
+                                                                  null) {
+                                                                Fluttertoast
+                                                                    .showToast(
+                                                                        msg:
+                                                                            "Pilih Level Member");
+                                                              } else {
+                                                                _tambahmember();
+                                                              }
                                                             } else if (_urutkanvalue ==
                                                                 null) {
                                                               Fluttertoast
@@ -1578,7 +1817,7 @@ class _DetailProjectState extends State<DetailProject>
                                                                           ),
                                                                           title: Text(
                                                                               item.name == '' || item.name == null ? 'Member Tidak Diketahui' : item.name,
-                                                                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
+                                                                              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
                                                                           subtitle:
                                                                               Padding(
                                                                             padding:
@@ -1693,7 +1932,8 @@ class _DetailProjectState extends State<DetailProject>
                                                     controller:
                                                         _controllerNamaTodo,
                                                     decoration: InputDecoration(
-                                                      contentPadding: EdgeInsets.all(8),
+                                                        contentPadding:
+                                                            EdgeInsets.all(8),
                                                         border:
                                                             OutlineInputBorder(),
                                                         hintText:
@@ -1928,7 +2168,7 @@ class _DetailProjectState extends State<DetailProject>
                                                       margin: EdgeInsets.only(
                                                           top: 10.0),
                                                       width: double.infinity,
-                                                      height: 40.0,
+                                                      height: 45.0,
                                                       child: RaisedButton(
                                                           onPressed: () async {
                                                             if (_controllerNamaTodo
@@ -2124,11 +2364,7 @@ class _DetailProjectState extends State<DetailProject>
                                                                                       PopupMenuItem(
                                                                                         value: PageTodo.gantistatusTodo,
                                                                                         child: Text("Ganti Status To Do"),
-                                                                                      ),
-                                                                                      // PopupMenuItem(
-                                                                                      //   // value: PageEnum.deletePeserta,
-                                                                                      //   child: Text("Atur Member To Do"),
-                                                                                      // ),
+                                                                                      ),                                                                 
                                                                                       PopupMenuItem(
                                                                                         value: PageTodo.hapusTodo,
                                                                                         child: Text("Hapus To Do"),
@@ -2154,7 +2390,6 @@ class _DetailProjectState extends State<DetailProject>
           ],
         ),
       ),
-      floatingActionButton: _bottomButtons(),
     );
   }
 
@@ -2196,23 +2431,7 @@ class _DetailProjectState extends State<DetailProject>
         ? DraggableFab(
             child: FloatingActionButton(
                 shape: StadiumBorder(),
-                onPressed: () async {
-                  if (_titleProjectController.text == '') {
-                    Fluttertoast.showToast(
-                        msg: 'Nama Project Tidak Boleh Kosong');
-                  } else if (_deskripsiProjectController.text == '') {
-                    Fluttertoast.showToast(
-                        msg: 'Deskripsi Project Tidak Boleh Kosong');
-                  } else if (_dateStartController.text == '') {
-                    Fluttertoast.showToast(
-                        msg: 'Tanggal Dimulainya Project Tidak Boleh Kosong');
-                  } else if (_dateEndController.text == '') {
-                    Fluttertoast.showToast(
-                        msg: 'Tanggal Berakhirnya Project Tidak Boleh Kosong');
-                  } else {
-                    updateproject();
-                  }
-                },
+                onPressed: () async {},
                 backgroundColor: Color.fromRGBO(254, 86, 14, 1),
                 child: Icon(
                   Icons.check,

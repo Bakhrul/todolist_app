@@ -6,6 +6,7 @@ class FriendList{
   String waktuditerima;
   String waktuditolak;
   String imageFriend;
+  String emailfriend;
 
-  FriendList({this.users,this.friend, this.namafriend, this.waktutambah,this.waktuditerima, this.imageFriend, this.waktuditolak});
+  FriendList({this.users,this.friend, this.namafriend, this.waktutambah,this.waktuditerima, this.imageFriend, this.waktuditolak, this.emailfriend});
 }

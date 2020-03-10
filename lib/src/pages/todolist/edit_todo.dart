@@ -935,6 +935,9 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
                                                                 ),
                                                               )
                                                             : Container(),
+                                                              Container(
+                                                                margin: EdgeInsets.only(top:15.0),
+                                                                child: Divider()),
                                                         Padding(
                                                           padding:
                                                               const EdgeInsets
@@ -943,7 +946,7 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
                                                           child: Text(
                                                               "Pelaksanaan Kegiatan"),
                                                         ),
-                                                        Divider(),
+                                                      
                                                         Row(
                                                           children: <Widget>[
                                                             Container(
@@ -1363,9 +1366,7 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
                                               ],
                                             ),
                                           ),
-                                  ],
-                                ),
-                                isLoading == true ? Container() :
+                                           isLoading == true ? Container() :
                           dataStatusKita == null
                               ? Container()
                               : dataStatusKita['tlr_role'] == '1' ||
@@ -1373,7 +1374,7 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
                                   ? Container(
                                       color: Colors.red[100],
                                       margin: EdgeInsets.only(
-                                          top: 0.0,
+                                          top: 15.0,
                                           left: 5.0,
                                           right: 5.0,
                                           bottom: 15.0),
@@ -1425,6 +1426,9 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
                                       ),
                                     )
                                   : Container(),
+                                  ],
+                                ),
+                               
                         ],
                       ),
                     ),

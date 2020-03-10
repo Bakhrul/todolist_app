@@ -23,14 +23,13 @@ final Widget placeholder = Container(color: Colors.grey);
 TextEditingController _namaprojectController = TextEditingController();
 String emailStore, imageStore, namaStore, phoneStore, locationStore;
 bool isFilter, isErrorFilter, isLoading, isError;
-int currentFilter = 1;
+int currentFilter;
 TextEditingController _tanggalawalProjectController = TextEditingController();
 String _tanggalawalProject, _tanggalakhirProject;
 List<Project> listProject = [];
 List<Todo> listTodo = [];
 TextEditingController _tanggalakhirProjectController = TextEditingController();
 String imageData;
-bool isMolor,isPending;
 List<T> map<T>(List list, Function handler) {
   List<T> result = [];
   for (var i = 0; i < list.length; i++) {
@@ -48,8 +47,7 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   ProgressDialog progressApiAction;
   final List<Color> listColor = [Colors.grey, Colors.red, Colors.blue];
-  
-  
+
   String tokenType, accessToken;
   Map<String, String> requestHeaders = Map();
 
@@ -77,19 +75,30 @@ class _HomeState extends State<Home> {
     {'index': "8", 'name': "Pending"}
   ];
 
-
-
   @override
   void initState() {
     super.initState();
     _tanggalawalProject = 'kosong';
     _tanggalakhirProject = 'kosong';
-    getDataProject();
+    currentFilter = 3;
+    getHeaderHTTP();
     getDataUser();
     isLoading = true;
-    isMolor = false;
-    isPending = false;
     _getStoreData();
+  }
+  
+  Future<void> getHeaderHTTP() async {
+    var storage = new DataStore();
+
+    var tokenTypeStorage = await storage.getDataString('token_type');
+    var accessTokenStorage = await storage.getDataString('access_token');
+
+    tokenType = tokenTypeStorage;
+    accessToken = accessTokenStorage;
+
+    requestHeaders['Accept'] = 'application/json';
+    requestHeaders['Authorization'] = '$tokenType $accessToken';
+    return getDataProject();
   }
 
   _getStoreData() async {
@@ -228,15 +237,18 @@ class _HomeState extends State<Home> {
   }
 
   Future<List<List>> getDataToDo() async {
-    var storage = new DataStore();
-    var tokenTypeStorage = await storage.getDataString('token_type');
-    var accessTokenStorage = await storage.getDataString('access_token');
-
-    tokenType = tokenTypeStorage;
-    accessToken = accessTokenStorage;
-    requestHeaders['Accept'] = 'application/json';
-    requestHeaders['Authorization'] = '$tokenType $accessToken';
-
+    List listFilter2 = [
+    {'index': "1", 'name': "Molor"},
+    {'index': "2", 'name': "Bintang"},
+    {'index': "3", 'name': "Hari Ini"},
+    {'index': "4", 'name': "Besok"},
+    {'index': "5", 'name': "Lusa"},
+    {'index': "6", 'name': "Minggu Ini"},
+    {'index': "7", 'name': "Bulan Ini"},
+    {'index': "8", 'name': "Pending"}
+    ];
+    listFilter = [];
+    listFilter.addAll(listFilter2);
     setState(() {
       listTodo.clear();
       listTodo = [];
@@ -248,9 +260,9 @@ class _HomeState extends State<Home> {
 
       if (participant.statusCode == 200) {
         var listParticipantToJson = json.decode(participant.body);
-        var todos = listParticipantToJson;
+        var todos = listParticipantToJson['todo'];
+        print(todos);
         for (var i in todos) {
-    
           Todo todo = Todo(
               id: i['id'],
               title: i['title'].toString(),
@@ -271,22 +283,23 @@ class _HomeState extends State<Home> {
 
           listTodo.add(todo);
         }
-
-        setState(() {
-          if(listTodo.length < 1 && currentFilter == 1){
-           isMolor = true;
-           listFilter.removeAt(0);
-            currentFilter = 2;
-             Future.delayed(const Duration(seconds: 1));
-             getDataToDo();
-           
+        print(listParticipantToJson['statusmolor']);
+        if (listParticipantToJson['statusmolor'] == 0) {
+          if (listFilter[0]['name'] == 'Molor') {
+            listFilter.removeAt(0);
           }
+        }
+        if (listParticipantToJson['statuspending'] == 0) {
+          if (listFilter.last['name'] == 'Pending') {
+            listFilter.removeLast();
+          }
+        }
+        setState(() {
           isLoading = false;
           isError = false;
           isFilter = false;
           isErrorFilter = false;
         });
-        
       } else if (participant.statusCode == 401) {
         Fluttertoast.showToast(
             msg: "Token Telah Kadaluwarsa, Silahkan Login Kembali");
@@ -327,15 +340,6 @@ class _HomeState extends State<Home> {
   }
 
   void filterDataTodo(index) async {
-    var storage = new DataStore();
-    var tokenTypeStorage = await storage.getDataString('token_type');
-    var accessTokenStorage = await storage.getDataString('access_token');
-
-    tokenType = tokenTypeStorage;
-    accessToken = accessTokenStorage;
-    requestHeaders['Accept'] = 'application/json';
-    requestHeaders['Authorization'] = '$tokenType $accessToken';
-
     setState(() {
       listTodo.clear();
       listTodo = [];
@@ -347,59 +351,9 @@ class _HomeState extends State<Home> {
 
       if (participant.statusCode == 200) {
         var listParticipantToJson = json.decode(participant.body);
-        var todos = listParticipantToJson;
+        var todos = listParticipantToJson['todo'];
 
         for (var i in todos) {
-
-           if(i['statusmolor'] == 0){
-             if(listFilter[0]['name'] == 'Molor'){
-              listFilter.removeAt(0);
-             }
-          }else if(i['statuspending'] == 0){
-             if(listFilter.last['name'] == 'Pending'){
-              listFilter.removeLast();
-             }
-          }else if(i['statusmolor'] == 1 && i['statuspending'] == 1){
-             List listFilter2 = [
-              {'index': "1", 'name': "Molor"},
-              {'index': "2", 'name': "Bintang"},
-              {'index': "3", 'name': "Hari Ini"},
-              {'index': "4", 'name': "Besok"},
-              {'index': "5", 'name': "Lusa"},
-              {'index': "6", 'name': "Minggu Ini"},
-              {'index': "7", 'name': "Bulan Ini"},
-              {'index': "8", 'name': "Pending"},
-            ];
-            listFilter = [];
-            listFilter.addAll(listFilter2);
-          }else if(i['statusmolor'] == 1 ){
-             List listFilter2 = [
-              {'index': "1", 'name': "Molor"},
-              {'index': "2", 'name': "Bintang"},
-              {'index': "3", 'name': "Hari Ini"},
-              {'index': "4", 'name': "Besok"},
-              {'index': "5", 'name': "Lusa"},
-              {'index': "6", 'name': "Minggu Ini"},
-              {'index': "7", 'name': "Bulan Ini"},
-            ];
-            listFilter = [];
-            listFilter.addAll(listFilter2);
-          }else if(i['statuspending'] == 1 ){
-             List listFilter2 = [
-              {'index': "2", 'name': "Bintang"},
-              {'index': "3", 'name': "Hari Ini"},
-              {'index': "4", 'name': "Besok"},
-              {'index': "5", 'name': "Lusa"},
-              {'index': "6", 'name': "Minggu Ini"},
-              {'index': "7", 'name': "Bulan Ini"},
-              {'index': "8", 'name': "Pending"},
-            ];
-            listFilter = [];
-            listFilter.addAll(listFilter2);
-          }
-          // if(i['statuspending'] == 1){
-          //   listFilter.removeAt(7);
-          // }
           Todo todo = Todo(
               id: i['id'],
               title: i['title'].toString(),
@@ -1154,8 +1108,6 @@ class _HomeState extends State<Home> {
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: <Widget>[
                                 for (var i = 0; i < listFilter.length; i++)
-                                 
-                                  
                                   Container(
                                       margin: EdgeInsets.only(right: 10.0),
                                       child: ButtonTheme(
@@ -1163,7 +1115,8 @@ class _HomeState extends State<Home> {
                                         height: 0,
                                         child: RaisedButton(
                                           color: currentFilter ==
-                                                  int.parse(listFilter[i]['index'])
+                                                  int.parse(
+                                                      listFilter[i]['index'])
                                               ? primaryAppBarColor
                                               : Colors.grey[100],
                                           elevation: 0.0,
@@ -1176,12 +1129,12 @@ class _HomeState extends State<Home> {
                                               bottom: 7.0),
                                           onPressed: () {
                                             setState(() {
-                                              currentFilter =
-                                                  int.parse(listFilter[i]['index']);
+                                              currentFilter = int.parse(
+                                                  listFilter[i]['index']);
                                               if (isFilter == true) {
                                               } else {
-                                                filterDataTodo(
-                                                    int.parse(listFilter[i]['index']));
+                                                filterDataTodo(int.parse(
+                                                    listFilter[i]['index']));
                                               }
                                             });
                                           },
@@ -1189,7 +1142,8 @@ class _HomeState extends State<Home> {
                                             listFilter[i]['name'],
                                             style: TextStyle(
                                                 color: currentFilter ==
-                                                        int.parse(listFilter[i]['index'])
+                                                        int.parse(listFilter[i]
+                                                            ['index'])
                                                     ? Colors.white
                                                     : Colors.black54,
                                                 fontWeight: FontWeight.w500),
