@@ -1943,9 +1943,12 @@ class _DetailProjectState extends State<DetailProject>
                                                           color: Colors.black,
                                                         )),
                                                   )),
+                                              Container(
+                                                margin: EdgeInsets.only(top:5.0),
+                                                child: Divider(),),
                                               Padding(
                                                 padding: const EdgeInsets.only(
-                                                    top: 10.0),
+                                                    top: 5.0),
                                                 child: Text(
                                                   "Pelaksanaan Kegiatan",
                                                   style:
@@ -2144,6 +2147,9 @@ class _DetailProjectState extends State<DetailProject>
                                                   onChanged: (ini) {},
                                                 ),
                                               ),
+                                                  Container(
+                                                margin: EdgeInsets.only(top:5.0,bottom:10.0),
+                                                child: Divider(),),
                                               Container(
                                                   height: 100.0,
                                                   margin: EdgeInsets.only(
@@ -2361,10 +2367,10 @@ class _DetailProjectState extends State<DetailProject>
                                                                                     },
                                                                                     icon: Icon(Icons.more_vert),
                                                                                     itemBuilder: (context) => [
-                                                                                      PopupMenuItem(
-                                                                                        value: PageTodo.gantistatusTodo,
-                                                                                        child: Text("Ganti Status To Do"),
-                                                                                      ),                                                                 
+                                                                                      // PopupMenuItem(
+                                                                                      //   value: PageTodo.gantistatusTodo,
+                                                                                      //   child: Text("Ganti Status To Do"),
+                                                                                      // ),                                                                 
                                                                                       PopupMenuItem(
                                                                                         value: PageTodo.hapusTodo,
                                                                                         child: Text("Hapus To Do"),
