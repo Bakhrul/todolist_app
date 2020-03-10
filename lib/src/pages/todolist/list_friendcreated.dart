@@ -58,81 +58,7 @@ class _WidgetFriendListState extends State<WidgetFriendList> {
 
     requestHeaders['Accept'] = 'application/json';
     requestHeaders['Authorization'] = '$tokenType $accessToken';
-    return getDataFriendList();
-  }
-
-  Future<List<List>> getDataFriendList() async {
-    var storage = new DataStore();
-    var tokenTypeStorage = await storage.getDataString('token_type');
-    var accessTokenStorage = await storage.getDataString('access_token');
-
-    tokenType = tokenTypeStorage;
-    accessToken = accessTokenStorage;
-    requestHeaders['Accept'] = 'application/json';
-    requestHeaders['Authorization'] = '$tokenType $accessToken';
-
-    setState(() {
-      isLoading = true;
-    });
-    try {
-      final participant =
-          await http.get(url('api/get_friendlist'), headers: requestHeaders);
-
-      if (participant.statusCode == 200) {
-        var listParticipantToJson = json.decode(participant.body);
-        var participants = listParticipantToJson;
-        listFriends = [];
-        if (participants == '') {
-          setState(() {
-            isLoading = false;
-            isError = false;
-            isNotFound = true;
-          });
-        } else {
-          for (var i in participants) {
-            FriendList participant = FriendList(
-                users: i['fl_users'],
-                namafriend: i['us_name'],
-                friend: i['fl_friend'],
-                emailfriend: i['us_email'],
-                imageFriend: i['us_image']);
-            listFriends.add(participant);
-          }
-          setState(() {
-            isLoading = false;
-            isError = false;
-            isNotFound = false;
-          });
-        }
-      } else if (participant.statusCode == 401) {
-        Fluttertoast.showToast(
-            msg: "Token Telah Kadaluwarsa, Silahkan Login Kembali");
-        setState(() {
-          isLoading = false;
-          isError = true;
-        });
-      } else {
-        setState(() {
-          isLoading = false;
-          isError = true;
-        });
-        print(participant.body);
-        return null;
-      }
-    } on TimeoutException catch (_) {
-      setState(() {
-        isLoading = false;
-        isError = true;
-      });
-      Fluttertoast.showToast(msg: "Timed out, Try again");
-    } catch (e) {
-      setState(() {
-        isLoading = false;
-        isError = true;
-      });
-      debugPrint('$e');
-    }
-    return null;
+    return filterDataFriendList('all');
   }
 
   Future<List<List>> filterDataFriendList(nama) async {
@@ -475,7 +401,7 @@ class _WidgetFriendListState extends State<WidgetFriendList> {
           fontSize: 14,
         ),
       );
-      getDataFriendList();
+      filterDataFriendList('all');
       _debouncer.run(() {
         _searchQuery.clear();
       });

@@ -52,7 +52,7 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
   String _dfileName;
   String fileImage;
   bool _loadingPath;
-  String _urutkanvalue,_urutkanvalueTeman;
+  String _urutkanvalue;
   String _alldayTipe;
   Map dataTodo, dataStatusKita;
   bool _hasValidMime;
@@ -74,7 +74,6 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
   TextEditingController _dateEndController = TextEditingController();
   TextEditingController _descController = TextEditingController();
   Map<String, String> requestHeaders = Map();
-  TabController _tabControllerMember;
 
   void timeSetToMinute() {
     var time = DateTime.now();
@@ -340,7 +339,6 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
     _tabController = TabController(
         length: 3, vsync: _ManajemenEditTodoState(), initialIndex: 0);
     _tabController.addListener(_handleTabIndex);
-    _tabControllerMember = new TabController(length: 2, vsync: this);
     _alldayTipe = null;
     super.initState();
     _loadingPath = false;
@@ -365,7 +363,9 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
           headers: requestHeaders,
           body: {
             'todolist': widget.idTodo.toString(),
-            'member': _controllerNamaMember.text,
+            'member': emailMemberFriend == null
+                ? _controllerNamaMember.text
+                : emailMemberFriend,
             'role': _urutkanvalue,
           });
       print(addMemberTodo.body);
@@ -373,20 +373,37 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
         var addMemberTodoJson = json.decode(addMemberTodo.body);
         if (addMemberTodoJson['status'] == 'success') {
           Fluttertoast.showToast(msg: "Berhasil");
-          _controllerNamaMember.clear();
           progressApiAction.hide().then((isHidden) {
             print(isHidden);
           });
           getHeaderHTTP();
+          setState(() {
+            _controllerNamaMember.text = '';
+            _urutkanvalue = null;
+            emailMemberFriend = null;
+            nameMemberFriend = null;
+          });
         } else if (addMemberTodoJson['status'] == 'email belum terdaftar') {
           Fluttertoast.showToast(msg: "Email Ini Belum Memiliki Akun Pengguna");
           progressApiAction.hide().then((isHidden) {
             print(isHidden);
           });
+          setState(() {
+            _controllerNamaMember.text = '';
+            _urutkanvalue = null;
+            emailMemberFriend = null;
+            nameMemberFriend = null;
+          });
         } else if (addMemberTodoJson['status'] == 'member sudah terdaftar') {
           Fluttertoast.showToast(msg: "Member Ini Sudah Terdaftar Pada To Do");
           progressApiAction.hide().then((isHidden) {
             print(isHidden);
+          });
+          setState(() {
+            _controllerNamaMember.text = '';
+            _urutkanvalue = null;
+            emailMemberFriend = null;
+            nameMemberFriend = null;
           });
         }
       } else {
@@ -395,58 +412,11 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
         progressApiAction.hide().then((isHidden) {
           print(isHidden);
         });
-      }
-    } on TimeoutException catch (_) {
-      Fluttertoast.showToast(msg: "Timed out, Try again");
-      progressApiAction.hide().then((isHidden) {
-        print(isHidden);
-      });
-    } catch (e) {
-      Fluttertoast.showToast(msg: "Gagal, Silahkan Coba Kembali");
-      progressApiAction.hide().then((isHidden) {
-        print(isHidden);
-      });
-      print(e);
-    }
-  }
-
-  void tambahkanMemberTeman() async {
-    await progressApiAction.show();
-    try {
-      final addMemberTodo = await http.post(url('api/todo_edit/tambah_member'),
-          headers: requestHeaders,
-          body: {
-            'todolist': widget.idTodo.toString(),
-            'member': emailMemberFriend ,
-            'role': _urutkanvalueTeman,
-          });
-      print(addMemberTodo.body);
-      if (addMemberTodo.statusCode == 200) {
-        var addMemberTodoJson = json.decode(addMemberTodo.body);
-        if (addMemberTodoJson['status'] == 'success') {
-          Fluttertoast.showToast(msg: "Berhasil");
-          progressApiAction.hide().then((isHidden) {
-            print(isHidden);
-          });
+        setState(() {
+          _controllerNamaMember.text = '';
+          _urutkanvalue = null;
           emailMemberFriend = null;
           nameMemberFriend = null;
-          getHeaderHTTP();
-        } else if (addMemberTodoJson['status'] == 'email belum terdaftar') {
-          Fluttertoast.showToast(msg: "Email Ini Belum Memiliki Akun Pengguna");
-          progressApiAction.hide().then((isHidden) {
-            print(isHidden);
-          });
-        } else if (addMemberTodoJson['status'] == 'member sudah terdaftar') {
-          Fluttertoast.showToast(msg: "Member Ini Sudah Terdaftar Pada To Do");
-          progressApiAction.hide().then((isHidden) {
-            print(isHidden);
-          });
-        }
-      } else {
-        Fluttertoast.showToast(msg: "Gagal, Silahkan Coba Kembali");
-        print(addMemberTodo.body);
-        progressApiAction.hide().then((isHidden) {
-          print(isHidden);
         });
       }
     } on TimeoutException catch (_) {
@@ -454,10 +424,22 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
       progressApiAction.hide().then((isHidden) {
         print(isHidden);
       });
+      setState(() {
+        _controllerNamaMember.text = '';
+        _urutkanvalue = null;
+        emailMemberFriend = null;
+        nameMemberFriend = null;
+      });
     } catch (e) {
       Fluttertoast.showToast(msg: "Gagal, Silahkan Coba Kembali");
       progressApiAction.hide().then((isHidden) {
         print(isHidden);
+      });
+      setState(() {
+        _controllerNamaMember.text = '';
+        _urutkanvalue = null;
+        emailMemberFriend = null;
+        nameMemberFriend = null;
       });
       print(e);
     }
@@ -1064,9 +1046,11 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
                                                                 ),
                                                               )
                                                             : Container(),
-                                                              Container(
-                                                                margin: EdgeInsets.only(top:15.0),
-                                                                child: Divider()),
+                                                        Container(
+                                                            margin:
+                                                                EdgeInsets.only(
+                                                                    top: 15.0),
+                                                            child: Divider()),
                                                         Padding(
                                                           padding:
                                                               const EdgeInsets
@@ -1075,7 +1059,6 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
                                                           child: Text(
                                                               "Pelaksanaan Kegiatan"),
                                                         ),
-                                                      
                                                         Row(
                                                           children: <Widget>[
                                                             Container(
@@ -1495,138 +1478,228 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
                                               ],
                                             ),
                                           ),
-                                           isLoading == true ? Container() :
-                          dataStatusKita == null
-                              ? Container()
-                              : dataStatusKita['tlr_role'] == '1' ||
-                                      dataStatusKita['tlr_role'] == 1
-                                  ? Container(
-                                      color: Colors.red[100],
-                                      margin: EdgeInsets.only(
-                                          top: 15.0,
-                                          left: 5.0,
-                                          right: 5.0,
-                                          bottom: 15.0),
-                                      padding: EdgeInsets.only(
-                                          left: 10.0,
-                                          right: 10.0,
-                                          top: 5.0,
-                                          bottom: 5.0),
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: <Widget>[
-                                          Expanded(
-                                            child: Text(
-                                                'Ingin Menghapus To Do Ini ?',
-                                                style: TextStyle(
-                                                    color: Colors.black87)),
-                                          ),
-                                          ButtonTheme(
-                                              minWidth: 0,
-                                              height: 0,
-                                              child: FlatButton(
-                                                  // borderSide: BorderSide(color:Colors.red),
-                                                  color: Colors.red[400],
-                                                  onPressed: () async {
-                                                    Navigator.push(
-                                                        context,
-                                                        MaterialPageRoute(
-                                                            builder: (context) =>
-                                                                ManageDeleteTodo(
-                                                                  idtodo: dataTodo[
-                                                                      'tl_id'],
-                                                                  namatodo:
-                                                                      dataTodo[
-                                                                          'tl_title'],
-                                                                )));
-                                                  },
-                                                  padding: EdgeInsets.only(
-                                                      left: 15.0,
-                                                      right: 15.0,
-                                                      top: 10.0,
-                                                      bottom: 10.0),
-                                                  child: Text(
-                                                    'Hapus',
-                                                    style: TextStyle(
-                                                        color: Colors.white),
-                                                  ))),
-                                        ],
-                                      ),
-                                    )
-                                  : Container(),
+                                    isLoading == true
+                                        ? Container()
+                                        : dataStatusKita == null
+                                            ? Container()
+                                            : dataStatusKita['tlr_role'] ==
+                                                        '1' ||
+                                                    dataStatusKita[
+                                                            'tlr_role'] ==
+                                                        1
+                                                ? Container(
+                                                    color: Colors.red[100],
+                                                    margin: EdgeInsets.only(
+                                                        top: 15.0,
+                                                        left: 5.0,
+                                                        right: 5.0,
+                                                        bottom: 15.0),
+                                                    padding: EdgeInsets.only(
+                                                        left: 10.0,
+                                                        right: 10.0,
+                                                        top: 5.0,
+                                                        bottom: 5.0),
+                                                    child: Row(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .spaceBetween,
+                                                      children: <Widget>[
+                                                        Expanded(
+                                                          child: Text(
+                                                              'Ingin Menghapus To Do Ini ?',
+                                                              style: TextStyle(
+                                                                  color: Colors
+                                                                      .black87)),
+                                                        ),
+                                                        ButtonTheme(
+                                                            minWidth: 0,
+                                                            height: 0,
+                                                            child: FlatButton(
+                                                                // borderSide: BorderSide(color:Colors.red),
+                                                                color: Colors
+                                                                    .red[400],
+                                                                onPressed:
+                                                                    () async {
+                                                                  Navigator.push(
+                                                                      context,
+                                                                      MaterialPageRoute(
+                                                                          builder: (context) => ManageDeleteTodo(
+                                                                                idtodo: dataTodo['tl_id'],
+                                                                                namatodo: dataTodo['tl_title'],
+                                                                              )));
+                                                                },
+                                                                padding: EdgeInsets
+                                                                    .only(
+                                                                        left:
+                                                                            15.0,
+                                                                        right:
+                                                                            15.0,
+                                                                        top:
+                                                                            10.0,
+                                                                        bottom:
+                                                                            10.0),
+                                                                child: Text(
+                                                                  'Hapus',
+                                                                  style: TextStyle(
+                                                                      color: Colors
+                                                                          .white),
+                                                                ))),
+                                                      ],
+                                                    ),
+                                                  )
+                                                : Container(),
                                   ],
                                 ),
-                               
                         ],
                       ),
                     ),
                   ),
-                   isLoading == true
-                              ? _loadingview()
-                              :
-                  Container(
-                    child: SingleChildScrollView(
-                      child: Column(
-                        children: <Widget>[
-                          Container(
-                                  width: double.infinity,
-                                  height: 60.0,
-                                  margin: EdgeInsets.only(bottom: 8.0),
-                                  color: Colors.white,
-                                  child: TabBar(
-                                    tabs: <Widget>[
-                                      Text(
-                                        'Tambah Member',
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.w500),
-                                      ),
-                                      Text(
-                                        'Daftar Teman',
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.w500),
-                                      ),
-                                    ],
-                                    controller: _tabControllerMember,
-                                    labelColor: Colors.black,
-                                    unselectedLabelColor: Colors.grey,
-                                    indicatorColor: primaryAppBarColor,
-                                    indicatorSize: TabBarIndicatorSize.tab,
-                                  ),
-                                ),
-                          // Divider(),
-                          Container(
-                            height: MediaQuery.of(context).size.height / 3,
-                            child: TabBarView(
-                              physics: AlwaysScrollableScrollPhysics(),
-                              controller: _tabControllerMember,
+                  isLoading == true
+                      ? _loadingview()
+                      : Container(
+                          child: SingleChildScrollView(
+                            child: Column(
                               children: <Widget>[
                                 Container(
-                                  padding: EdgeInsets.all(8.0),
+                                  padding: EdgeInsets.all(10.0),
+                                  margin: EdgeInsets.only(bottom: 15.0),
+                                  color: Colors.white,
                                   child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    mainAxisAlignment: MainAxisAlignment.start,
                                     children: <Widget>[
                                       Container(
-                                        alignment: Alignment.center,
-                                        height: 40.0,
+                                        margin: EdgeInsets.only(bottom: 10.0),
+                                        child: Text(
+                                          'Tambah Member',
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.w500),
+                                        ),
+                                      ),
+                                      Divider(),
+                                      Container(
+                                          alignment: Alignment.center,
+                                          height: 40.0,
+                                          margin: EdgeInsets.only(
+                                              bottom: 5.0, top: 5.0),
+                                          child: TextField(
+                                            textAlignVertical:
+                                                TextAlignVertical.center,
+                                            controller: _controllerNamaMember,
+                                            onChanged: (text) {
+                                              setState(() {
+                                                emailMemberFriend = null;
+                                                nameMemberFriend = null;
+                                              });
+                                            },
+                                            decoration: InputDecoration(
+                                                contentPadding: EdgeInsets.only(
+                                                    top: 2,
+                                                    bottom: 2,
+                                                    left: 10,
+                                                    right: 10),
+                                                border: OutlineInputBorder(),
+                                                hintText:
+                                                    'Masukkan Email Pengguna',
+                                                hintStyle: TextStyle(
+                                                  fontSize: 12,
+                                                  color: Colors.black,
+                                                )),
+                                          )),
+                                      Container(
                                         margin: EdgeInsets.only(
-                                            bottom: 5.0, top: 5.0),
-                                        child: TextField(
-                                          textAlignVertical:
-                                              TextAlignVertical.center,
-                                          controller: _controllerNamaMember,
-                                          decoration: InputDecoration(
-                                              contentPadding: EdgeInsets.only(
-                                                  top: 2,
-                                                  bottom: 2,
-                                                  left: 10,
-                                                  right: 10),
-                                              border: OutlineInputBorder(),
-                                              hintText:
-                                                  'Masukkan Email Pengguna',
-                                              hintStyle: TextStyle(
-                                                fontSize: 12,
-                                                color: Colors.black,
-                                              )),
+                                            top: 5.0, bottom: 5.0),
+                                        width: double.infinity,
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          children: <Widget>[
+                                            Padding(
+                                              padding:
+                                                  EdgeInsets.only(right: 5.0),
+                                              child: Text(
+                                                'Atau Dari Daftar Teman ?',
+                                                textAlign: TextAlign.center,
+                                                style: TextStyle(
+                                                    fontFamily: 'Roboto',
+                                                    color: Colors.black54,
+                                                    fontWeight: FontWeight.w600,
+                                                    fontSize: 12),
+                                              ),
+                                            ),
+                                            Expanded(
+                                              flex: 6,
+                                              child: Container(
+                                                decoration: BoxDecoration(
+                                                    border: BorderDirectional(
+                                                        bottom: BorderSide(
+                                                  width: 1 / 2,
+                                                  color: Colors.black54,
+                                                ))),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      GestureDetector(
+                                        onTap: () async {
+                                          _controllerNamaMember.clear();
+                                          await Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      WidgetFriendList()));
+                                          setState(() {
+                                            emailMemberFriend =
+                                                emailMemberFriend;
+                                            nameMemberFriend = nameMemberFriend;
+                                          });
+                                        },
+                                        child: Container(
+                                          height: 40.0,
+                                          padding: EdgeInsets.only(
+                                              left: 5.0, right: 5.0),
+                                          margin: EdgeInsets.only(
+                                              top: 5.0, bottom: 10.0),
+                                          decoration: BoxDecoration(
+                                            border: Border.all(
+                                                color: Colors.black45,
+                                                width: 1.0),
+                                            borderRadius:
+                                                BorderRadius.circular(5.0),
+                                          ),
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: <Widget>[
+                                              Text(
+                                                emailMemberFriend != null
+                                                    ? '$emailMemberFriend'
+                                                    : 'Pilih Dari Daftar Teman',
+                                                style: TextStyle(fontSize: 12),
+                                              ),
+                                              emailMemberFriend != null
+                                                  ? GestureDetector(
+                                                      onTap: () {
+                                                        setState(() {
+                                                          emailMemberFriend =
+                                                              null;
+                                                          nameMemberFriend =
+                                                              null;
+                                                        });
+                                                      },
+                                                      child: Container(
+                                                          child: Icon(
+                                                        Icons.close,
+                                                        color: Colors.red,
+                                                      )),
+                                                    )
+                                                  : Container(),
+                                            ],
+                                          ),
                                         ),
                                       ),
                                       Container(
@@ -1695,8 +1768,12 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
                                               height: 40.0,
                                               child: RaisedButton(
                                                   onPressed: () async {
-                                                    
-                                                    String emailValid = _controllerNamaMember
+                                                    print(emailMemberFriend);
+                                                    String emailValid =
+                                                        emailMemberFriend !=
+                                                                null
+                                                            ? emailMemberFriend
+                                                            : _controllerNamaMember
                                                                 .text;
                                                     final bool isValid =
                                                         EmailValidator.validate(
@@ -1705,12 +1782,8 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
                                                         (isValid
                                                             ? 'yes'
                                                             : 'no'));
-                                                    if (_controllerNamaMember
-                                                                .text ==
-                                                            null ||
-                                                        _controllerNamaMember
-                                                                .text ==
-                                                            '') {
+                                                    if (emailValid == null ||
+                                                        emailValid == '') {
                                                       Fluttertoast.showToast(
                                                           msg:
                                                               "Email Tidak Boleh Kosong");
@@ -1744,334 +1817,167 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
                                     ],
                                   ),
                                 ),
-// LIST FRIEND
                                 Container(
-                                  padding: EdgeInsets.all(8.0),
+                                  margin: EdgeInsets.only(top: 0.0),
+                                  padding: EdgeInsets.all(5.0),
+                                  color: Colors.white,
                                   child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    mainAxisAlignment: MainAxisAlignment.start,
                                     children: <Widget>[
                                       Container(
-                                        alignment: Alignment.center,
-                                        height: 40.0,
-                                        margin: EdgeInsets.only(
-                                            bottom: 5.0, top: 5.0),
-                                        child: InkWell(
-                                          onTap: () async {
-                                            Navigator.push(
-                                                context,
-                                                MaterialPageRoute(
-                                                    builder: (context) =>
-                                                        WidgetFriendList()));
-                                          },
-                                          child: Container(
-                                            height: 45.0,
-                                            padding: EdgeInsets.only(
-                                                left: 10.0, right: 10.0),
-                                            width: double.infinity,
-                                            decoration: BoxDecoration(
-                                                border: Border.all(
-                                                    color: Colors.black45),
-                                                borderRadius: BorderRadius.all(
-                                                    Radius.circular(5.0))),
-                                            child: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
-                                              children: <Widget>[
-                                                Text(
-                                                    emailMemberFriend== null
-                                                        ? "Pilih Teman"
-                                                        : '$nameMemberFriend',
-                                                    style: TextStyle(
-                                                        fontSize: 12,
-                                                        color: Colors.black),
-                                                    textAlign: TextAlign.left),
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      Container(
-                                        margin: EdgeInsets.only(top: 0.0),
-                                        padding: EdgeInsets.only(
-                                            left: 10.0, right: 10.0),
-                                        decoration: BoxDecoration(
-                                            border: Border.all(
-                                                color: Colors.black45),
-                                            borderRadius: BorderRadius.all(
-                                                Radius.circular(5.0))),
-                                        child: DropdownButtonHideUnderline(
-                                          child: DropdownButton<String>(
-                                            isExpanded: true,
-                                            items: [
-                                              DropdownMenuItem<String>(
-                                                child: Text(
-                                                  'Admin',
-                                                  style: TextStyle(
-                                                    fontSize: 12,
-                                                  ),
-                                                ),
-                                                value: '2',
-                                              ),
-                                              DropdownMenuItem<String>(
-                                                child: Text(
-                                                  'Executor',
-                                                  style: TextStyle(
-                                                    fontSize: 12,
-                                                  ),
-                                                ),
-                                                value: '3',
-                                              ),
-                                              DropdownMenuItem<String>(
-                                                child: Text(
-                                                  'Viewer',
-                                                  style: TextStyle(
-                                                    fontSize: 12,
-                                                  ),
-                                                ),
-                                                value: '4',
-                                              ),
-                                            ],
-                                            value: _urutkanvalueTeman == null
-                                                ? null
-                                                : _urutkanvalueTeman,
-                                            onChanged: (String value) {
-                                              setState(() {
-                                                _urutkanvalueTeman = value;
-                                              });
-                                            },
-                                            hint: Text(
-                                              'Pilih level Member',
-                                              style: TextStyle(
-                                                  fontSize: 12,
-                                                  color: Colors.black),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      Center(
-                                          child: Container(
-                                              margin:
-                                                  EdgeInsets.only(top: 10.0),
-                                              width: double.infinity,
-                                              height: 40.0,
-                                              child: RaisedButton(
-                                                  onPressed: () async {
-                                                    print(emailMemberFriend);
-                                                    String emailValid =emailMemberFriend;
-                                                    final bool isValid =
-                                                        EmailValidator.validate(
-                                                            emailValid);
-                                                    print('Email is valid? ' +
-                                                        (isValid
-                                                            ? 'yes'
-                                                            : 'no'));
-                                                    if (nameMemberFriend ==
-                                                            null ||
-                                                        nameMemberFriend ==
-                                                            '') {
-                                                      Fluttertoast.showToast(
-                                                          msg:
-                                                              "Email Tidak Boleh Kosong");
-                                                    } else if (!isValid) {
-                                                      Fluttertoast.showToast(
-                                                          msg:
-                                                              "Masukkan Email Yang Valid");
-                                                    } else if (_urutkanvalueTeman ==
-                                                        null) {
-                                                      Fluttertoast.showToast(
-                                                          msg:
-                                                              "Pilih Level Member");
-                                                    } else {
-                                                      tambahkanMemberTeman();
-                                                    }
-                                                  },
-                                                  color: primaryAppBarColor,
-                                                  textColor: Colors.white,
-                                                  disabledColor: Color.fromRGBO(
-                                                      254, 86, 14, 0.7),
-                                                  disabledTextColor:
-                                                      Colors.white,
-                                                  splashColor:
-                                                      Colors.blueAccent,
-                                                  child: Text(
-                                                      "Tambahkan Member",
-                                                      style: TextStyle(
-                                                          fontSize: 12,
-                                                          color:
-                                                              Colors.white)))))
+                                          child: Column(
+                                              children: listMemberTodo
+                                                  .map(
+                                                      (MemberTodo item) => Card(
+                                                            elevation: 0.5,
+                                                            child: ListTile(
+                                                              leading:
+                                                                  Container(
+                                                                height: 40.0,
+                                                                width: 40.0,
+                                                                child: ClipOval(
+                                                                    child: FadeInImage
+                                                                        .assetNetwork(
+                                                                  placeholder:
+                                                                      'images/loading.gif',
+                                                                  image: item.image ==
+                                                                              null ||
+                                                                          item.image ==
+                                                                              ''
+                                                                      ? url(
+                                                                          'assets/images/imgavatar.png')
+                                                                      : url(
+                                                                          'storage/image/profile/${item.image}'),
+                                                                )),
+                                                              ),
+                                                              title: Text(
+                                                                item.name ==
+                                                                            null ||
+                                                                        item.name ==
+                                                                            ''
+                                                                    ? 'Member Tidak Diketahui'
+                                                                    : item.name,
+                                                                style:
+                                                                    TextStyle(
+                                                                  fontSize: 14,
+                                                                ),
+                                                                overflow:
+                                                                    TextOverflow
+                                                                        .ellipsis,
+                                                                softWrap: true,
+                                                                maxLines: 1,
+                                                              ),
+                                                              subtitle: Padding(
+                                                                padding:
+                                                                    const EdgeInsets
+                                                                            .only(
+                                                                        top:
+                                                                            10.0),
+                                                                child: Text(
+                                                                  item.rolename ==
+                                                                              null ||
+                                                                          item.rolename ==
+                                                                              ''
+                                                                      ? 'Status Tidak Diketahui'
+                                                                      : item
+                                                                          .rolename,
+                                                                  style: TextStyle(
+                                                                      color: Colors
+                                                                          .green,
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .w500),
+                                                                ),
+                                                              ),
+                                                              trailing: item.roleid ==
+                                                                      '1'
+                                                                  ? ButtonTheme(
+                                                                      minWidth:
+                                                                          0,
+                                                                      height: 0,
+                                                                      child: FlatButton(
+                                                                          padding: EdgeInsets.all(
+                                                                              0),
+                                                                          color: Colors
+                                                                              .white,
+                                                                          onPressed:
+                                                                              () async {},
+                                                                          child: Icon(
+                                                                              item.roleid == '1' ? Icons.lock : Icons.delete,
+                                                                              color: item.roleid == '1' ? Colors.grey : Colors.red)))
+                                                                  : PopupMenuButton<String>(
+                                                                      onSelected:
+                                                                          (String
+                                                                              value) {
+                                                                        switch (
+                                                                            value) {
+                                                                          case 'Hapus Member':
+                                                                            showDialog(
+                                                                              context: context,
+                                                                              builder: (BuildContext context) => AlertDialog(
+                                                                                title: Text('Peringatan!'),
+                                                                                content: Text('Apakah Anda Ingin Menghapus Member To Do'),
+                                                                                actions: <Widget>[
+                                                                                  FlatButton(
+                                                                                    child: Text('Tidak'),
+                                                                                    onPressed: () {
+                                                                                      Navigator.pop(context);
+                                                                                    },
+                                                                                  ),
+                                                                                  FlatButton(
+                                                                                    textColor: Colors.green,
+                                                                                    child: Text('Ya'),
+                                                                                    onPressed: () async {
+                                                                                      Navigator.pop(context);
+                                                                                      deleteMember(item.iduser);
+                                                                                    },
+                                                                                  )
+                                                                                ],
+                                                                              ),
+                                                                            );
+
+                                                                            break;
+                                                                          case 'Ganti Status':
+                                                                            gantiStatusMember(item.iduser,
+                                                                                item.roleid);
+                                                                            break;
+
+                                                                          default:
+                                                                            break;
+                                                                        }
+                                                                      },
+                                                                      icon: Icon(
+                                                                          Icons
+                                                                              .more_vert),
+                                                                      itemBuilder:
+                                                                          (context) =>
+                                                                              [
+                                                                        PopupMenuItem(
+                                                                          value:
+                                                                              'Ganti Status',
+                                                                          child:
+                                                                              Text("Ganti Status Member"),
+                                                                        ),
+                                                                        PopupMenuItem(
+                                                                          value:
+                                                                              'Hapus Member',
+                                                                          child:
+                                                                              Text("Hapus Member"),
+                                                                        ),
+                                                                      ],
+                                                                    ),
+                                                            ),
+                                                          ))
+                                                  .toList()))
                                     ],
                                   ),
-                                ),
+                                )
                               ],
                             ),
                           ),
-                          Container(
-                            margin: EdgeInsets.only(top: 0.0),
-                            padding: EdgeInsets.all(5.0),
-                            color: Colors.white,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: <Widget>[
-                                Container(
-                                    child: Column(
-                                        children: listMemberTodo
-                                            .map((MemberTodo item) => Card(
-                                                  elevation: 0.5,
-                                                  child: ListTile(
-                                                    leading: Container(
-                                                      height: 40.0,
-                                                      width: 40.0,
-                                                      child: ClipOval(
-                                                          child: FadeInImage
-                                                              .assetNetwork(
-                                                        placeholder:
-                                                            'images/loading.gif',
-                                                        image: item.image ==
-                                                                    null ||
-                                                                item.image == ''
-                                                            ? url(
-                                                                'assets/images/imgavatar.png')
-                                                            : url(
-                                                                'storage/image/profile/${item.image}'),
-                                                      )),
-                                                    ),
-                                                    title: Text(
-                                                      item.name == null ||
-                                                              item.name == ''
-                                                          ? 'Member Tidak Diketahui'
-                                                          : item.name,
-                                                      style: TextStyle(
-                                                        fontSize: 14,
-                                                      ),
-                                                      overflow:
-                                                          TextOverflow.ellipsis,
-                                                      softWrap: true,
-                                                      maxLines: 1,
-                                                    ),
-                                                    subtitle: Padding(
-                                                      padding:
-                                                          const EdgeInsets.only(
-                                                              top: 10.0),
-                                                      child: Text(
-                                                        item.rolename == null ||
-                                                                item.rolename ==
-                                                                    ''
-                                                            ? 'Status Tidak Diketahui'
-                                                            : item.rolename,
-                                                        style: TextStyle(
-                                                            color: Colors.green,
-                                                            fontWeight:
-                                                                FontWeight
-                                                                    .w500),
-                                                      ),
-                                                    ),
-                                                    trailing: item.roleid == '1'
-                                                        ? ButtonTheme(
-                                                            minWidth: 0,
-                                                            height: 0,
-                                                            child: FlatButton(
-                                                                padding:
-                                                                    EdgeInsets.all(
-                                                                        0),
-                                                                color: Colors
-                                                                    .white,
-                                                                onPressed:
-                                                                    () async {},
-                                                                child: Icon(
-                                                                    item.roleid ==
-                                                                            '1'
-                                                                        ? Icons
-                                                                            .lock
-                                                                        : Icons
-                                                                            .delete,
-                                                                    color: item.roleid ==
-                                                                            '1'
-                                                                        ? Colors
-                                                                            .grey
-                                                                        : Colors
-                                                                            .red)))
-                                                        : PopupMenuButton<
-                                                            String>(
-                                                            onSelected:
-                                                                (String value) {
-                                                              switch (value) {
-                                                                case 'Hapus Member':
-                                                                  showDialog(
-                                                                    context:
-                                                                        context,
-                                                                    builder: (BuildContext
-                                                                            context) =>
-                                                                        AlertDialog(
-                                                                      title: Text(
-                                                                          'Peringatan!'),
-                                                                      content: Text(
-                                                                          'Apakah Anda Ingin Menghapus Member To Do'),
-                                                                      actions: <
-                                                                          Widget>[
-                                                                        FlatButton(
-                                                                          child:
-                                                                              Text('Tidak'),
-                                                                          onPressed:
-                                                                              () {
-                                                                            Navigator.pop(context);
-                                                                          },
-                                                                        ),
-                                                                        FlatButton(
-                                                                          textColor:
-                                                                              Colors.green,
-                                                                          child:
-                                                                              Text('Ya'),
-                                                                          onPressed:
-                                                                              () async {
-                                                                            Navigator.pop(context);
-                                                                            deleteMember(item.iduser);
-                                                                          },
-                                                                        )
-                                                                      ],
-                                                                    ),
-                                                                  );
-
-                                                                  break;
-                                                                case 'Ganti Status':
-                                                                  gantiStatusMember(
-                                                                      item.iduser,
-                                                                      item.roleid);
-                                                                  break;
-
-                                                                default:
-                                                                  break;
-                                                              }
-                                                            },
-                                                            icon: Icon(Icons
-                                                                .more_vert),
-                                                            itemBuilder:
-                                                                (context) => [
-                                                              PopupMenuItem(
-                                                                value:
-                                                                    'Ganti Status',
-                                                                child: Text(
-                                                                    "Ganti Status Member"),
-                                                              ),
-                                                              PopupMenuItem(
-                                                                value:
-                                                                    'Hapus Member',
-                                                                child: Text(
-                                                                    "Hapus Member"),
-                                                              ),
-                                                            ],
-                                                          ),
-                                                  ),
-                                                ))
-                                            .toList()))
-                              ],
-                            ),
-                          )
-                        ],
-                      ),
-                    ),
-                  ),
+                        ),
                   Container(
                     child: SingleChildScrollView(
                       child: Column(
@@ -2100,6 +2006,7 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
                                             ),
                                           ),
                                           Divider(),
+                                          _loadingPath == true ? Container() :Container() ,
                                           InkWell(
                                             onTap: () async {
                                               _openFileExplorer();
