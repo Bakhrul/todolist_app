@@ -12,7 +12,6 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:email_validator/email_validator.dart';
-import 'package:draggable_fab/draggable_fab.dart';
 import 'package:todolist_app/src/utils/utils.dart';
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 import 'package:shimmer/shimmer.dart';
@@ -32,6 +31,9 @@ String friendName;
 bool isLoading, isError;
 String idProjectEditChoose;
 String namaProjectEditChoose, titleEdit;
+String idMemberFriend;
+String emailMemberFriend;
+String nameMemberFriend;
 
 class ManajemenEditTodo extends StatefulWidget {
   ManajemenEditTodo({Key key, this.title, this.idTodo, this.platform})
@@ -50,7 +52,7 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
   String _dfileName;
   String fileImage;
   bool _loadingPath;
-  String _urutkanvalue;
+  String _urutkanvalue,_urutkanvalueTeman;
   String _alldayTipe;
   Map dataTodo, dataStatusKita;
   bool _hasValidMime;
@@ -371,9 +373,63 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
         var addMemberTodoJson = json.decode(addMemberTodo.body);
         if (addMemberTodoJson['status'] == 'success') {
           Fluttertoast.showToast(msg: "Berhasil");
+          _controllerNamaMember.clear();
           progressApiAction.hide().then((isHidden) {
             print(isHidden);
           });
+          getHeaderHTTP();
+        } else if (addMemberTodoJson['status'] == 'email belum terdaftar') {
+          Fluttertoast.showToast(msg: "Email Ini Belum Memiliki Akun Pengguna");
+          progressApiAction.hide().then((isHidden) {
+            print(isHidden);
+          });
+        } else if (addMemberTodoJson['status'] == 'member sudah terdaftar') {
+          Fluttertoast.showToast(msg: "Member Ini Sudah Terdaftar Pada To Do");
+          progressApiAction.hide().then((isHidden) {
+            print(isHidden);
+          });
+        }
+      } else {
+        Fluttertoast.showToast(msg: "Gagal, Silahkan Coba Kembali");
+        print(addMemberTodo.body);
+        progressApiAction.hide().then((isHidden) {
+          print(isHidden);
+        });
+      }
+    } on TimeoutException catch (_) {
+      Fluttertoast.showToast(msg: "Timed out, Try again");
+      progressApiAction.hide().then((isHidden) {
+        print(isHidden);
+      });
+    } catch (e) {
+      Fluttertoast.showToast(msg: "Gagal, Silahkan Coba Kembali");
+      progressApiAction.hide().then((isHidden) {
+        print(isHidden);
+      });
+      print(e);
+    }
+  }
+
+  void tambahkanMemberTeman() async {
+    await progressApiAction.show();
+    try {
+      final addMemberTodo = await http.post(url('api/todo_edit/tambah_member'),
+          headers: requestHeaders,
+          body: {
+            'todolist': widget.idTodo.toString(),
+            'member': emailMemberFriend ,
+            'role': _urutkanvalueTeman,
+          });
+      print(addMemberTodo.body);
+      if (addMemberTodo.statusCode == 200) {
+        var addMemberTodoJson = json.decode(addMemberTodo.body);
+        if (addMemberTodoJson['status'] == 'success') {
+          Fluttertoast.showToast(msg: "Berhasil");
+          progressApiAction.hide().then((isHidden) {
+            print(isHidden);
+          });
+          emailMemberFriend = null;
+          nameMemberFriend = null;
           getHeaderHTTP();
         } else if (addMemberTodoJson['status'] == 'email belum terdaftar') {
           Fluttertoast.showToast(msg: "Email Ini Belum Memiliki Akun Pengguna");
@@ -1506,13 +1562,14 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
                       ),
                     ),
                   ),
+                   isLoading == true
+                              ? _loadingview()
+                              :
                   Container(
                     child: SingleChildScrollView(
                       child: Column(
                         children: <Widget>[
-                          isLoading == true
-                              ? _loadingview()
-                              : Container(
+                          Container(
                                   width: double.infinity,
                                   height: 60.0,
                                   margin: EdgeInsets.only(bottom: 8.0),
@@ -1638,9 +1695,9 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
                                               height: 40.0,
                                               child: RaisedButton(
                                                   onPressed: () async {
-                                                    String emailValid =
-                                                        _controllerNamaMember
-                                                            .text;
+                                                    
+                                                    String emailValid = _controllerNamaMember
+                                                                .text;
                                                     final bool isValid =
                                                         EmailValidator.validate(
                                                             emailValid);
@@ -1722,9 +1779,9 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
                                                   MainAxisAlignment.center,
                                               children: <Widget>[
                                                 Text(
-                                                    friendId == null
+                                                    emailMemberFriend== null
                                                         ? "Pilih Teman"
-                                                        : '$friendName',
+                                                        : '$nameMemberFriend',
                                                     style: TextStyle(
                                                         fontSize: 12,
                                                         color: Colors.black),
@@ -1775,12 +1832,12 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
                                                 value: '4',
                                               ),
                                             ],
-                                            value: _urutkanvalue == null
+                                            value: _urutkanvalueTeman == null
                                                 ? null
-                                                : _urutkanvalue,
+                                                : _urutkanvalueTeman,
                                             onChanged: (String value) {
                                               setState(() {
-                                                _urutkanvalue = value;
+                                                _urutkanvalueTeman = value;
                                               });
                                             },
                                             hint: Text(
@@ -1800,9 +1857,8 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
                                               height: 40.0,
                                               child: RaisedButton(
                                                   onPressed: () async {
-                                                    String emailValid =
-                                                        _controllerNamaMember
-                                                            .text;
+                                                    print(emailMemberFriend);
+                                                    String emailValid =emailMemberFriend;
                                                     final bool isValid =
                                                         EmailValidator.validate(
                                                             emailValid);
@@ -1810,11 +1866,9 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
                                                         (isValid
                                                             ? 'yes'
                                                             : 'no'));
-                                                    if (_controllerNamaMember
-                                                                .text ==
+                                                    if (nameMemberFriend ==
                                                             null ||
-                                                        _controllerNamaMember
-                                                                .text ==
+                                                        nameMemberFriend ==
                                                             '') {
                                                       Fluttertoast.showToast(
                                                           msg:
@@ -1823,13 +1877,13 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
                                                       Fluttertoast.showToast(
                                                           msg:
                                                               "Masukkan Email Yang Valid");
-                                                    } else if (_urutkanvalue ==
+                                                    } else if (_urutkanvalueTeman ==
                                                         null) {
                                                       Fluttertoast.showToast(
                                                           msg:
                                                               "Pilih Level Member");
                                                     } else {
-                                                      tambahkanMember();
+                                                      tambahkanMemberTeman();
                                                     }
                                                   },
                                                   color: primaryAppBarColor,
@@ -2333,42 +2387,42 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
         )));
   }
 
-  Widget _bottomButtons() {
-    return _tabController.index == 0
-        ? DraggableFab(
-            child: FloatingActionButton(
-                shape: StadiumBorder(),
-                onPressed: () async {
-                  if (_titleController.text == '') {
-                    Fluttertoast.showToast(
-                        msg: "Nama To Do Tidak Boleh Kosong");
-                  } else if (categoriesID.toString() == '' ||
-                      categoriesID == null) {
-                    Fluttertoast.showToast(msg: "Kategori Tidak Boleh Kosong");
-                  } else if (_dateStartController.text == '') {
-                    Fluttertoast.showToast(
-                        msg: "Tanggal Dimulainya To Do Tidak Boleh Kosong");
-                  } else if (_dateEndController.text == '') {
-                    Fluttertoast.showToast(
-                        msg: "Tanggal Berakhirnya To Do Tidak Boleh Kosong");
-                  } else if (categoriesID.toString() == '1') {
-                    if (idProjectEditChoose == null) {
-                      Fluttertoast.showToast(
-                          msg: "Silahkan Pilih Project Terlebih Dahulu");
-                    } else {
-                      saveTodo();
-                    }
-                  } else {
-                    saveTodo();
-                  }
-                },
-                backgroundColor: Color.fromRGBO(254, 86, 14, 1),
-                child: Icon(
-                  Icons.check,
-                  size: 20.0,
-                )))
-        : _tabController.index == 1 ? null : null;
-  }
+  // Widget _bottomButtons() {
+  //   return _tabController.index == 0
+  //       ? DraggableFab(
+  //           child: FloatingActionButton(
+  //               shape: StadiumBorder(),
+  //               onPressed: () async {
+  //                 if (_titleController.text == '') {
+  //                   Fluttertoast.showToast(
+  //                       msg: "Nama To Do Tidak Boleh Kosong");
+  //                 } else if (categoriesID.toString() == '' ||
+  //                     categoriesID == null) {
+  //                   Fluttertoast.showToast(msg: "Kategori Tidak Boleh Kosong");
+  //                 } else if (_dateStartController.text == '') {
+  //                   Fluttertoast.showToast(
+  //                       msg: "Tanggal Dimulainya To Do Tidak Boleh Kosong");
+  //                 } else if (_dateEndController.text == '') {
+  //                   Fluttertoast.showToast(
+  //                       msg: "Tanggal Berakhirnya To Do Tidak Boleh Kosong");
+  //                 } else if (categoriesID.toString() == '1') {
+  //                   if (idProjectEditChoose == null) {
+  //                     Fluttertoast.showToast(
+  //                         msg: "Silahkan Pilih Project Terlebih Dahulu");
+  //                   } else {
+  //                     saveTodo();
+  //                   }
+  //                 } else {
+  //                   saveTodo();
+  //                 }
+  //               },
+  //               backgroundColor: Color.fromRGBO(254, 86, 14, 1),
+  //               child: Icon(
+  //                 Icons.check,
+  //                 size: 20.0,
+  //               )))
+  //       : _tabController.index == 1 ? null : null;
+  // }
 
   void saveTodo() async {
     await progressApiAction.show();

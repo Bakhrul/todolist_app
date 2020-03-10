@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:todolist_app/src/model/FriendList.dart';
+import 'package:todolist_app/src/pages/todolist/edit_todo.dart';
 import 'package:todolist_app/src/routes/env.dart';
 import 'package:todolist_app/src/storage/storage.dart';
 import 'package:todolist_app/src/utils/utils.dart';
@@ -93,6 +94,7 @@ class _WidgetFriendListState extends State<WidgetFriendList> {
                 users: i['fl_users'],
                 namafriend: i['us_name'],
                 friend: i['fl_friend'],
+                emailfriend: i['us_email'],
                 imageFriend: i['us_image']);
             listFriends.add(participant);
           }
@@ -169,6 +171,7 @@ class _WidgetFriendListState extends State<WidgetFriendList> {
                 users: i['user'],
                 namafriend: i['name'],
                 friend: i['friend'],
+                emailfriend: i['email'],
                 imageFriend: i['image']);
             listFriends.add(participant);
           }
@@ -289,45 +292,73 @@ class _WidgetFriendListState extends State<WidgetFriendList> {
                   ),
                 )
               : isNotFound == true
-                  ? Center(
-                      child: Column(
-                        children: <Widget>[
-                          new Container(
-                            // width: 100.0,
-                            // height: 100.0,
-                            child: Image.asset("images/todo_icon2.png"),
-                          ),
-                          Text("Tidak Ditemukan"),
-                        ],
+                  ? Container(
+                      child: Center(
+                        child: Column(
+                          // mainAxisAlignment: MainAxisAlignment.center,
+                          // crossAxisAlignment: CrossAxisAlignment.,
+                          children: <Widget>[
+                            new Container(
+                              margin: EdgeInsets.only(top: 16),
+                              width: 200.0,
+                              height: 200.0,
+                              child: Image.asset("images/icon_person.png"),
+                            ),
+                            Container(
+                                margin: EdgeInsets.only(top: 16.0),
+                                child: Text(
+                                  "Upss... Member Tidak Ditemukan",
+                                  style: TextStyle(fontSize: 14),
+                                )),
+                          ],
+                        ),
                       ),
                     )
                   : Center(
-                      child: Container(
+                      child: RefreshIndicator(
+                        onRefresh: getHeaderHTTP,
                         child: ListView.builder(
+                          physics: AlwaysScrollableScrollPhysics(),
                           itemCount: listFriends.length,
                           itemBuilder: (BuildContext context, int index) {
                             return Card(
-                              child: ListTile(
-                                leading: Container(
-                                  height: 40.0,
-                                  width: 40.0,
-                                  child: ClipOval(
-                                      child: FadeInImage.assetNetwork(
-                                    placeholder: 'images/loading.gif',
-                                    image: listFriends[index].imageFriend ==
-                                                null ||
-                                            listFriends[index].imageFriend == ''
-                                        ? url('assets/images/imgavatar.png')
-                                        : url(
-                                            'storage/image/profile/${listFriends[index].imageFriend}'),
-                                  )),
-                                ),
-                                title: Text(
-                                  listFriends[index].namafriend == null
-                                      ? 'Member Tidak Diketahui'
-                                      : listFriends[index].namafriend,
-                                  overflow: TextOverflow.ellipsis,
-                                  softWrap: true,
+                              child: InkWell(
+                                onTap: () {
+                                  setState(() {
+                                    idMemberFriend =
+                                        listFriends[index].friend.toString();
+                                    emailMemberFriend = listFriends[index]
+                                        .emailfriend
+                                        .toString();
+                                    nameMemberFriend = listFriends[index]
+                                        .namafriend
+                                        .toString();
+                                  });
+                                  Navigator.pop(context);
+                                },
+                                child: ListTile(
+                                  leading: Container(
+                                    height: 40.0,
+                                    width: 40.0,
+                                    child: ClipOval(
+                                        child: FadeInImage.assetNetwork(
+                                      placeholder: 'images/loading.gif',
+                                      image: listFriends[index].imageFriend ==
+                                                  null ||
+                                              listFriends[index].imageFriend ==
+                                                  ''
+                                          ? url('assets/images/imgavatar.png')
+                                          : url(
+                                              'storage/image/profile/${listFriends[index].imageFriend}'),
+                                    )),
+                                  ),
+                                  title: Text(
+                                    listFriends[index].namafriend == null
+                                        ? 'Member Tidak Diketahui'
+                                        : listFriends[index].namafriend,
+                                    overflow: TextOverflow.ellipsis,
+                                    softWrap: true,
+                                  ),
                                 ),
                               ),
                             );
