@@ -2,6 +2,8 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:todolist_app/src/model/FriendList.dart';
+import 'package:todolist_app/src/pages/todolist/friend_list.dart';
 import 'package:todolist_app/src/routes/env.dart';
 import 'package:todolist_app/src/storage/storage.dart';
 import 'package:http/http.dart' as http;
@@ -25,6 +27,8 @@ import 'delete_todolist.dart';
 String tokenType, accessToken;
 String categoriesID;
 String categoriesName;
+String friendId;
+String friendName;
 bool isLoading, isError;
 String idProjectEditChoose;
 String namaProjectEditChoose, titleEdit;
@@ -58,6 +62,7 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
   DateTime timeReplacement;
   TabController _tabController;
   List<ListKategori> listCategory = [];
+  List<FriendList> listFriends = [];
   List<MemberTodo> listMemberTodo = [];
   List<FileTodo> listFileTodo = [];
   String titleTodo, planStartTodo, planEndTodo, categoryTodo, descTodo;
@@ -261,9 +266,75 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
     return null;
   }
 
+  Future<List<List>> getDataFriendList() async {
+    var storage = new DataStore();
+    var tokenTypeStorage = await storage.getDataString('token_type');
+    var accessTokenStorage = await storage.getDataString('access_token');
+
+    tokenType = tokenTypeStorage;
+    accessToken = accessTokenStorage;
+    requestHeaders['Accept'] = 'application/json';
+    requestHeaders['Authorization'] = '$tokenType $accessToken';
+
+    setState(() {
+      isLoading = true;
+    });
+    try {
+      final participant =
+          await http.get(url('api/get_friendlist'), headers: requestHeaders);
+
+      if (participant.statusCode == 200) {
+        var listParticipantToJson = json.decode(participant.body);
+        var participants = listParticipantToJson;
+        print(participants);
+        for (var i in participants) {
+          FriendList participant = FriendList(
+            users: i['fl_users'],
+            namafriend: i['us_name'],
+            friend: i['fl_friend'],
+          );
+          listFriends.add(participant);
+        }
+
+        setState(() {
+          isLoading = false;
+          isError = false;
+        });
+      } else if (participant.statusCode == 401) {
+        Fluttertoast.showToast(
+            msg: "Token Telah Kadaluwarsa, Silahkan Login Kembali");
+        setState(() {
+          isLoading = false;
+          isError = true;
+        });
+      } else {
+        setState(() {
+          isLoading = false;
+          isError = true;
+        });
+        print(participant.body);
+        return null;
+      }
+    } on TimeoutException catch (_) {
+      setState(() {
+        isLoading = false;
+        isError = true;
+      });
+      Fluttertoast.showToast(msg: "Timed out, Try again");
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+        isError = true;
+      });
+      debugPrint('$e');
+    }
+    return null;
+  }
+
   @override
   void initState() {
     getHeaderHTTP();
+    getDataFriendList();
     _tabController = TabController(
         length: 3, vsync: _ManajemenEditTodoState(), initialIndex: 0);
     _tabController.addListener(_handleTabIndex);
@@ -1441,8 +1512,7 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
                               ? _loadingview()
                               : Container(
                                   width: double.infinity,
-                                  height:
-                                      MediaQuery.of(context).size.height / 8,
+                                  height: 60.0,
                                   margin: EdgeInsets.only(bottom: 8.0),
                                   color: Colors.white,
                                   child: TabBar(
@@ -1477,30 +1547,29 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
                                   child: Column(
                                     children: <Widget>[
                                       Container(
-                                          alignment: Alignment.center,
-                                          height: 40.0,
-                                          margin: EdgeInsets.only(
-                                              bottom: 5.0, top: 5.0),
-                                         
-                                            child: TextField(
-                                              textAlignVertical:
-                                                  TextAlignVertical.center,
-                                              controller: _controllerNamaMember,
-                                              decoration: InputDecoration(
-                                                  contentPadding: EdgeInsets.only(
-                                                      top: 2,
-                                                      bottom: 2,
-                                                      left: 10,
-                                                      right: 10),
-                                                  border: OutlineInputBorder(),
-                                                  hintText:
-                                                      'Masukkan Email Pengguna',
-                                                  hintStyle: TextStyle(
-                                                    fontSize: 12,
-                                                    color: Colors.black,
-                                                  )),
-                                            ),
-                                          ),
+                                        alignment: Alignment.center,
+                                        height: 40.0,
+                                        margin: EdgeInsets.only(
+                                            bottom: 5.0, top: 5.0),
+                                        child: TextField(
+                                          textAlignVertical:
+                                              TextAlignVertical.center,
+                                          controller: _controllerNamaMember,
+                                          decoration: InputDecoration(
+                                              contentPadding: EdgeInsets.only(
+                                                  top: 2,
+                                                  bottom: 2,
+                                                  left: 10,
+                                                  right: 10),
+                                              border: OutlineInputBorder(),
+                                              hintText:
+                                                  'Masukkan Email Pengguna',
+                                              hintStyle: TextStyle(
+                                                fontSize: 12,
+                                                color: Colors.black,
+                                              )),
+                                        ),
+                                      ),
                                       Container(
                                         margin: EdgeInsets.only(top: 0.0),
                                         padding: EdgeInsets.only(
@@ -1622,58 +1691,47 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
                                   child: Column(
                                     children: <Widget>[
                                       Container(
-                                          alignment: Alignment.center,
-                                          height: 40.0,
-                                          margin: EdgeInsets.only(
-                                              bottom: 5.0, top: 5.0),
-                                          child: InkWell(
-                                                          onTap: () async {
-                                                            showCategory();
-                                                          },
-                                                          child: Container(
-                                                            height: 45.0,
-                                                            padding:
-                                                                EdgeInsets.only(
-                                                                    left: 10.0,
-                                                                    right:
-                                                                        10.0),
-                                                            width:
-                                                                double.infinity,
-                                                            decoration: BoxDecoration(
-                                                                border: Border.all(
-                                                                    color: Colors
-                                                                        .black45),
-                                                                borderRadius: BorderRadius
-                                                                    .all(Radius
-                                                                        .circular(
-                                                                            5.0))),
-                                                            child: Column(
-                                                              crossAxisAlignment:
-                                                                  CrossAxisAlignment
-                                                                      .start,
-                                                              mainAxisAlignment:
-                                                                  MainAxisAlignment
-                                                                      .center,
-                                                              children: <
-                                                                  Widget>[
-                                                                Text(
-                                                                    categoriesID ==
-                                                                            null
-                                                                        ? "Pilih Kategori"
-                                                                        : 'Kategori - $categoriesName',
-                                                                    style: TextStyle(
-                                                                        fontSize:
-                                                                            12,
-                                                                        color: Colors
-                                                                            .black),
-                                                                    textAlign:
-                                                                        TextAlign
-                                                                            .left),
-                                                              ],
-                                                            ),
-                                                          ),
-                                                        ),
+                                        alignment: Alignment.center,
+                                        height: 40.0,
+                                        margin: EdgeInsets.only(
+                                            bottom: 5.0, top: 5.0),
+                                        child: InkWell(
+                                          onTap: () async {
+                                            Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        WidgetFriendList()));
+                                          },
+                                          child: Container(
+                                            height: 45.0,
+                                            padding: EdgeInsets.only(
+                                                left: 10.0, right: 10.0),
+                                            width: double.infinity,
+                                            decoration: BoxDecoration(
+                                                border: Border.all(
+                                                    color: Colors.black45),
+                                                borderRadius: BorderRadius.all(
+                                                    Radius.circular(5.0))),
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: <Widget>[
+                                                Text(
+                                                    friendId == null
+                                                        ? "Pilih Teman"
+                                                        : '$friendName',
+                                                    style: TextStyle(
+                                                        fontSize: 12,
+                                                        color: Colors.black),
+                                                    textAlign: TextAlign.left),
+                                              ],
+                                            ),
                                           ),
+                                        ),
+                                      ),
                                       Container(
                                         margin: EdgeInsets.only(top: 0.0),
                                         padding: EdgeInsets.only(
@@ -2397,12 +2455,12 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
                 left: 5.0,
                 top: 40.0),
             child: Column(children: <Widget>[
-              for (int i = 0; i < listCategory.length; i++)
+              for (int i = 0; i < listFriends.length; i++)
                 InkWell(
                     onTap: () async {
                       setState(() {
-                        categoriesID = listCategory[i].id.toString();
-                        categoriesName = listCategory[i].name.toString();
+                        friendId = listFriends[i].friend.toString();
+                        friendName = listFriends[i].namafriend.toString();
                       });
                       Navigator.pop(context);
                     },
@@ -2411,7 +2469,7 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
                       child: Card(
                         child: Padding(
                           padding: const EdgeInsets.all(15.0),
-                          child: Text(listCategory[i].name),
+                          child: Text(listFriends[i].namafriend),
                         ),
                       ),
                     )),
