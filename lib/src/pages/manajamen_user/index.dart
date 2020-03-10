@@ -27,6 +27,7 @@ import 'confirmation_friend.dart';
 enum PageEnum {
   editProfile,
   permintaanTeman,
+  gantiPassword,
 }
 String validatePasswordLama, validatePasswordBaru, validateConfirmPassword;
 class ManajemenUser extends StatefulWidget {
@@ -156,101 +157,100 @@ class _ManajemenUserState extends State<ManajemenUser>
     }
   }
 
-  // void _showPasswordModal() {
-  //   setState(() {
-  //     _controllerPasswordLama.text = '';
-  //     _controllerPasswordBaru.text = '';
-  //     _controllerConfirmPassword.text = '';
-  //   });
-  //   showModalBottomSheet(
-  //       isScrollControlled: true,
-  //       context: context,
-  //       builder: (builder) {
-  //         return Container(
-  //           margin: EdgeInsets.only(top: 40.0),
-  //           padding: EdgeInsets.all(15.0),
-  //           child: Column(
-  //             mainAxisAlignment: MainAxisAlignment.start,
-  //             crossAxisAlignment: CrossAxisAlignment.start,
-  //             children: <Widget>[
-  //               Container(
-  //                   child: Text('Password Lama',
-  //                       style: TextStyle(color: Colors.black45))),
-  //               Container(
-  //                   margin: EdgeInsets.only(bottom: 20.0),
-  //                   child: TextField(
-  //                     obscureText: true,
-  //                     controller: _controllerPasswordLama,
-  //                     decoration: InputDecoration(
-  //                       errorText: validatePasswordLama == null
-  //                           ? null
-  //                           : validatePasswordLama,
-  //                     ),
-  //                   )),
-  //               Container(
-  //                   child: Text('Password Baru',
-  //                       style: TextStyle(color: Colors.black45))),
-  //               Container(
-  //                   margin: EdgeInsets.only(bottom: 20.0),
-  //                   child: TextField(
-  //                     obscureText: true,
-  //                     controller: _controllerPasswordBaru,
-  //                     decoration: InputDecoration(
-  //                       errorText: validatePasswordBaru == null
-  //                           ? null
-  //                           : validatePasswordBaru,
-  //                     ),
-  //                   )),
-  //               Container(
-  //                   child: Text('Konfirmasi Password Baru',
-  //                       style: TextStyle(color: Colors.black45))),
-  //               Container(
-  //                   margin: EdgeInsets.only(bottom: 20.0),
-  //                   child: TextField(
-  //                     obscureText: true,
-  //                     decoration: InputDecoration(
-  //                       errorText: validateConfirmPassword == null
-  //                           ? null
-  //                           : validateConfirmPassword,
-  //                     ),
-  //                     controller: _controllerConfirmPassword,
-  //                   )),
-  //               Center(
-  //                   child: Container(
-  //                       width: double.infinity,
-  //                       height: 45.0,
-  //                       child: RaisedButton(
-  //                           onPressed: load == true
-  //                               ? null
-  //                               : () async {
-  //                                   editData('Y');
-  //                                 },
-  //                           color: primaryAppBarColor,
-  //                           textColor: Colors.white,
-  //                           disabledColor: Color.fromRGBO(254, 86, 14, 0.7),
-  //                           disabledTextColor: Colors.white,
-  //                           splashColor: Colors.blueAccent,
-  //                           child: load == true
-  //                               ? Container(
-  //                                   height: 25.0,
-  //                                   width: 25.0,
-  //                                   child: CircularProgressIndicator(
-  //                                       valueColor:
-  //                                           new AlwaysStoppedAnimation<Color>(
-  //                                               Colors.white)))
-  //                               : Text("Ubah password",
-  //                                   style: TextStyle(color: Colors.white)))))
-  //             ],
-  //           ),
-  //         );
-  //       });
-  // }
+  void _showPasswordModal() {
+    setState(() {
+      _controllerPasswordLama.text = '';
+      _controllerPasswordBaru.text = '';
+      _controllerConfirmPassword.text = '';
+    });
+    showModalBottomSheet(
+        isScrollControlled: true,
+        context: context,
+        builder: (builder) {
+          return Container(
+            margin: EdgeInsets.only(top: 40.0),
+            padding: EdgeInsets.all(15.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Container(
+                    child: Text('Password Lama',
+                        style: TextStyle(color: Colors.black45))),
+                Container(
+                    margin: EdgeInsets.only(bottom: 20.0),
+                    child: TextField(
+                      obscureText: true,
+                      controller: _controllerPasswordLama,
+                      decoration: InputDecoration(
+                        errorText: validatePasswordLama == null
+                            ? null
+                            : validatePasswordLama,
+                      ),
+                    )),
+                Container(
+                    child: Text('Password Baru',
+                        style: TextStyle(color: Colors.black45))),
+                Container(
+                    margin: EdgeInsets.only(bottom: 20.0),
+                    child: TextField(
+                      obscureText: true,
+                      controller: _controllerPasswordBaru,
+                      decoration: InputDecoration(
+                        errorText: validatePasswordBaru == null
+                            ? null
+                            : validatePasswordBaru,
+                      ),
+                    )),
+                Container(
+                    child: Text('Konfirmasi Password Baru',
+                        style: TextStyle(color: Colors.black45))),
+                Container(
+                    margin: EdgeInsets.only(bottom: 20.0),
+                    child: TextField(
+                      obscureText: true,
+                      decoration: InputDecoration(
+                        errorText: validateConfirmPassword == null
+                            ? null
+                            : validateConfirmPassword,
+                      ),
+                      controller: _controllerConfirmPassword,
+                    )),
+                Center(
+                    child: Container(
+                        width: double.infinity,
+                        height: 45.0,
+                        child: RaisedButton(
+                            onPressed: load == true
+                                ? null
+                                : () async {
+                                    editData('Y');
+                                  },
+                            color: primaryAppBarColor,
+                            textColor: Colors.white,
+                            disabledColor: Color.fromRGBO(254, 86, 14, 0.7),
+                            disabledTextColor: Colors.white,
+                            splashColor: Colors.blueAccent,
+                            child: load == true
+                                ? Container(
+                                    height: 25.0,
+                                    width: 25.0,
+                                    child: CircularProgressIndicator(
+                                        valueColor:
+                                            new AlwaysStoppedAnimation<Color>(
+                                                Colors.white)))
+                                : Text("Ubah password",
+                                    style: TextStyle(color: Colors.white)))))
+              ],
+            ),
+          );
+        });
+  }
 
   editData(password) async {
     if (load) {
       return false;
     }
-    await progressApiAction.show();
     if (password == 'Y') {
       if (_controllerPasswordLama.text == '') {
         Fluttertoast.showToast(msg: "Password Lama Tidak Boleh Kosong");
@@ -269,7 +269,7 @@ class _ManajemenUserState extends State<ManajemenUser>
         return false;
       }
     }
-
+      await progressApiAction.show();
     setState(() {
       load = true;
     });
@@ -323,9 +323,8 @@ class _ManajemenUserState extends State<ManajemenUser>
           });
 
           Fluttertoast.showToast(msg: "Berhasil");
-
-          Navigator.pop(context);
           progressApiAction.hide().then((isHidden) {});
+          Navigator.pop(context);
         } else {
           Fluttertoast.showToast(msg: "Gagal, Silahkan Coba Kembali");
           setState(() {
@@ -733,11 +732,11 @@ class _ManajemenUserState extends State<ManajemenUser>
                       onSelected: (PageEnum value) {
                         switch (value) {
                           case PageEnum.editProfile:
-                            // Navigator.push(
-                            //     context,
-                            //     MaterialPageRoute(
-                            //         builder: (context) => ProfileUserEdit()));
+                        
                             _editProfile();
+                            break;                          
+                          case PageEnum.gantiPassword:                          
+                            _showPasswordModal();
                             break;
                           case PageEnum.permintaanTeman:
                             Navigator.push(
@@ -763,6 +762,25 @@ class _ManajemenUserState extends State<ManajemenUser>
                             ),
                             Text(
                               "Edit Data Akun",
+                              style: TextStyle(color:Colors.black54,fontSize:14),
+                            ),
+                          ]
+                              ),
+                        ),
+                         PopupMenuItem(
+                          
+                          value: PageEnum.gantiPassword,
+                          child: Row(children: <Widget>[
+                            Padding(
+                              padding: const EdgeInsets.only(right:5.0),
+                              child: Icon(
+                                Icons.lock,
+                                size: 14,
+                                color:Colors.black54,
+                              ),
+                            ),
+                            Text(
+                              "Ganti Password",
                               style: TextStyle(color:Colors.black54,fontSize:14),
                             ),
                           ]

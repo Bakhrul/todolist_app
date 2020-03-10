@@ -1936,7 +1936,7 @@ class _DetailProjectState extends State<DetailProject>
                                                         border:
                                                             OutlineInputBorder(),
                                                         hintText:
-                                                            'Masukkan Nama To Do',
+                                                            'Judul To Do',
                                                         hintStyle: TextStyle(
                                                           fontSize: 12,
                                                           color: Colors.black,

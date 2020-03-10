@@ -292,11 +292,14 @@ class _WidgetFriendListState extends State<WidgetFriendList> {
                   ),
                 )
               : isNotFound == true
-                  ? Container(
+                  ?
+                  RefreshIndicator(
+                    onRefresh: getHeaderHTTP,
+                  child: SingleChildScrollView(
+                    physics: AlwaysScrollableScrollPhysics(),
+                   child: Container(
                       child: Center(
                         child: Column(
-                          // mainAxisAlignment: MainAxisAlignment.center,
-                          // crossAxisAlignment: CrossAxisAlignment.,
                           children: <Widget>[
                             new Container(
                               margin: EdgeInsets.only(top: 16),
@@ -305,7 +308,7 @@ class _WidgetFriendListState extends State<WidgetFriendList> {
                               child: Image.asset("images/icon_person.png"),
                             ),
                             Container(
-                                margin: EdgeInsets.only(top: 16.0),
+                                margin: EdgeInsets.only(top: 16.0,bottom: 10.0),
                                 child: Text(
                                   "Upss... Member Tidak Ditemukan",
                                   style: TextStyle(fontSize: 14),
@@ -313,12 +316,13 @@ class _WidgetFriendListState extends State<WidgetFriendList> {
                           ],
                         ),
                       ),
-                    )
+                   ),
+                    ))
                   : Center(
-                      child: RefreshIndicator(
+                      child: Scrollbar(
+                          child: RefreshIndicator(
                         onRefresh: getHeaderHTTP,
                         child: ListView.builder(
-                          physics: AlwaysScrollableScrollPhysics(),
                           itemCount: listFriends.length,
                           itemBuilder: (BuildContext context, int index) {
                             return Card(
@@ -359,12 +363,16 @@ class _WidgetFriendListState extends State<WidgetFriendList> {
                                     overflow: TextOverflow.ellipsis,
                                     softWrap: true,
                                   ),
+                                  subtitle: Padding(padding: EdgeInsets.only(top:5.0,bottom:10.0),child: Text( listFriends[index].emailfriend == null
+                                        ? 'Email Tidak Diketahui'
+                                        : listFriends[index].emailfriend)),
+                                  trailing: Icon(Icons.chevron_right),
                                 ),
                               ),
                             );
                           },
                         ),
-                      ),
+                      )),
                     ),
     );
   }

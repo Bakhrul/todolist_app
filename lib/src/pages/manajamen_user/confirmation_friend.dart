@@ -21,6 +21,7 @@ class ConfirmationFriendState extends State<ConfirmationFriend> {
   String tokenType, accessToken;
   Map<String, String> requestHeaders = Map();
   List<FriendList> listFriend = [];
+  TextEditingController _searchQuery = TextEditingController();
   bool isLoading, isError;
   ProgressDialog progressApiAction;
 
@@ -53,7 +54,10 @@ class ConfirmationFriendState extends State<ConfirmationFriend> {
       listFriend = [];
     });
     try {
-      final getFriendUrl = await http.get(url('api/get_confirmation_friend'),
+      final getFriendUrl = await http.post(url('api/get_confirmation_friend'),
+      body: {
+        'search' : _searchQuery.text,
+      },
           headers: requestHeaders);
 
       if (getFriendUrl.statusCode == 200) {
@@ -164,12 +168,45 @@ class ConfirmationFriendState extends State<ConfirmationFriend> {
 
     return Scaffold(
         backgroundColor: Colors.white,
-        appBar: AppBar(
-          title: Text(
-            "Permintaan Teman",
-            style: TextStyle(fontSize: 14),
+        appBar: PreferredSize(
+          preferredSize: Size.fromHeight(50.0),
+          child: AppBar(
+          titleSpacing: 0.0,
+          automaticallyImplyLeading: false,
+            title: Container(
+              height: 50.0,
+              alignment: Alignment.center,
+              padding: EdgeInsets.all(0),
+              margin: EdgeInsets.all(0),
+              decoration: BoxDecoration(
+                color: Colors.white,
+              ),
+              child: TextField(
+                autofocus: true,
+                textInputAction: TextInputAction.search,
+                controller: _searchQuery,
+                onSubmitted: (string) {
+                  if (string != null || string != '') {
+                    getDataProject();
+                  }
+                },
+                style: TextStyle(
+                  color: Colors.black87,
+                  fontSize: 14,
+                ),
+                textAlignVertical: TextAlignVertical.center,
+                decoration: InputDecoration(
+                  border: InputBorder.none,
+                  prefixIcon: new Icon(Icons.search, color: Colors.black87),
+                  hintText: "Cari Berdasarkan Nama",
+                  hintStyle: TextStyle(
+                    color: Colors.black87,
+                    fontSize: 14,
+                  ),
+                ),
+              ),
+            ),
           ),
-          backgroundColor: primaryAppBarColor,
         ),
         body: isLoading != false
             ? listLoadingTodo()

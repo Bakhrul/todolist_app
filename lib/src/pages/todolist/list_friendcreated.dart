@@ -292,28 +292,32 @@ class _WidgetFriendListState extends State<WidgetFriendList> {
                   ),
                 )
               : isNotFound == true
-                  ? Container(
-                      child: Center(
-                        child: Column(
-                          // mainAxisAlignment: MainAxisAlignment.center,
-                          // crossAxisAlignment: CrossAxisAlignment.,
-                          children: <Widget>[
-                            new Container(
-                              margin: EdgeInsets.only(top: 16),
-                              width: 200.0,
-                              height: 200.0,
-                              child: Image.asset("images/icon_person.png"),
+                  ? RefreshIndicator(
+                    onRefresh: getHeaderHTTP,
+                    child: SingleChildScrollView(
+                      physics: AlwaysScrollableScrollPhysics(),
+                      child: Container(
+                          child: Center(
+                            child: Column(
+                              children: <Widget>[
+                                new Container(
+                                  margin: EdgeInsets.only(top: 16),
+                                  width: 200.0,
+                                  height: 200.0,
+                                  child: Image.asset("images/icon_person.png"),
+                                ),
+                                Container(
+                                    margin: EdgeInsets.only(top: 16.0),
+                                    child: Text(
+                                      "Upss... Member Tidak Ditemukan",
+                                      style: TextStyle(fontSize: 14),
+                                    )),
+                              ],
                             ),
-                            Container(
-                                margin: EdgeInsets.only(top: 16.0),
-                                child: Text(
-                                  "Upss... Member Tidak Ditemukan",
-                                  style: TextStyle(fontSize: 14),
-                                )),
-                          ],
+                          ),
                         ),
-                      ),
-                    )
+                    ),
+                  )
                   : Center(
                       child: RefreshIndicator(
                         onRefresh: getHeaderHTTP,
@@ -358,6 +362,10 @@ class _WidgetFriendListState extends State<WidgetFriendList> {
                                     overflow: TextOverflow.ellipsis,
                                     softWrap: true,
                                   ),
+                                  subtitle: Padding(padding: EdgeInsets.only(top:5.0,bottom:10.0), child: Text(  listFriends[index].emailfriend == null
+                                        ? 'Member Tidak Diketahui'
+                                        : listFriends[index].emailfriend,),),
+                                  trailing: Icon(Icons.chevron_right),
                                 ),
                               ),
                             );
