@@ -2,6 +2,8 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:todolist_app/src/model/FriendList.dart';
+import 'package:todolist_app/src/pages/todolist/friend_list.dart';
 import 'package:todolist_app/src/routes/env.dart';
 import 'package:todolist_app/src/storage/storage.dart';
 import 'package:http/http.dart' as http;
@@ -10,7 +12,6 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:email_validator/email_validator.dart';
-import 'package:draggable_fab/draggable_fab.dart';
 import 'package:todolist_app/src/utils/utils.dart';
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 import 'package:shimmer/shimmer.dart';
@@ -25,9 +26,14 @@ import 'delete_todolist.dart';
 String tokenType, accessToken;
 String categoriesID;
 String categoriesName;
+String friendId;
+String friendName;
 bool isLoading, isError;
 String idProjectEditChoose;
 String namaProjectEditChoose, titleEdit;
+String idMemberFriend;
+String emailMemberFriend;
+String nameMemberFriend;
 
 class ManajemenEditTodo extends StatefulWidget {
   ManajemenEditTodo({Key key, this.title, this.idTodo, this.platform})
@@ -46,7 +52,7 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
   String _dfileName;
   String fileImage;
   bool _loadingPath;
-  String _urutkanvalue;
+  String _urutkanvalue,_urutkanvalueTeman;
   String _alldayTipe;
   Map dataTodo, dataStatusKita;
   bool _hasValidMime;
@@ -58,6 +64,7 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
   DateTime timeReplacement;
   TabController _tabController;
   List<ListKategori> listCategory = [];
+  List<FriendList> listFriends = [];
   List<MemberTodo> listMemberTodo = [];
   List<FileTodo> listFileTodo = [];
   String titleTodo, planStartTodo, planEndTodo, categoryTodo, descTodo;
@@ -67,6 +74,7 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
   TextEditingController _dateEndController = TextEditingController();
   TextEditingController _descController = TextEditingController();
   Map<String, String> requestHeaders = Map();
+  TabController _tabControllerMember;
 
   void timeSetToMinute() {
     var time = DateTime.now();
@@ -260,12 +268,79 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
     return null;
   }
 
+  Future<List<List>> getDataFriendList() async {
+    var storage = new DataStore();
+    var tokenTypeStorage = await storage.getDataString('token_type');
+    var accessTokenStorage = await storage.getDataString('access_token');
+
+    tokenType = tokenTypeStorage;
+    accessToken = accessTokenStorage;
+    requestHeaders['Accept'] = 'application/json';
+    requestHeaders['Authorization'] = '$tokenType $accessToken';
+
+    setState(() {
+      isLoading = true;
+    });
+    try {
+      final participant =
+          await http.get(url('api/get_friendlist'), headers: requestHeaders);
+
+      if (participant.statusCode == 200) {
+        var listParticipantToJson = json.decode(participant.body);
+        var participants = listParticipantToJson;
+        print(participants);
+        for (var i in participants) {
+          FriendList participant = FriendList(
+            users: i['fl_users'],
+            namafriend: i['us_name'],
+            friend: i['fl_friend'],
+          );
+          listFriends.add(participant);
+        }
+
+        setState(() {
+          isLoading = false;
+          isError = false;
+        });
+      } else if (participant.statusCode == 401) {
+        Fluttertoast.showToast(
+            msg: "Token Telah Kadaluwarsa, Silahkan Login Kembali");
+        setState(() {
+          isLoading = false;
+          isError = true;
+        });
+      } else {
+        setState(() {
+          isLoading = false;
+          isError = true;
+        });
+        print(participant.body);
+        return null;
+      }
+    } on TimeoutException catch (_) {
+      setState(() {
+        isLoading = false;
+        isError = true;
+      });
+      Fluttertoast.showToast(msg: "Timed out, Try again");
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+        isError = true;
+      });
+      debugPrint('$e');
+    }
+    return null;
+  }
+
   @override
   void initState() {
     getHeaderHTTP();
+    getDataFriendList();
     _tabController = TabController(
         length: 3, vsync: _ManajemenEditTodoState(), initialIndex: 0);
     _tabController.addListener(_handleTabIndex);
+    _tabControllerMember = new TabController(length: 2, vsync: this);
     _alldayTipe = null;
     super.initState();
     _loadingPath = false;
@@ -298,9 +373,63 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
         var addMemberTodoJson = json.decode(addMemberTodo.body);
         if (addMemberTodoJson['status'] == 'success') {
           Fluttertoast.showToast(msg: "Berhasil");
+          _controllerNamaMember.clear();
           progressApiAction.hide().then((isHidden) {
             print(isHidden);
           });
+          getHeaderHTTP();
+        } else if (addMemberTodoJson['status'] == 'email belum terdaftar') {
+          Fluttertoast.showToast(msg: "Email Ini Belum Memiliki Akun Pengguna");
+          progressApiAction.hide().then((isHidden) {
+            print(isHidden);
+          });
+        } else if (addMemberTodoJson['status'] == 'member sudah terdaftar') {
+          Fluttertoast.showToast(msg: "Member Ini Sudah Terdaftar Pada To Do");
+          progressApiAction.hide().then((isHidden) {
+            print(isHidden);
+          });
+        }
+      } else {
+        Fluttertoast.showToast(msg: "Gagal, Silahkan Coba Kembali");
+        print(addMemberTodo.body);
+        progressApiAction.hide().then((isHidden) {
+          print(isHidden);
+        });
+      }
+    } on TimeoutException catch (_) {
+      Fluttertoast.showToast(msg: "Timed out, Try again");
+      progressApiAction.hide().then((isHidden) {
+        print(isHidden);
+      });
+    } catch (e) {
+      Fluttertoast.showToast(msg: "Gagal, Silahkan Coba Kembali");
+      progressApiAction.hide().then((isHidden) {
+        print(isHidden);
+      });
+      print(e);
+    }
+  }
+
+  void tambahkanMemberTeman() async {
+    await progressApiAction.show();
+    try {
+      final addMemberTodo = await http.post(url('api/todo_edit/tambah_member'),
+          headers: requestHeaders,
+          body: {
+            'todolist': widget.idTodo.toString(),
+            'member': emailMemberFriend ,
+            'role': _urutkanvalueTeman,
+          });
+      print(addMemberTodo.body);
+      if (addMemberTodo.statusCode == 200) {
+        var addMemberTodoJson = json.decode(addMemberTodo.body);
+        if (addMemberTodoJson['status'] == 'success') {
+          Fluttertoast.showToast(msg: "Berhasil");
+          progressApiAction.hide().then((isHidden) {
+            print(isHidden);
+          });
+          emailMemberFriend = null;
+          nameMemberFriend = null;
           getHeaderHTTP();
         } else if (addMemberTodoJson['status'] == 'email belum terdaftar') {
           Fluttertoast.showToast(msg: "Email Ini Belum Memiliki Akun Pengguna");
@@ -1433,53 +1562,73 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
                       ),
                     ),
                   ),
+                   isLoading == true
+                              ? _loadingview()
+                              :
                   Container(
                     child: SingleChildScrollView(
                       child: Column(
                         children: <Widget>[
-                          isLoading == true
-                              ? _loadingview()
-                              : Container(
-                                  padding: EdgeInsets.all(10.0),
-                                  margin: EdgeInsets.only(bottom: 15.0),
+                          Container(
+                                  width: double.infinity,
+                                  height: 60.0,
+                                  margin: EdgeInsets.only(bottom: 8.0),
                                   color: Colors.white,
+                                  child: TabBar(
+                                    tabs: <Widget>[
+                                      Text(
+                                        'Tambah Member',
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.w500),
+                                      ),
+                                      Text(
+                                        'Daftar Teman',
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.w500),
+                                      ),
+                                    ],
+                                    controller: _tabControllerMember,
+                                    labelColor: Colors.black,
+                                    unselectedLabelColor: Colors.grey,
+                                    indicatorColor: primaryAppBarColor,
+                                    indicatorSize: TabBarIndicatorSize.tab,
+                                  ),
+                                ),
+                          // Divider(),
+                          Container(
+                            height: MediaQuery.of(context).size.height / 3,
+                            child: TabBarView(
+                              physics: AlwaysScrollableScrollPhysics(),
+                              controller: _tabControllerMember,
+                              children: <Widget>[
+                                Container(
+                                  padding: EdgeInsets.all(8.0),
                                   child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    mainAxisAlignment: MainAxisAlignment.start,
                                     children: <Widget>[
                                       Container(
-                                        margin: EdgeInsets.only(bottom: 10.0),
-                                        child: Text(
-                                          'Tambah Member',
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.w500),
+                                        alignment: Alignment.center,
+                                        height: 40.0,
+                                        margin: EdgeInsets.only(
+                                            bottom: 5.0, top: 5.0),
+                                        child: TextField(
+                                          textAlignVertical:
+                                              TextAlignVertical.center,
+                                          controller: _controllerNamaMember,
+                                          decoration: InputDecoration(
+                                              contentPadding: EdgeInsets.only(
+                                                  top: 2,
+                                                  bottom: 2,
+                                                  left: 10,
+                                                  right: 10),
+                                              border: OutlineInputBorder(),
+                                              hintText:
+                                                  'Masukkan Email Pengguna',
+                                              hintStyle: TextStyle(
+                                                fontSize: 12,
+                                                color: Colors.black,
+                                              )),
                                         ),
                                       ),
-                                      Divider(),
-                                      Container(
-                                          alignment: Alignment.center,
-                                          height: 40.0,
-                                          margin: EdgeInsets.only(
-                                              bottom: 5.0, top: 5.0),
-                                          child: TextField(
-                                            textAlignVertical:
-                                                TextAlignVertical.center,
-                                            controller: _controllerNamaMember,
-                                            decoration: InputDecoration(
-                                                contentPadding: EdgeInsets.only(
-                                                    top: 2,
-                                                    bottom: 2,
-                                                    left: 10,
-                                                    right: 10),
-                                                border: OutlineInputBorder(),
-                                                hintText:
-                                                    'Masukkan Email Pengguna',
-                                                hintStyle: TextStyle(
-                                                  fontSize: 12,
-                                                  color: Colors.black,
-                                                )),
-                                          )),
                                       Container(
                                         margin: EdgeInsets.only(top: 0.0),
                                         padding: EdgeInsets.only(
@@ -1546,9 +1695,9 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
                                               height: 40.0,
                                               child: RaisedButton(
                                                   onPressed: () async {
-                                                    String emailValid =
-                                                        _controllerNamaMember
-                                                            .text;
+                                                    
+                                                    String emailValid = _controllerNamaMember
+                                                                .text;
                                                     final bool isValid =
                                                         EmailValidator.validate(
                                                             emailValid);
@@ -1595,6 +1744,168 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
                                     ],
                                   ),
                                 ),
+// LIST FRIEND
+                                Container(
+                                  padding: EdgeInsets.all(8.0),
+                                  child: Column(
+                                    children: <Widget>[
+                                      Container(
+                                        alignment: Alignment.center,
+                                        height: 40.0,
+                                        margin: EdgeInsets.only(
+                                            bottom: 5.0, top: 5.0),
+                                        child: InkWell(
+                                          onTap: () async {
+                                            Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        WidgetFriendList()));
+                                          },
+                                          child: Container(
+                                            height: 45.0,
+                                            padding: EdgeInsets.only(
+                                                left: 10.0, right: 10.0),
+                                            width: double.infinity,
+                                            decoration: BoxDecoration(
+                                                border: Border.all(
+                                                    color: Colors.black45),
+                                                borderRadius: BorderRadius.all(
+                                                    Radius.circular(5.0))),
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: <Widget>[
+                                                Text(
+                                                    emailMemberFriend== null
+                                                        ? "Pilih Teman"
+                                                        : '$nameMemberFriend',
+                                                    style: TextStyle(
+                                                        fontSize: 12,
+                                                        color: Colors.black),
+                                                    textAlign: TextAlign.left),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      Container(
+                                        margin: EdgeInsets.only(top: 0.0),
+                                        padding: EdgeInsets.only(
+                                            left: 10.0, right: 10.0),
+                                        decoration: BoxDecoration(
+                                            border: Border.all(
+                                                color: Colors.black45),
+                                            borderRadius: BorderRadius.all(
+                                                Radius.circular(5.0))),
+                                        child: DropdownButtonHideUnderline(
+                                          child: DropdownButton<String>(
+                                            isExpanded: true,
+                                            items: [
+                                              DropdownMenuItem<String>(
+                                                child: Text(
+                                                  'Admin',
+                                                  style: TextStyle(
+                                                    fontSize: 12,
+                                                  ),
+                                                ),
+                                                value: '2',
+                                              ),
+                                              DropdownMenuItem<String>(
+                                                child: Text(
+                                                  'Executor',
+                                                  style: TextStyle(
+                                                    fontSize: 12,
+                                                  ),
+                                                ),
+                                                value: '3',
+                                              ),
+                                              DropdownMenuItem<String>(
+                                                child: Text(
+                                                  'Viewer',
+                                                  style: TextStyle(
+                                                    fontSize: 12,
+                                                  ),
+                                                ),
+                                                value: '4',
+                                              ),
+                                            ],
+                                            value: _urutkanvalueTeman == null
+                                                ? null
+                                                : _urutkanvalueTeman,
+                                            onChanged: (String value) {
+                                              setState(() {
+                                                _urutkanvalueTeman = value;
+                                              });
+                                            },
+                                            hint: Text(
+                                              'Pilih level Member',
+                                              style: TextStyle(
+                                                  fontSize: 12,
+                                                  color: Colors.black),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      Center(
+                                          child: Container(
+                                              margin:
+                                                  EdgeInsets.only(top: 10.0),
+                                              width: double.infinity,
+                                              height: 40.0,
+                                              child: RaisedButton(
+                                                  onPressed: () async {
+                                                    print(emailMemberFriend);
+                                                    String emailValid =emailMemberFriend;
+                                                    final bool isValid =
+                                                        EmailValidator.validate(
+                                                            emailValid);
+                                                    print('Email is valid? ' +
+                                                        (isValid
+                                                            ? 'yes'
+                                                            : 'no'));
+                                                    if (nameMemberFriend ==
+                                                            null ||
+                                                        nameMemberFriend ==
+                                                            '') {
+                                                      Fluttertoast.showToast(
+                                                          msg:
+                                                              "Email Tidak Boleh Kosong");
+                                                    } else if (!isValid) {
+                                                      Fluttertoast.showToast(
+                                                          msg:
+                                                              "Masukkan Email Yang Valid");
+                                                    } else if (_urutkanvalueTeman ==
+                                                        null) {
+                                                      Fluttertoast.showToast(
+                                                          msg:
+                                                              "Pilih Level Member");
+                                                    } else {
+                                                      tambahkanMemberTeman();
+                                                    }
+                                                  },
+                                                  color: primaryAppBarColor,
+                                                  textColor: Colors.white,
+                                                  disabledColor: Color.fromRGBO(
+                                                      254, 86, 14, 0.7),
+                                                  disabledTextColor:
+                                                      Colors.white,
+                                                  splashColor:
+                                                      Colors.blueAccent,
+                                                  child: Text(
+                                                      "Tambahkan Member",
+                                                      style: TextStyle(
+                                                          fontSize: 12,
+                                                          color:
+                                                              Colors.white)))))
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                           Container(
                             margin: EdgeInsets.only(top: 0.0),
                             padding: EdgeInsets.all(5.0),
@@ -2076,44 +2387,42 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
         )));
   }
 
-  Widget _bottomButtons() {
-    return _tabController.index == 0
-        ? DraggableFab(
-            child: FloatingActionButton(
-                shape: StadiumBorder(),
-                onPressed: () async {
-                  if (_titleController.text == '') {
-                    Fluttertoast.showToast(
-                        msg: "Nama To Do Tidak Boleh Kosong");
-                  } else if (categoriesID.toString() == '' ||
-                      categoriesID == null) {
-                    Fluttertoast.showToast(msg: "Kategori Tidak Boleh Kosong");
-                  } else if (_dateStartController.text == '') {
-                    Fluttertoast.showToast(
-                        msg: "Tanggal Dimulainya To Do Tidak Boleh Kosong");
-                  } else if (_dateEndController.text == '') {
-                    Fluttertoast.showToast(
-                        msg: "Tanggal Berakhirnya To Do Tidak Boleh Kosong");
-                  } else if (_descController.text == '') {
-                    Fluttertoast.showToast(msg: "Deskripsi tidak boleh kosong");
-                  } else if (categoriesID.toString() == '1') {
-                    if (idProjectEditChoose == null) {
-                      Fluttertoast.showToast(
-                          msg: "Silahkan Pilih Project Terlebih Dahulu");
-                    } else {
-                      saveTodo();
-                    }
-                  } else {
-                    saveTodo();
-                  }
-                },
-                backgroundColor: Color.fromRGBO(254, 86, 14, 1),
-                child: Icon(
-                  Icons.check,
-                  size: 20.0,
-                )))
-        : _tabController.index == 1 ? null : null;
-  }
+  // Widget _bottomButtons() {
+  //   return _tabController.index == 0
+  //       ? DraggableFab(
+  //           child: FloatingActionButton(
+  //               shape: StadiumBorder(),
+  //               onPressed: () async {
+  //                 if (_titleController.text == '') {
+  //                   Fluttertoast.showToast(
+  //                       msg: "Nama To Do Tidak Boleh Kosong");
+  //                 } else if (categoriesID.toString() == '' ||
+  //                     categoriesID == null) {
+  //                   Fluttertoast.showToast(msg: "Kategori Tidak Boleh Kosong");
+  //                 } else if (_dateStartController.text == '') {
+  //                   Fluttertoast.showToast(
+  //                       msg: "Tanggal Dimulainya To Do Tidak Boleh Kosong");
+  //                 } else if (_dateEndController.text == '') {
+  //                   Fluttertoast.showToast(
+  //                       msg: "Tanggal Berakhirnya To Do Tidak Boleh Kosong");
+  //                 } else if (categoriesID.toString() == '1') {
+  //                   if (idProjectEditChoose == null) {
+  //                     Fluttertoast.showToast(
+  //                         msg: "Silahkan Pilih Project Terlebih Dahulu");
+  //                   } else {
+  //                     saveTodo();
+  //                   }
+  //                 } else {
+  //                   saveTodo();
+  //                 }
+  //               },
+  //               backgroundColor: Color.fromRGBO(254, 86, 14, 1),
+  //               child: Icon(
+  //                 Icons.check,
+  //                 size: 20.0,
+  //               )))
+  //       : _tabController.index == 1 ? null : null;
+  // }
 
   void saveTodo() async {
     await progressApiAction.show();
@@ -2180,6 +2489,43 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
                         child: Padding(
                           padding: const EdgeInsets.all(15.0),
                           child: Text(listCategory[i].name),
+                        ),
+                      ),
+                    )),
+            ]),
+          ));
+        });
+  }
+
+  void showFriendList() {
+    showModalBottomSheet(
+        isScrollControlled: true,
+        context: context,
+        builder: (builder) {
+          return SingleChildScrollView(
+              child: Container(
+            // height: 200.0 + MediaQuery.of(context).viewInsets.bottom,
+            padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewInsets.bottom,
+                right: 5.0,
+                left: 5.0,
+                top: 40.0),
+            child: Column(children: <Widget>[
+              for (int i = 0; i < listFriends.length; i++)
+                InkWell(
+                    onTap: () async {
+                      setState(() {
+                        friendId = listFriends[i].friend.toString();
+                        friendName = listFriends[i].namafriend.toString();
+                      });
+                      Navigator.pop(context);
+                    },
+                    child: Container(
+                      width: double.infinity,
+                      child: Card(
+                        child: Padding(
+                          padding: const EdgeInsets.all(15.0),
+                          child: Text(listFriends[i].namafriend),
                         ),
                       ),
                     )),

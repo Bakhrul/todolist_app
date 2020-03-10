@@ -11,7 +11,6 @@ import 'package:todolist_app/src/utils/utils.dart';
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 import 'package:todolist_app/src/model/Todo.dart';
 import 'package:todolist_app/src/model/Member.dart';
-import 'package:draggable_fab/draggable_fab.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:progress_dialog/progress_dialog.dart';
 import 'package:email_validator/email_validator.dart';
@@ -2432,19 +2431,7 @@ class _DetailProjectState extends State<DetailProject>
     }
   }
 
-  Widget _bottomButtons() {
-    return _tabController.index == 0
-        ? DraggableFab(
-            child: FloatingActionButton(
-                shape: StadiumBorder(),
-                onPressed: () async {},
-                backgroundColor: Color.fromRGBO(254, 86, 14, 1),
-                child: Icon(
-                  Icons.check,
-                  size: 20.0,
-                )))
-        : _tabController.index == 1 ? null : null;
-  }
+  
 
   Widget _loadingview() {
     return Container(
