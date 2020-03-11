@@ -887,6 +887,7 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
                     actions: <Widget>[
                       dataStatusKita == null
                           ? Container()
+                          :dataTodo['tl_status'] == 'Finish' ? Container()
                           : dataStatusKita['tlr_role'] == 1 ||
                                   dataStatusKita['tlr_role'] == 2
                               ? IconButton(
@@ -1290,6 +1291,7 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
     } else {
       return dataStatusKita == null
           ? null
+          :dataTodo['tl_status'] == 'Finish' ? null
           : dataStatusKita['tlr_role'] == 1 || dataStatusKita['tlr_role'] == 2
               ? DraggableFab(
                   child: FloatingActionButton(
@@ -1804,6 +1806,11 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
                                 Fluttertoast.showToast(
                                     msg:
                                         'Anda Tidak Memiliki Akses Untuk Melakukan Aksi Ini');
+                              } else if(dataTodo['tl_status'] == 'Finish'){
+                                Fluttertoast.showToast(
+                                    msg:
+                                        'Tidak Dapat Melakukan Realisasi, To Do Telah Selesai');
+
                               } else {
                                 _realisasiTodo();
                               }

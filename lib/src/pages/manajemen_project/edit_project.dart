@@ -2190,6 +2190,12 @@ class _DetailProjectState extends State<DetailProject>
                                                                   .showToast(
                                                                       msg:
                                                                           'Tanggal Berakhirnya To Do Tidak Boleh Kosong');
+                                                            } else if(dataProject['p_status'] == 'Finish'){
+                                                              Fluttertoast
+                                                                  .showToast(
+                                                                      msg:
+                                                                          'Tidak Dapat Membuat To Do, Project Telah Selesai');
+
                                                             } else {
                                                               _tambahtodo();
                                                             }
