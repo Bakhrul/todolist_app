@@ -102,8 +102,11 @@ class _LoginPageState extends State<LoginPage> {
         requestHeaders['Accept'] = 'application/json';
         requestHeaders['Authorization'] = '$tokenType $accessToken';
         try {
+          // final checkversion =
+          // await http.get(url('api/checkversion/${versionNumber.toInt()}'), headers: requestHeaders);
           final getUser =
               await http.get(url("api/user"), headers: requestHeaders);
+          
           // print('getUser ' + getUser.body);
 
           if (getUser.statusCode == 200) {
@@ -116,7 +119,20 @@ class _LoginPageState extends State<LoginPage> {
             store.setDataString("phone", datauser['us_phone']);
             store.setDataString("address", datauser['us_address']);
             store.setDataString("photo", datauser['us_image']);
+            // store.setDataString("photo", datauser['us_image']);
+            // if(checkversion.statusCode == 200){
+            //   var version = json.decode(checkversion.body);
+            //   if(version == 'Warning'){
+            //     showModalVersionWarning(context);
+            //   }else if(version == 'Expired'){
+            //     showModalVersionDanger(context);
+            //   }else{
+            // Navigator.pushReplacementNamed(context, "/dashboard");
+            //   }
+            // }else{
+            // }
             Navigator.pushReplacementNamed(context, "/dashboard");
+
             Fluttertoast.showToast(
                 msg: 'Selamat Datang ${datauser['us_name']}');
           } else {
@@ -148,13 +164,11 @@ class _LoginPageState extends State<LoginPage> {
         setState(() {
           _isLoading = false;
         });
-      } else if(getToken.statusCode == 400){
-        Fluttertoast.showToast(
-            msg: "Username Atau Password Salah");
+      } else if (getToken.statusCode == 400) {
+        Fluttertoast.showToast(msg: "Username Atau Password Salah");
         setState(() {
           _isLoading = false;
         });
-
       } else {
         Fluttertoast.showToast(
             msg: "Request failed with status: ${getToken.statusCode}");
@@ -168,8 +182,7 @@ class _LoginPageState extends State<LoginPage> {
       setState(() {
         _isLoading = false;
       });
-    }
-    catch (e) {
+    } catch (e) {
       setState(() {
         _isLoading = false;
       });
@@ -364,4 +377,169 @@ class _LoginPageState extends State<LoginPage> {
       ),
     );
   }
+
+   void showModalVersionWarning(BuildContext context) {
+    showDialog(
+      barrierDismissible: false,
+        context: context,
+        builder: (BuildContext context) {
+          // return object of type Dialog
+          return AlertDialog(
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(8.0))),
+            contentPadding: EdgeInsets.only(top: 0.0),
+            content: SingleChildScrollView(
+              child: Container(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    Container(
+                      height: 60,
+                      decoration: new BoxDecoration(
+                          color: Colors.orange,
+                          borderRadius: new BorderRadius.only(
+                            topLeft: const Radius.circular(8.0),
+                            topRight: const Radius.circular(8.0),
+                          )),
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: <Widget>[
+                            Icon(Icons.info_outline,color: Colors.white , size: 40,),
+                            Padding(
+                              padding: const EdgeInsets.only(left:8.0),
+                              child: Text(
+                                "Version Update",
+                                style: TextStyle(fontSize: 16.0,color: Colors.white),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      height: 2.0,
+                    ),
+                    Divider(),
+                    Padding(
+                      padding: EdgeInsets.only(left:16.0,right:16.0,bottom:8.0),
+                      child: Text("Versi Terbaru Telah Tersedia",style: TextStyle(fontSize: 14),)
+                      
+                    ),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 16.0),
+                      child: Text("Todolist menyarankan anda untuk mengupdate ke versi terbaru. Anda dapat tetap menggunakan aplikasi ini saat mendownload update",style: TextStyle(fontSize: 12,color:Colors.grey,height: 1.5),textAlign: TextAlign.justify,)
+
+                    ),
+                    Divider(),
+
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: <Widget>[
+                        FlatButton(
+                          onPressed: () { 
+                            Navigator.pushReplacementNamed(context, "/dashboard");
+                           },
+                          child: Text("CANCEL",style: TextStyle(color:Colors.black54)),
+                        ),
+                        FlatButton(
+                          onPressed: () {  },
+                          child: Text("UPDATE",style: TextStyle(color:primaryAppBarColor)),
+                        )
+
+                      ],
+
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        });
+  }
+
+   void showModalVersionDanger(BuildContext context) {
+    showDialog(
+      barrierDismissible: false,
+        context: context,
+        builder: (BuildContext context) {
+          // return object of type Dialog
+          return AlertDialog(
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(8.0))),
+            contentPadding: EdgeInsets.only(top: 0.0),
+            content: SingleChildScrollView(
+              child: Container(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    Container(
+                      height: 60,
+                      decoration: new BoxDecoration(
+                          color: Colors.red,
+                          borderRadius: new BorderRadius.only(
+                            topLeft: const Radius.circular(8.0),
+                            topRight: const Radius.circular(8.0),
+                          )),
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: <Widget>[
+                            Icon(Icons.warning,color: Colors.white , size: 40,),
+                            Padding(
+                              padding: const EdgeInsets.only(left:8.0),
+                              child: Text(
+                                "Version Update",
+                                style: TextStyle(fontSize: 16.0,color: Colors.white),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      height: 2.0,
+                    ),
+                    Divider(),
+                    Padding(
+                      padding: EdgeInsets.only(left:16.0,right:16.0,bottom:8.0),
+                      child: Text("Versi Terbaru Telah Tersedia",style: TextStyle(fontSize: 14),)
+                      
+                    ),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 16.0),
+                      child: Text("Todolist menyarankan anda untuk mengupdate ke versi terbaru. Versi yang anda gunakan telah kadaluarsa",style: TextStyle(fontSize: 12,color:Colors.grey,height: 1.5),textAlign: TextAlign.justify,)
+
+                    ),
+                    Divider(),
+
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: <Widget>[
+                        FlatButton(
+                          onPressed: () {  },
+                          child: Text("UPDATE",style: TextStyle(color:primaryAppBarColor)),
+                        )
+
+                      ],
+
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        });
+  }
+
 }

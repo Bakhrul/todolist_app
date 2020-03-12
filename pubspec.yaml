@@ -106,6 +106,8 @@ flutter:
       - images/todo_icon2.png
       - images/icon_document.png
       - images/icon_person.png
+      - images/caution.png
+      - images/google-play-service.png
   
   # fonts:
   #   - family: Schyler

@@ -47,6 +47,8 @@ class Dashboard extends StatefulWidget {
 class _DashboardState extends State<Dashboard> {
   ProgressDialog progressApiAction;
   var indexColor = 0;
+  bool isCheckVersion = true;
+
   @override
   void initState() {
     _tanggalawalProject = 'kosong';
@@ -93,9 +95,79 @@ class _DashboardState extends State<Dashboard> {
 
     requestHeaders['Accept'] = 'application/json';
     requestHeaders['Authorization'] = '$tokenType $accessToken';
-    return requestHeaders;
+    if(isCheckVersion == true){
+    return checkVersion();
+
+    }else{
+    return getDataProject();
+
+    }
   }
-  Future<List<List>> getDataProject() async {   
+
+  Future<List<List>> checkVersion() async {
+    setState(() {
+      isLoading = true;
+      isError = false;
+      listProject.clear();
+    });
+    try {
+      final participant = await http.get(
+          url('api/checkversion/${versionNumber.toInt()}'),
+          headers: requestHeaders);
+
+      if (participant.statusCode == 200) {
+        var listParticipantToJson = json.decode(participant.body);
+        var version = listParticipantToJson;
+        if (version == 'Warning') {
+          showModalVersionWarning(context);
+        } else if (version == 'Expired') {
+           showModalVersionDanger(context);
+        } else {
+          getDataProject();
+        }
+        setState(() {
+          isCheckVersion = false;
+        });
+      } else if (participant.statusCode == 401) {
+        Fluttertoast.showToast(
+            msg: "Token Telah Kadaluwarsa, Silahkan Login Kembali");
+        setState(() {
+          isLoading = false;
+          isError = true;
+          isFilter = false;
+          isErrorFilter = false;
+        });
+      } else {
+        setState(() {
+          isLoading = false;
+          isError = true;
+          isFilter = false;
+          isErrorFilter = false;
+        });
+        print(participant.body);
+        return null;
+      }
+    } on TimeoutException catch (_) {
+      setState(() {
+        isLoading = false;
+        isError = true;
+        isFilter = false;
+        isErrorFilter = false;
+      });
+      Fluttertoast.showToast(msg: "Timed out, Try again");
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+        isError = true;
+        isFilter = false;
+        isErrorFilter = false;
+      });
+      debugPrint('$e');
+    }
+    return null;
+  }
+
+  Future<List<List>> getDataProject() async {
     setState(() {
       isLoading = true;
       isError = false;
@@ -251,7 +323,6 @@ class _DashboardState extends State<Dashboard> {
     }
     return null;
   }
-
 
   void _showmodalChooseTodo() {
     showModalBottomSheet(
@@ -435,131 +506,134 @@ class _DashboardState extends State<Dashboard> {
         context: context,
         builder: (builder) {
           return SingleChildScrollView(
-          child: Container(
-            height: 330.0 + MediaQuery.of(context).viewInsets.bottom,
-            padding: EdgeInsets.only(
-                bottom: MediaQuery.of(context).viewInsets.bottom,
-                right: 15.0,
-                left: 15.0,
-                top: 15.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Container(
-                    margin: EdgeInsets.only(bottom: 20.0, top: 20.0),
-                    child: TextField(
-                      controller: _namaprojectController,
+            child: Container(
+              height: 330.0 + MediaQuery.of(context).viewInsets.bottom,
+              padding: EdgeInsets.only(
+                  bottom: MediaQuery.of(context).viewInsets.bottom,
+                  right: 15.0,
+                  left: 15.0,
+                  top: 15.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Container(
+                      margin: EdgeInsets.only(bottom: 20.0, top: 20.0),
+                      child: TextField(
+                        controller: _namaprojectController,
+                        decoration: InputDecoration(
+                          contentPadding: EdgeInsets.only(
+                              top: 5, bottom: 5, left: 10, right: 10),
+                          border: OutlineInputBorder(),
+                          hintText: 'Masukkan Nama Project',
+                          hintStyle:
+                              TextStyle(fontSize: 12, color: Colors.black),
+                        ),
+                      )),
+                  Container(
+                    margin: EdgeInsets.only(
+                      bottom: 15.0,
+                    ),
+                    child: DateTimeField(
+                      controller: _tanggalawalProjectController,
+                      readOnly: true,
+                      format: DateFormat('dd-MM-yyy'),
+                      focusNode: datepickerfirst,
+                      initialValue: _tanggalawalProject == 'kosong'
+                          ? null
+                          : DateTime.parse(_tanggalawalProject),
                       decoration: InputDecoration(
                         contentPadding: EdgeInsets.only(
                             top: 5, bottom: 5, left: 10, right: 10),
                         border: OutlineInputBorder(),
-                        hintText: 'Masukkan Nama Project',
+                        hintText: 'Tanggal Dimulainya Project',
                         hintStyle: TextStyle(fontSize: 12, color: Colors.black),
                       ),
-                    )),
-                Container(
-                  margin: EdgeInsets.only(
-                    bottom: 15.0,
-                  ),
-                  child: DateTimeField(
-                    controller: _tanggalawalProjectController,
-                    readOnly: true,
-                    format: DateFormat('dd-MM-yyy'),
-                    focusNode: datepickerfirst,
-                    initialValue: _tanggalawalProject == 'kosong'
-                        ? null
-                        : DateTime.parse(_tanggalawalProject),
-                    decoration: InputDecoration(
-                      contentPadding: EdgeInsets.only(
-                          top: 5, bottom: 5, left: 10, right: 10),
-                      border: OutlineInputBorder(),
-                      hintText: 'Tanggal Dimulainya Project',
-                      hintStyle: TextStyle(fontSize: 12, color: Colors.black),
+                      onShowPicker: (context, currentValue) {
+                        return showDatePicker(
+                            firstDate: DateTime(1900),
+                            context: context,
+                            initialDate: DateTime.now(),
+                            lastDate: DateTime(2100));
+                      },
+                      onChanged: (ini) {
+                        setState(() {
+                          _tanggalawalProject =
+                              ini == null ? 'kosong' : ini.toString();
+                        });
+                      },
                     ),
-                    onShowPicker: (context, currentValue) {
-                      return showDatePicker(
-                          firstDate: DateTime(1900),
-                          context: context,
-                          initialDate: DateTime.now(),
-                          lastDate: DateTime(2100));
-                    },
-                    onChanged: (ini) {
-                      setState(() {
-                        _tanggalawalProject =
-                            ini == null ? 'kosong' : ini.toString();
-                      });
-                    },
                   ),
-                ),
-                Container(
-                  margin: EdgeInsets.only(bottom: 25.0),
-                  child: DateTimeField(
-                    controller: _tanggalakhirProjectController,
-                    readOnly: true,
-                    format: DateFormat('dd-MM-yyy'),
-                    focusNode: datepickerlast,
-                    initialValue: _tanggalakhirProject == 'kosong'
-                        ? null
-                        : DateTime.parse(_tanggalakhirProject),
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(),
-                      contentPadding: EdgeInsets.only(
-                          top: 5, bottom: 5, left: 10, right: 10),
-                      hintText: 'Tanggal Berakhirnya Project',
-                      hintStyle: TextStyle(fontSize: 12, color: Colors.black),
-                    ),
-                    onShowPicker: (context, currentValue) {
-                       DateFormat inputFormat = DateFormat("dd-MM-yyyy");
-                       DateTime dateTime = inputFormat.parse("${_tanggalawalProjectController.text}");
+                  Container(
+                    margin: EdgeInsets.only(bottom: 25.0),
+                    child: DateTimeField(
+                      controller: _tanggalakhirProjectController,
+                      readOnly: true,
+                      format: DateFormat('dd-MM-yyy'),
+                      focusNode: datepickerlast,
+                      initialValue: _tanggalakhirProject == 'kosong'
+                          ? null
+                          : DateTime.parse(_tanggalakhirProject),
+                      decoration: InputDecoration(
+                        border: OutlineInputBorder(),
+                        contentPadding: EdgeInsets.only(
+                            top: 5, bottom: 5, left: 10, right: 10),
+                        hintText: 'Tanggal Berakhirnya Project',
+                        hintStyle: TextStyle(fontSize: 12, color: Colors.black),
+                      ),
+                      onShowPicker: (context, currentValue) {
+                        DateFormat inputFormat = DateFormat("dd-MM-yyyy");
+                        DateTime dateTime = inputFormat
+                            .parse("${_tanggalawalProjectController.text}");
 
-                      return showDatePicker(
-                          firstDate: dateTime,
-                          context: context,
-                          initialDate: dateTime,
-                          lastDate: DateTime(2100));
-                    },
-                    onChanged: (ini) {
-                      setState(() {
-                        _tanggalakhirProject =
-                            ini == null ? 'kosong' : ini.toString();
-                      });
-                    },
+                        return showDatePicker(
+                            firstDate: dateTime,
+                            context: context,
+                            initialDate: dateTime,
+                            lastDate: DateTime(2100));
+                      },
+                      onChanged: (ini) {
+                        setState(() {
+                          _tanggalakhirProject =
+                              ini == null ? 'kosong' : ini.toString();
+                        });
+                      },
+                    ),
                   ),
-                ),
-                Center(
-                    child: Container(
-                        width: double.infinity,
-                        height: 45.0,
-                        child: RaisedButton(
-                            onPressed: () async {
-                              if (_namaprojectController.text == '') {
-                                Fluttertoast.showToast(
-                                    msg: 'Nama project tidak boleh kosong');
-                              } else if (_tanggalawalProjectController.text ==
-                                  '') {
-                                Fluttertoast.showToast(
-                                    msg:
-                                        'Tanggal dimulanya project tidak boleh kosong');
-                              } else if (_tanggalakhirProjectController.text ==
-                                  '') {
-                                Fluttertoast.showToast(
-                                    msg:
-                                        'Tanggal berakhirnya project tidak boleh kosong');
-                              } else {
-                                _tambahProject();
-                              }
-                            },
-                            color: primaryAppBarColor,
-                            textColor: Colors.white,
-                            disabledColor: Color.fromRGBO(254, 86, 14, 0.7),
-                            disabledTextColor: Colors.white,
-                            splashColor: Colors.blueAccent,
-                            child: Text("Buat Project Sekarang",
-                                style: TextStyle(color: Colors.white)))))
-              ],
+                  Center(
+                      child: Container(
+                          width: double.infinity,
+                          height: 45.0,
+                          child: RaisedButton(
+                              onPressed: () async {
+                                if (_namaprojectController.text == '') {
+                                  Fluttertoast.showToast(
+                                      msg: 'Nama project tidak boleh kosong');
+                                } else if (_tanggalawalProjectController.text ==
+                                    '') {
+                                  Fluttertoast.showToast(
+                                      msg:
+                                          'Tanggal dimulanya project tidak boleh kosong');
+                                } else if (_tanggalakhirProjectController
+                                        .text ==
+                                    '') {
+                                  Fluttertoast.showToast(
+                                      msg:
+                                          'Tanggal berakhirnya project tidak boleh kosong');
+                                } else {
+                                  _tambahProject();
+                                }
+                              },
+                              color: primaryAppBarColor,
+                              textColor: Colors.white,
+                              disabledColor: Color.fromRGBO(254, 86, 14, 0.7),
+                              disabledTextColor: Colors.white,
+                              splashColor: Colors.blueAccent,
+                              child: Text("Buat Project Sekarang",
+                                  style: TextStyle(color: Colors.white)))))
+                ],
+              ),
             ),
-          ),
           );
         });
   }
@@ -578,8 +652,8 @@ class _DashboardState extends State<Dashboard> {
         if (addpesertaJson['status'] == 'success') {
           progressApiAction.hide().then((isHidden) {});
           Fluttertoast.showToast(msg: "Berhasil, Menambahkan Kategori");
-        }else if(addpesertaJson['status'] == 'sudah ada'){
-            progressApiAction.hide().then((isHidden) {});
+        } else if (addpesertaJson['status'] == 'sudah ada') {
+          progressApiAction.hide().then((isHidden) {});
           Fluttertoast.showToast(msg: "Kategori Tersebut Sudah Ada");
         }
       } else {
@@ -807,4 +881,170 @@ class _DashboardState extends State<Dashboard> {
         // ),
         );
   }
+
+   void showModalVersionWarning(BuildContext context) {
+    showDialog(
+      barrierDismissible: false,
+        context: context,
+        builder: (BuildContext context) {
+          // return object of type Dialog
+          return AlertDialog(
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(8.0))),
+            contentPadding: EdgeInsets.only(top: 0.0),
+            content: SingleChildScrollView(
+              child: Container(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    Container(
+                      height: 60,
+                      decoration: new BoxDecoration(
+                          color: Colors.orange,
+                          borderRadius: new BorderRadius.only(
+                            topLeft: const Radius.circular(8.0),
+                            topRight: const Radius.circular(8.0),
+                          )),
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: <Widget>[
+                            Icon(Icons.info_outline,color: Colors.white , size: 40,),
+                            Padding(
+                              padding: const EdgeInsets.only(left:8.0),
+                              child: Text(
+                                "Version Update",
+                                style: TextStyle(fontSize: 16.0,color: Colors.white),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      height: 2.0,
+                    ),
+                    Divider(),
+                    Padding(
+                      padding: EdgeInsets.only(left:16.0,right:16.0,bottom:8.0),
+                      child: Text("Versi Terbaru Telah Tersedia",style: TextStyle(fontSize: 14),)
+                      
+                    ),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 16.0),
+                      child: Text("Todolist menyarankan anda untuk mengupdate ke versi terbaru. Anda dapat tetap menggunakan aplikasi ini saat mendownload update",style: TextStyle(fontSize: 12,color:Colors.grey,height: 1.5),textAlign: TextAlign.justify,)
+
+                    ),
+                    Divider(),
+
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: <Widget>[
+                        FlatButton(
+                          onPressed: () { 
+                            // Navigator.pushReplacementNamed(context, "/dashboard");
+                            Navigator.pop(context);
+                           },
+                          child: Text("CANCEL",style: TextStyle(color:Colors.black54)),
+                        ),
+                        FlatButton(
+                          onPressed: () {  },
+                          child: Text("UPDATE",style: TextStyle(color:primaryAppBarColor)),
+                        )
+
+                      ],
+
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        });
+  }
+
+   void showModalVersionDanger(BuildContext context) {
+    showDialog(
+      barrierDismissible: false,
+        context: context,
+        builder: (BuildContext context) {
+          // return object of type Dialog
+          return AlertDialog(
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(8.0))),
+            contentPadding: EdgeInsets.only(top: 0.0),
+            content: SingleChildScrollView(
+              child: Container(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    Container(
+                      height: 60,
+                      decoration: new BoxDecoration(
+                          color: Colors.red,
+                          borderRadius: new BorderRadius.only(
+                            topLeft: const Radius.circular(8.0),
+                            topRight: const Radius.circular(8.0),
+                          )),
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: <Widget>[
+                            Icon(Icons.warning,color: Colors.white , size: 40,),
+                            Padding(
+                              padding: const EdgeInsets.only(left:8.0),
+                              child: Text(
+                                "Version Update",
+                                style: TextStyle(fontSize: 16.0,color: Colors.white),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      height: 2.0,
+                    ),
+                    Divider(),
+                    Padding(
+                      padding: EdgeInsets.only(left:16.0,right:16.0,bottom:8.0),
+                      child: Text("Versi Terbaru Telah Tersedia",style: TextStyle(fontSize: 14),)
+                      
+                    ),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 16.0),
+                      child: Text("Todolist menyarankan anda untuk mengupdate ke versi terbaru. Versi yang anda gunakan telah kadaluarsa",style: TextStyle(fontSize: 12,color:Colors.grey,height: 1.5),textAlign: TextAlign.justify,)
+
+                    ),
+                    Divider(),
+
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: <Widget>[
+                        FlatButton(
+                          onPressed: () {  },
+                          child: Text("UPDATE",style: TextStyle(color:primaryAppBarColor)),
+                        )
+
+                      ],
+
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        });
+  }
+
 }
