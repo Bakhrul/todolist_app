@@ -72,6 +72,7 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
   TextEditingController _titleTodoListAction = TextEditingController();
   TextEditingController _catatanrealisasiController = TextEditingController();
   Map dataTodo, dataStatusKita;
+  String statusProgressAction;
   Future<Null> removeSharedPrefs() async {
     DataStore dataStore = new DataStore();
     dataStore.clearData();
@@ -156,6 +157,7 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
         var filetodos = getDetailProjectJson['todo_file'];
         Map rawTodo = getDetailProjectJson['todo'];
         Map rawStatusKita = getDetailProjectJson['status_kita'];
+        statusProgressAction = getDetailProjectJson['status_action'];
         if (mounted) {
           setState(() {
             dataTodo = rawTodo;
@@ -320,13 +322,14 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
 
         for (var i in members) {
           ToDoReady member = ToDoReady(
-            idtodo: i['tlr_todolist'],
-            number: i['tlr_number'],
-            title: i['tlr_title'],
-            created: i['tlr_title'],
-            selesai: i['tlr_executed'],
-            validation: i['tlr_validation'],
-          );
+          idtodo: i['todo'],
+              number: i['id'],
+              title: i['title'].toString(),
+              created: i['created'],
+              selesai: i['done'],
+              executor:  i['excutor'],
+              validator:  i['validator'],
+              validation: i['valid']);
           listTodoReady.add(member);
         }
         new Timer(new Duration(seconds: 2), () {
@@ -395,13 +398,14 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
 
         for (var i in dones) {
           ToDoDone donex = ToDoDone(
-            idtodo: i['tld_todolist'],
-            number: i['tld_number'],
-            title: i['tld_title'],
-            created: i['tld_title'],
-            selesai: i['tld_executed'],
-            validation: i['tld_validation'],
-          );
+            idtodo: i['todo'],
+              number: i['id'],
+              title: i['title'].toString(),
+              created: i['created'],
+              selesai: i['done'],
+              executor:  i['excutor'],
+              validator:  i['validator'],
+              validation: i['valid']);
           listTodoDone.add(donex);
         }
         new Timer(new Duration(seconds: 2), () {
@@ -473,6 +477,8 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
               title: i['title'].toString(),
               created: i['created'],
               selesai: i['done'],
+              executor:  i['excutor'],
+              validator:  i['validator'],
               validation: i['valid']);
           listTodoAction.add(participant);
         }
@@ -542,13 +548,14 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
 
         for (var i in normals) {
           ToDoNormal normalx = ToDoNormal(
-            idtodo: i['tln_todolist'],
-            number: i['tln_number'],
-            title: i['tln_title'],
-            created: i['tln_title'],
-            selesai: i['tln_executed'],
-            validation: i['tln_validation'],
-          );
+          idtodo: i['todo'],
+              number: i['id'],
+              title: i['title'].toString(),
+              created: i['created'],
+              selesai: i['done'],
+              executor:  i['excutor'],
+              validator:  i['validator'],
+              validation: i['valid']);
           listTodoNormal.add(normalx);
         }
         new Timer(new Duration(seconds: 2), () {
@@ -1194,12 +1201,18 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
                                   msg:
                                       'Anda Tidak Memiliki Akses Untuk Melakukan Aksi Ini');
                             }
+                           
+                            
                             if (dataStatusKita['tlr_role'] == 4 ||
                                 dataStatusKita['tlr_role'] == '4') {
                               Fluttertoast.showToast(
                                   msg:
                                       'Anda Tidak Memiliki Akses Untuk Melakukan Aksi Ini');
-                            } else if (dataStatusKita['tlr_role'] == 3 ||
+                            } else if (statusProgressAction == 'belumselesai') {
+                              Fluttertoast.showToast(
+                                  msg:
+                                      'Todo Belum Selesai');
+                            }else if (dataStatusKita['tlr_role'] == 3 ||
                                 dataStatusKita['tlr_role'] == '3') {
                               Fluttertoast.showToast(
                                   msg:
@@ -2018,7 +2031,7 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
                           ),
                         ),
                   subtitle: statusTodo(listTodoReady[index].selesai,
-                      listTodoReady[index].validation),
+                      listTodoReady[index].validation,listTodoReady[index].executor,listTodoReady[index].validator),
                   trailing: dataTodo == null
                       ? null
                       : dataTodo['tl_status'] == 'Open' &&
@@ -2152,7 +2165,7 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
                           ),
                         ),
                   subtitle: statusTodo(listTodoAction[index].selesai,
-                      listTodoAction[index].validation),
+                      listTodoAction[index].validation,listTodoAction[index].executor,listTodoAction[index].validator),
                   trailing: dataTodo == null
                       ? null
                       : dataTodo['tl_status'] == 'Open' &&
@@ -2288,7 +2301,7 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
                           ),
                         ),
                   subtitle: statusTodo(listTodoDone[index].selesai,
-                      listTodoDone[index].validation),
+                      listTodoDone[index].validation,listTodoDone[index].executor,listTodoDone[index].validator),
                   trailing: dataTodo == null
                       ? null
                       : dataTodo['tl_status'] == 'Open' &&
@@ -2422,7 +2435,7 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
                           ),
                         ),
                   subtitle: statusTodo(listTodoNormal[index].selesai,
-                      listTodoNormal[index].validation),
+                      listTodoNormal[index].validation,listTodoNormal[index].executor,listTodoNormal[index].validator),
                   trailing: dataTodo == null
                       ? null
                       : dataTodo['tl_status'] == 'Open' &&
@@ -2540,7 +2553,7 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
     );
   }
 
-  Widget statusTodo(selesai, validation) {
+  Widget statusTodo(selesai, validation,executor,validator) {
     String textstatus;
     Color textColor;
     if (dataTodo == null) {
@@ -2563,11 +2576,25 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
       textstatus = 'Sudah Divalidasi';
       textColor = Colors.green;
     }
+
+
     return Padding(
       padding: const EdgeInsets.only(top: 10.0, bottom: 5.0),
-      child: Text(
-        textstatus,
-        style: TextStyle(fontWeight: FontWeight.w500, color: textColor),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Text(
+            textstatus,
+            style: TextStyle(fontWeight: FontWeight.w500, color: textColor),
+          ),
+          Text(
+            executor == null ? ' ' : executor ,
+            style: TextStyle(fontWeight: FontWeight.w300, color: textColor,fontSize: 12),
+          ), Text(
+            validator == null ? ' ' : validator ,
+            style: TextStyle(fontWeight: FontWeight.w300, color: textColor,fontSize: 12),
+          ),
+        ],
       ),
     );
   }
