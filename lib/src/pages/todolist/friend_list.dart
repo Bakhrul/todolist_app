@@ -249,7 +249,7 @@ class _WidgetFriendListState extends State<WidgetFriendList> {
                                     margin: EdgeInsets.only(
                                         top: 16.0, bottom: 10.0),
                                     child: Text(
-                                      "Upss... Member Tidak Ditemukan",
+                                      "Upss... Teman Tidak Ditemukan",
                                       style: TextStyle(fontSize: 14),
                                     )),
                               ],

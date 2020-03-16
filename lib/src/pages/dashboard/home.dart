@@ -900,7 +900,7 @@ class _HomeState extends State<Home> {
                                                 ),
                                               ),
                                               Divider(),
-                                              GestureDetector(
+                                              InkWell(
                                                 onTap: () async {
                                                   _showmodalcreateProject();
                                                 },

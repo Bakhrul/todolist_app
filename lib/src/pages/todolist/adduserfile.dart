@@ -739,6 +739,7 @@ class _AddUserFileTodoState extends State<AddUserFileTodo>
                                                         ],
                                                       ),
                                                     ),
+                                                    
                                                     GestureDetector(
                                                       onTap: () async {
                                                         _controllerNamaMember
@@ -813,6 +814,25 @@ class _AddUserFileTodoState extends State<AddUserFileTodo>
                                                           ],
                                                         ),
                                                       ),
+                                                    ),
+                                                    Divider(),
+                                                    Padding(
+                                                      padding: EdgeInsets.only(bottom:8),
+                                                      child: Text(
+                                                              'Level Member',
+                                                              textAlign:
+                                                                  TextAlign
+                                                                      .center,
+                                                              style: TextStyle(
+                                                                  fontFamily:
+                                                                      'Roboto',
+                                                                  color: Colors
+                                                                      .black54,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w600,
+                                                                  fontSize: 12),
+                                                            ),
                                                     ),
                                                     Container(
                                                       margin: EdgeInsets.only(

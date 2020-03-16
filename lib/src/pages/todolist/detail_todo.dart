@@ -52,7 +52,12 @@ class ManajemenDetailTodo extends StatefulWidget {
 class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
     with SingleTickerProviderStateMixin {
   int _value;
-  int reloaddetail, reloadprogress, reloaddone, reloadaction, reloadready, reloadnormal;
+  int reloaddetail,
+      reloadprogress,
+      reloaddone,
+      reloadaction,
+      reloadready,
+      reloadnormal;
   List<MemberTodo> todoMemberDetail = [];
   List<TodoActivity> todoActivityDetail = [];
   List<FileTodo> todoAttachmentDetail = [];
@@ -107,28 +112,27 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
     });
     new Timer(new Duration(seconds: 1), () {
       if (_tabController.index == 0) {
-        if(reloaddetail == 0){
+        if (reloaddetail == 0) {
           getHeaderHTTP();
         }
       } else if (_tabController.index == 1) {
-        if(reloadprogress == 0){
-           todoActivity();
+        if (reloadprogress == 0) {
+          todoActivity();
         }
       } else if (_tabController.index == 2) {
-        if(reloaddone == 0){
+        if (reloaddone == 0) {
           listTodoDoneData();
         }
       } else if (_tabController.index == 3) {
-        if(reloadaction == 0){
+        if (reloadaction == 0) {
           listTodoActionData();
         }
-        
       } else if (_tabController.index == 4) {
-        if(reloadready == 0){
+        if (reloadready == 0) {
           listTodoReadyData();
         }
       } else if (_tabController.index == 5) {
-        if(reloadnormal == 0){
+        if (reloadnormal == 0) {
           listTodoNormalData();
         }
       }
@@ -369,13 +373,14 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
 
         for (var i in members) {
           ToDoReady member = ToDoReady(
-            idtodo: i['tlr_todolist'],
-            number: i['tlr_number'],
-            title: i['tlr_title'],
-            created: i['tlr_title'],
-            selesai: i['tlr_executed'],
-            validation: i['tlr_validation'],
-          );
+              idtodo: i['todo'],
+              number: i['id'],
+              title: i['title'].toString(),
+              created: i['created'],
+              selesai: i['done'],
+              executor: i['excutor'],
+              validator: i['validator'],
+              validation: i['valid']);
           listTodoReady.add(member);
         }
         new Timer(new Duration(seconds: 2), () {
@@ -449,13 +454,14 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
 
         for (var i in dones) {
           ToDoDone donex = ToDoDone(
-            idtodo: i['tld_todolist'],
-            number: i['tld_number'],
-            title: i['tld_title'],
-            created: i['tld_title'],
-            selesai: i['tld_executed'],
-            validation: i['tld_validation'],
-          );
+              idtodo: i['todo'],
+              number: i['id'],
+              title: i['title'].toString(),
+              created: i['created'],
+              selesai: i['done'],
+              executor: i['excutor'],
+              validator: i['validator'],
+              validation: i['valid']);
           listTodoDone.add(donex);
         }
         new Timer(new Duration(seconds: 2), () {
@@ -532,6 +538,8 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
               title: i['title'].toString(),
               created: i['created'],
               selesai: i['done'],
+              executor: i['excutor'],
+              validator: i['validator'],
               validation: i['valid']);
           listTodoAction.add(participant);
         }
@@ -606,13 +614,14 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
 
         for (var i in normals) {
           ToDoNormal normalx = ToDoNormal(
-            idtodo: i['tln_todolist'],
-            number: i['tln_number'],
-            title: i['tln_title'],
-            created: i['tln_title'],
-            selesai: i['tln_executed'],
-            validation: i['tln_validation'],
-          );
+              idtodo: i['todo'],
+              number: i['id'],
+              title: i['title'].toString(),
+              created: i['created'],
+              selesai: i['done'],
+              executor: i['excutor'],
+              validator: i['validator'],
+              validation: i['valid']);
           listTodoNormal.add(normalx);
         }
         new Timer(new Duration(seconds: 2), () {
@@ -1263,6 +1272,7 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
                                   msg:
                                       'Anda Tidak Memiliki Akses Untuk Melakukan Aksi Ini');
                             }
+
                             if (dataStatusKita['tlr_role'] == 4 ||
                                 dataStatusKita['tlr_role'] == '4') {
                               Fluttertoast.showToast(
@@ -1624,6 +1634,9 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
           Fluttertoast.showToast(msg: "Berhasil");
           progressApiAction.hide().then((isHidden) {});
           getHeaderHTTP();
+        }else if(addpesertaJson['status'] == 'action belum selesai'){
+          Fluttertoast.showToast(msg: "Untuk Menyelesaikan ToDo, ToDo Action Harus Selesai Semua");
+        progressApiAction.hide().then((isHidden) {});  
         }
       } else {
         print(addpeserta.body);
@@ -1634,7 +1647,7 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
       Fluttertoast.showToast(msg: "Timed out, Try again");
       progressApiAction.hide().then((isHidden) {});
     } catch (e) {
-      Fluttertoast.showToast(msg: "${e.toString()}");
+      Fluttertoast.showToast(msg: "Gagal, Silahkan Coba Kembali");
       progressApiAction.hide().then((isHidden) {});
 
       print(e);
@@ -2120,12 +2133,20 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
           itemBuilder: (BuildContext context, int index) {
             return InkWell(
               onLongPress: () async {
-                detailtodoaction(
-                  listTodoReady[index],
-                  listTodoReady[index].number,
-                  listTodoReady[index].title,
-                  'ready',
-                );
+                if (dataStatusKita == null) {}
+
+                if (dataStatusKita['tlr_role'] == 4 ||
+                    dataStatusKita['tlr_role'] == '4') {
+                } else if (dataStatusKita['tlr_role'] == 3 ||
+                    dataStatusKita['tlr_role'] == '3') {
+                } else {
+                  detailtodoaction(
+                    listTodoReady[index],
+                    listTodoReady[index].number,
+                    listTodoReady[index].title,
+                    'ready',
+                  );
+                }
               },
               child: Card(
                 child: ListTile(
@@ -2171,6 +2192,8 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
                               listTodoReady[index].selesai,
                               listTodoReady[index].validation,
                               listTodoReady[index],
+                              listTodoReady[index].executor,
+                              listTodoReady[index].validator,
                               'Ready');
                         }
                       },
@@ -2190,8 +2213,11 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
                               fontSize: 14,
                             ),
                           ),
-                    subtitle: statusTodo(listTodoReady[index].selesai,
-                        listTodoReady[index].validation),
+                    subtitle: statusTodo(
+                        listTodoReady[index].selesai,
+                        listTodoReady[index].validation,
+                        listTodoReady[index].executor,
+                        listTodoReady[index].validator),
                     trailing: dataTodo == null
                         ? null
                         : dataTodo['tl_status'] == 'Open' &&
@@ -2243,6 +2269,8 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
                                                         listTodoReady[index]
                                                             .validation,
                                                         listTodoReady[index],
+                                                        listTodoReady[index]
+                                                            .validator,
                                                         'Ready');
                                                   },
                                                 ),
@@ -2267,12 +2295,20 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
           itemBuilder: (BuildContext context, int index) {
             return InkWell(
               onLongPress: () async {
-                detailtodoaction(
-                  listTodoAction[index],
-                  listTodoAction[index].number,
-                  listTodoAction[index].title,
-                  'action',
-                );
+                if (dataStatusKita == null) {}
+
+                if (dataStatusKita['tlr_role'] == 4 ||
+                    dataStatusKita['tlr_role'] == '4') {
+                } else if (dataStatusKita['tlr_role'] == 3 ||
+                    dataStatusKita['tlr_role'] == '3') {
+                } else {
+                  detailtodoaction(
+                    listTodoAction[index],
+                    listTodoAction[index].number,
+                    listTodoAction[index].title,
+                    'action',
+                  );
+                }
               },
               child: Card(
                 child: ListTile(
@@ -2318,6 +2354,8 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
                               listTodoAction[index].selesai,
                               listTodoAction[index].validation,
                               listTodoAction[index],
+                              listTodoAction[index].executor,
+                              listTodoAction[index].validator,
                               'Action');
                         }
                       },
@@ -2337,8 +2375,11 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
                               fontSize: 14,
                             ),
                           ),
-                    subtitle: statusTodo(listTodoAction[index].selesai,
-                        listTodoAction[index].validation),
+                    subtitle: statusTodo(
+                        listTodoAction[index].selesai,
+                        listTodoAction[index].validation,
+                        listTodoAction[index].executor,
+                        listTodoAction[index].validator),
                     trailing: dataTodo == null
                         ? null
                         : dataTodo['tl_status'] == 'Open' &&
@@ -2390,6 +2431,8 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
                                                         listTodoAction[index]
                                                             .validation,
                                                         listTodoAction[index],
+                                                        listTodoAction[index]
+                                                            .validator,
                                                         'Action');
                                                   },
                                                 ),
@@ -2414,12 +2457,20 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
           itemBuilder: (BuildContext context, int index) {
             return InkWell(
               onLongPress: () async {
-                detailtodoaction(
-                  listTodoDone[index],
-                  listTodoDone[index].number,
-                  listTodoDone[index].title,
-                  'done',
-                );
+                if (dataStatusKita == null) {}
+
+                if (dataStatusKita['tlr_role'] == 4 ||
+                    dataStatusKita['tlr_role'] == '4') {
+                } else if (dataStatusKita['tlr_role'] == 3 ||
+                    dataStatusKita['tlr_role'] == '3') {
+                } else {
+                  detailtodoaction(
+                    listTodoDone[index],
+                    listTodoDone[index].number,
+                    listTodoDone[index].title,
+                    'done',
+                  );
+                }
               },
               child: Card(
                 child: ListTile(
@@ -2465,6 +2516,8 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
                               listTodoDone[index].selesai,
                               listTodoDone[index].validation,
                               listTodoDone[index],
+                              listTodoDone[index].executor,
+                              listTodoDone[index].validator,
                               'Done');
                         }
                       },
@@ -2484,8 +2537,11 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
                               fontSize: 14,
                             ),
                           ),
-                    subtitle: statusTodo(listTodoDone[index].selesai,
-                        listTodoDone[index].validation),
+                    subtitle: statusTodo(
+                        listTodoDone[index].selesai,
+                        listTodoDone[index].validation,
+                        listTodoDone[index].executor,
+                        listTodoDone[index].validator),
                     trailing: dataTodo == null
                         ? null
                         : dataTodo['tl_status'] == 'Open' &&
@@ -2536,6 +2592,8 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
                                                         listTodoDone[index]
                                                             .validation,
                                                         listTodoDone[index],
+                                                        listTodoDone[index]
+                                                            .validator,
                                                         'Done');
                                                   },
                                                 ),
@@ -2560,12 +2618,20 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
           itemBuilder: (BuildContext context, int index) {
             return InkWell(
               onLongPress: () async {
-                detailtodoaction(
-                  listTodoNormal[index],
-                  listTodoNormal[index].number,
-                  listTodoNormal[index].title,
-                  'normal',
-                );
+                if (dataStatusKita == null) {}
+
+                if (dataStatusKita['tlr_role'] == 4 ||
+                    dataStatusKita['tlr_role'] == '4') {
+                } else if (dataStatusKita['tlr_role'] == 3 ||
+                    dataStatusKita['tlr_role'] == '3') {
+                } else {
+                  detailtodoaction(
+                    listTodoNormal[index],
+                    listTodoNormal[index].number,
+                    listTodoNormal[index].title,
+                    'normal',
+                  );
+                }
               },
               child: Card(
                 child: ListTile(
@@ -2611,6 +2677,8 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
                               listTodoNormal[index].selesai,
                               listTodoNormal[index].validation,
                               listTodoNormal[index],
+                              listTodoNormal[index].executor,
+                              listTodoNormal[index].validator,
                               'Normal');
                         }
                       },
@@ -2630,8 +2698,11 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
                               fontSize: 14,
                             ),
                           ),
-                    subtitle: statusTodo(listTodoNormal[index].selesai,
-                        listTodoNormal[index].validation),
+                    subtitle: statusTodo(
+                        listTodoNormal[index].selesai,
+                        listTodoNormal[index].validation,
+                        listTodoNormal[index].executor,
+                        listTodoNormal[index].validator),
                     trailing: dataTodo == null
                         ? null
                         : dataTodo['tl_status'] == 'Open' &&
@@ -2683,6 +2754,8 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
                                                         listTodoNormal[index]
                                                             .validation,
                                                         listTodoNormal[index],
+                                                        listTodoNormal[index]
+                                                            .validator,
                                                         'Normal');
                                                   },
                                                 ),
@@ -2852,7 +2925,7 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
         });
   }
 
-  Widget statusTodo(selesai, validation) {
+  Widget statusTodo(selesai, validation, executor, validator) {
     String textstatus;
     Color textColor;
     if (dataTodo == null) {
@@ -2875,16 +2948,47 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
       textstatus = 'Sudah Divalidasi';
       textColor = Colors.green;
     }
+
     return Padding(
       padding: const EdgeInsets.only(top: 10.0, bottom: 5.0),
-      child: Text(
-        textstatus,
-        style: TextStyle(fontWeight: FontWeight.w500, color: textColor),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Text(
+            textstatus,
+            style: TextStyle(fontWeight: FontWeight.w500, color: textColor),
+          ),
+          executor == null || executor == ''
+              ? Container()
+              : Padding(
+                  padding: const EdgeInsets.only(top: 5.0),
+                  child: Text(
+                    executor == null ? ' ' : 'Eksekutor : $executor',
+                    style: TextStyle(
+                        fontWeight: FontWeight.w500,
+                        color: textColor,
+                        fontSize: 14),
+                  ),
+                ),
+          validator == null || validator == ''
+              ? Container()
+              : Padding(
+                  padding: const EdgeInsets.only(top: 5.0),
+                  child: Text(
+                    validator == null ? ' ' : 'Validator : $validator',
+                    style: TextStyle(
+                        fontWeight: FontWeight.w500,
+                        color: textColor,
+                        fontSize: 14),
+                  ),
+                ),
+        ],
       ),
     );
   }
 
-  void accValidation(number, idtodo, selesai, validation, index, type) async {
+  void accValidation(
+      number, idtodo, selesai, validation, index, validator, type) async {
     await progressApiAction.show();
     try {
       var body = {
@@ -2892,6 +2996,7 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
         'todo': idtodo.toString(),
         'type': type,
       };
+      print(body);
       final addpeserta = await http.post(url('api/todo/list/validation'),
           headers: requestHeaders, body: body);
       if (addpeserta.statusCode == 200) {
@@ -2899,12 +3004,14 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
         if (addpesertaJson['status'] == 'validation') {
           setState(() {
             index.validation = 'valid';
+            index.validator = addpesertaJson['validator'];
           });
           Fluttertoast.showToast(msg: 'Berhasil');
           progressApiAction.hide().then((isHidden) {});
         } else if (addpesertaJson['status'] == 'belum validation') {
           setState(() {
             index.validation = null;
+            index.validator = null;
           });
           Fluttertoast.showToast(msg: 'Berhasil');
           progressApiAction.hide().then((isHidden) {});
@@ -3304,7 +3411,8 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
     );
   }
 
-  void actionDoneTodo(number, idtodo, selesai, validation, index, type) async {
+  void actionDoneTodo(number, idtodo, selesai, validation, index, executor,
+      validator, type) async {
     try {
       var body = {
         'id': number.toString(),
@@ -3319,8 +3427,12 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
         if (addpesertaJson['status'] == 'selesai') {
           setState(() {
             index.selesai = 'selesai';
+            index.executor = addpesertaJson['executor'];
             index.validation =
                 addpesertaJson['validation'] == null ? null : 'valid';
+            index.validator = addpesertaJson['validation'] == null
+                ? null
+                : addpesertaJson['validator'];
           });
           Fluttertoast.showToast(msg: "Berhasil");
           progressApiAction.hide().then((isHidden) {});
@@ -3329,8 +3441,12 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
           progressApiAction.hide().then((isHidden) {});
           setState(() {
             index.selesai = null;
+            index.executor = null;
             index.validation =
                 addpesertaJson['validation'] == null ? null : 'valid';
+            index.validator = addpesertaJson['validation'] == null
+                ? null
+                : addpesertaJson['validator'];
           });
         } else if (addpesertaJson['status'] ==
             'type todolist tidak ditemukan') {

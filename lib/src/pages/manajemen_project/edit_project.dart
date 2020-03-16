@@ -1615,6 +1615,21 @@ class _DetailProjectState extends State<DetailProject>
                                                   ),
                                                 ),
                                               ),
+                                              Divider(),
+                                              Padding(
+                                                padding:
+                                                    EdgeInsets.only(bottom: 8),
+                                                child: Text(
+                                                  'Level Member',
+                                                  textAlign: TextAlign.center,
+                                                  style: TextStyle(
+                                                      fontFamily: 'Roboto',
+                                                      color: Colors.black54,
+                                                      fontWeight:
+                                                          FontWeight.w600,
+                                                      fontSize: 12),
+                                                ),
+                                              ),
                                               Container(
                                                 height: 40.0,
                                                 alignment: Alignment.center,
