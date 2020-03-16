@@ -284,7 +284,7 @@ class _NotificationsState extends State<ManajemenNotifications> {
                         ),
                       ))
                   : Padding(
-                      padding: const EdgeInsets.only(top: 20.0),
+                      padding: const EdgeInsets.only(top:10.0),
                       child: Column(
                         children: <Widget>[
                           Expanded(
@@ -512,6 +512,14 @@ class _NotificationsState extends State<ManajemenNotifications> {
             color: Colors.black54,
             fontSize: 14,
           ),
+        ),
+      );
+    } else if(id == 10 || id == '10' || id == 11|| id == '11' || id == 12 || id == '12'){
+      return Text(
+        '$namapengirim $message',
+        style: TextStyle(
+          color: Colors.black54,
+          fontSize: 14,
         ),
       );
     } else {
