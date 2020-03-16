@@ -1,11 +1,6 @@
-import 'dart:convert';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:todolist_app/src/pages/dashboard.dart';
-import 'package:todolist_app/src/routes/env.dart';
 import 'dart:async';
-import 'package:http/http.dart' as http;
 import 'package:todolist_app/src/storage/storage.dart';
 import 'package:todolist_app/src/utils/utils.dart';
 
@@ -15,7 +10,7 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-bool isLoading,isError;
+  bool isLoading, isError;
   Future<Null> getSharedPrefs() async {
     String _status;
     DataStore dataStore = new DataStore();
@@ -24,7 +19,7 @@ bool isLoading,isError;
     if (_status == "Tidak ditemukan") {
       Timer(Duration(seconds: 2),
           () => Navigator.pushReplacementNamed(context, "/login"));
-    } else{
+    } else {
       Timer(Duration(seconds: 2),
           () => Navigator.pushReplacementNamed(context, "/dashboard"));
     }
@@ -56,7 +51,7 @@ bool isLoading,isError;
                 child: Image.asset("images/logo.png"),
               ),
               Padding(
-                padding: const EdgeInsets.only(top: 0.0,bottom: 16.0),
+                padding: const EdgeInsets.only(top: 0.0, bottom: 16.0),
                 child: Text(
                   'Kelola Aktifitas Anda',
                   style: TextStyle(
@@ -65,7 +60,6 @@ bool isLoading,isError;
                   ),
                 ),
               ),
-              isLoading == true ? Align(alignment: Alignment.bottomCenter,child: CircularProgressIndicator(),) : Container,
             ],
           )
         ],
@@ -77,10 +71,12 @@ bool isLoading,isError;
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                
                 Padding(
                   padding: const EdgeInsets.all(15.0),
-                  child: Text("Version : ${versionNumber.toString().substring(0, 1) + '.'+versionNumber.toString().substring(1, 3)}",style: TextStyle(color:Colors.black54),),
+                  child: Text(
+                    "Version : ${versionNumber.toString().substring(0, 1) + '.' + versionNumber.toString().substring(1, 3)}",
+                    style: TextStyle(color: Colors.black54),
+                  ),
                 ),
               ],
             )),
@@ -90,7 +86,7 @@ bool isLoading,isError;
 
   void showModalVersionDanger(BuildContext context) {
     showDialog(
-      barrierDismissible: false,
+        barrierDismissible: false,
         context: context,
         builder: (BuildContext context) {
           // return object of type Dialog
@@ -119,12 +115,17 @@ bool isLoading,isError;
                           mainAxisAlignment: MainAxisAlignment.start,
                           mainAxisSize: MainAxisSize.min,
                           children: <Widget>[
-                            Icon(Icons.warning,color: Colors.white , size: 40,),
+                            Icon(
+                              Icons.warning,
+                              color: Colors.white,
+                              size: 40,
+                            ),
                             Padding(
-                              padding: const EdgeInsets.only(left:8.0),
+                              padding: const EdgeInsets.only(left: 8.0),
                               child: Text(
                                 "Version Update",
-                                style: TextStyle(fontSize: 16.0,color: Colors.white),
+                                style: TextStyle(
+                                    fontSize: 16.0, color: Colors.white),
                               ),
                             ),
                           ],
@@ -136,28 +137,31 @@ bool isLoading,isError;
                     ),
                     Divider(),
                     Padding(
-                      padding: EdgeInsets.only(left:16.0,right:16.0,bottom:8.0),
-                      child: Text("Versi Terbaru Telah Tersedia",style: TextStyle(fontSize: 14),)
-                      
-                    ),
+                        padding: EdgeInsets.only(
+                            left: 16.0, right: 16.0, bottom: 8.0),
+                        child: Text(
+                          "Versi Terbaru Telah Tersedia",
+                          style: TextStyle(fontSize: 14),
+                        )),
                     Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16.0),
-                      child: Text("Todolist menyarankan anda untuk mengupdate ke versi terbaru. Versi yang anda gunakan telah kadaluarsa",style: TextStyle(fontSize: 12,color:Colors.grey,height: 1.5),textAlign: TextAlign.justify,)
-
-                    ),
+                        padding: EdgeInsets.symmetric(horizontal: 16.0),
+                        child: Text(
+                          "Todolist menyarankan anda untuk mengupdate ke versi terbaru. Versi yang anda gunakan telah kadaluarsa",
+                          style: TextStyle(
+                              fontSize: 12, color: Colors.grey, height: 1.5),
+                          textAlign: TextAlign.justify,
+                        )),
                     Divider(),
-
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: <Widget>[
                         FlatButton(
-                          onPressed: () {  },
-                          child: Text("UPDATE",style: TextStyle(color:primaryAppBarColor)),
+                          onPressed: () {},
+                          child: Text("UPDATE",
+                              style: TextStyle(color: primaryAppBarColor)),
                         )
-
                       ],
-
                     ),
                   ],
                 ),
@@ -176,38 +180,37 @@ class OutDateVersion extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(32.0),
         child: Center(
-          child:Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: <Widget>[
+            child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[
             Center(
               child: Container(
-                margin: EdgeInsets.only(bottom:16.0),
-                width: 150,
-                height: 250,
-                child: Image.asset("images/caution.png")),
+                  margin: EdgeInsets.only(bottom: 16.0),
+                  width: 150,
+                  height: 250,
+                  child: Image.asset("images/caution.png")),
             ),
-
-            Text("Versi Aplikasi Ini Telah Kadaluarsa, Silahkan Update Versi Terbaru Di App Store.",
-            style: TextStyle(fontSize: 14,color:Colors.black,decoration: TextDecoration.none,),textAlign: TextAlign.justify,),
-            
+            Text(
+              "Versi Aplikasi Ini Telah Kadaluarsa, Silahkan Update Versi Terbaru Di App Store.",
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.black,
+                decoration: TextDecoration.none,
+              ),
+              textAlign: TextAlign.justify,
+            ),
             Container(
               margin: EdgeInsets.only(top: 16),
               child: CupertinoButton(
                 color: Colors.deepOrange,
-                onPressed: () {  },
-              child: Text("Update"),
-
+                onPressed: () {},
+                child: Text("Update"),
               ),
             )
-        
-          ],)
-          
-          
-        ),
+          ],
+        )),
       ),
     );
   }
-  
-  
 }

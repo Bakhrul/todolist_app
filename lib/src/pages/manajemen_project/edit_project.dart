@@ -186,7 +186,12 @@ class _DetailProjectState extends State<DetailProject>
   Future<List<List>> filterMemberproject() async {
     setState(() {
       isFilterMember = true;
+      isErrorFilterMember = false;
+      listMemberProject.clear();
+      listMemberProject = [];
     });
+    listMemberProject.clear();
+    listMemberProject = [];
     try {
       final getDetailProject = await http.post(url('api/filter_detail_project'),
           headers: requestHeaders,
@@ -201,6 +206,8 @@ class _DetailProjectState extends State<DetailProject>
           listMemberProject.clear();
           listMemberProject = [];
         });
+        listMemberProject.clear();
+        listMemberProject = [];
         var getDetailProjectJson = json.decode(getDetailProject.body);
         print(getDetailProjectJson);
         var members = getDetailProjectJson['member'];
@@ -255,7 +262,12 @@ class _DetailProjectState extends State<DetailProject>
   Future<List<List>> filterTodoProject() async {
     setState(() {
       isFilterTodo = true;
+      isErrorFilterTodo = true;
+      listTodoProject.clear();
+      listTodoProject = [];
     });
+    listTodoProject.clear();
+    listTodoProject = [];
     try {
       final getDetailProject = await http.post(url('api/filter_detail_project'),
           headers: requestHeaders,
@@ -270,6 +282,8 @@ class _DetailProjectState extends State<DetailProject>
           listTodoProject.clear();
           listTodoProject = [];
         });
+        listTodoProject.clear();
+        listTodoProject = [];
         var getDetailProjectJson = json.decode(getDetailProject.body);
         print(getDetailProjectJson);
         var todos = getDetailProjectJson['todo'];
@@ -332,6 +346,7 @@ class _DetailProjectState extends State<DetailProject>
     print(widget.idproject);
     setState(() {
       isLoading = true;
+      isError = false;
     });
     try {
       final getDetailProject = await http
@@ -783,7 +798,7 @@ class _DetailProjectState extends State<DetailProject>
                             disabledColor: Color.fromRGBO(254, 86, 14, 0.7),
                             disabledTextColor: Colors.white,
                             splashColor: Colors.blueAccent,
-                            child: Text("Open To Do",
+                            child: Text("Open ToDo",
                                 style: TextStyle(color: Colors.white))))),
                 Center(
                     child: Container(
@@ -801,7 +816,7 @@ class _DetailProjectState extends State<DetailProject>
                             disabledColor: Color.fromRGBO(254, 86, 14, 0.7),
                             disabledTextColor: Colors.white,
                             splashColor: Colors.blueAccent,
-                            child: Text('Pending To Do',
+                            child: Text('Pending ToDo',
                                 style: TextStyle(color: Colors.white))))),
                 Center(
                     child: Container(
@@ -819,7 +834,7 @@ class _DetailProjectState extends State<DetailProject>
                             disabledColor: Color.fromRGBO(254, 86, 14, 0.7),
                             disabledTextColor: Colors.white,
                             splashColor: Colors.blueAccent,
-                            child: Text("Finish To Do",
+                            child: Text("Finish ToDo",
                                 style: TextStyle(color: Colors.white)))))
               ],
             ),
@@ -1141,18 +1156,20 @@ class _DetailProjectState extends State<DetailProject>
                                                   )),
                                               Container(
                                                 margin: EdgeInsets.only(
-                                                    bottom: 10.0),
+                                                  bottom: 15.0,
+                                                ),
                                                 child: DateTimeField(
                                                   controller:
                                                       _dateStartController,
                                                   readOnly: true,
                                                   format:
-                                                      DateFormat("dd-MM-yyyy"),
+                                                      DateFormat('dd-MM-yyy'),
+                                                  focusNode: datepickerfirst,
                                                   decoration: InputDecoration(
                                                     contentPadding:
                                                         EdgeInsets.only(
-                                                            top: 2,
-                                                            bottom: 2,
+                                                            top: 5,
+                                                            bottom: 5,
                                                             left: 10,
                                                             right: 10),
                                                     border:
@@ -1166,40 +1183,60 @@ class _DetailProjectState extends State<DetailProject>
                                                   onShowPicker:
                                                       (context, currentValue) {
                                                     return showDatePicker(
-                                                        context: context,
                                                         firstDate:
-                                                            DateTime(2000),
-                                                        initialDate:
-                                                            DateTime.now(),
-                                                        lastDate:
-                                                            DateTime(2100));
+                                                            DateTime(1900),
+                                                        context: context,
+                                                        initialDate: _dateStartController
+                                                                    .text !=
+                                                                ''
+                                                            ? DateFormat(
+                                                                    "dd-MM-yyyy")
+                                                                .parse(
+                                                                    "${_dateStartController.text}")
+                                                            : _dateEndController
+                                                                        .text ==
+                                                                    ''
+                                                                ? DateTime.now()
+                                                                : DateFormat(
+                                                                        "dd-MM-yyyy")
+                                                                    .parse(
+                                                                        "${_dateEndController.text}"),
+                                                        lastDate: _dateEndController
+                                                                    .text ==
+                                                                ''
+                                                            ? DateTime(2100)
+                                                            : DateFormat(
+                                                                    "dd-MM-yyyy")
+                                                                .parse(
+                                                                    "${_dateEndController.text}"));
                                                   },
                                                   onChanged: (ini) {
                                                     setState(() {
-                                                      _dateEndController.text =
-                                                          '';
+                                                      // _tanggalawalProject =
+                                                      //     ini == null ? 'kosong' : ini.toString();
                                                     });
                                                   },
                                                 ),
                                               ),
                                               Container(
                                                 margin: EdgeInsets.only(
-                                                    bottom: 10.0),
+                                                    bottom: 25.0),
                                                 child: DateTimeField(
                                                   controller:
                                                       _dateEndController,
                                                   readOnly: true,
                                                   format:
-                                                      DateFormat("dd-MM-yyyy"),
+                                                      DateFormat('dd-MM-yyy'),
+                                                  focusNode: datepickerlast,
                                                   decoration: InputDecoration(
-                                                    contentPadding:
-                                                        EdgeInsets.only(
-                                                            top: 2,
-                                                            bottom: 2,
-                                                            left: 10,
-                                                            right: 10),
                                                     border:
                                                         OutlineInputBorder(),
+                                                    contentPadding:
+                                                        EdgeInsets.only(
+                                                            top: 5,
+                                                            bottom: 5,
+                                                            left: 10,
+                                                            right: 10),
                                                     hintText:
                                                         'Tanggal Berakhirnya Project',
                                                     hintStyle: TextStyle(
@@ -1211,25 +1248,37 @@ class _DetailProjectState extends State<DetailProject>
                                                     DateFormat inputFormat =
                                                         DateFormat(
                                                             "dd-MM-yyyy");
-                                                    DateTime dateTime =
-                                                        inputFormat.parse(
-                                                            "${_dateStartController.text}");
                                                     return showDatePicker(
                                                         context: context,
-                                                        firstDate:
-                                                            _dateStartController
-                                                                        .text ==
-                                                                    ''
-                                                                ? DateTime(2000)
-                                                                : dateTime,
-                                                        initialDate:
-                                                            _dateStartController
+                                                        firstDate: _dateStartController
+                                                                    .text ==
+                                                                ''
+                                                            ? DateTime(2000)
+                                                            : inputFormat.parse(
+                                                                "${_dateStartController.text}"),
+                                                        initialDate: _dateStartController
+                                                                    .text ==
+                                                                ''
+                                                            ? _dateStartController
                                                                         .text ==
                                                                     ''
                                                                 ? DateTime.now()
-                                                                : dateTime,
+                                                                : inputFormat.parse(
+                                                                    "${_dateStartController.text}")
+                                                            : inputFormat.parse(
+                                                                "${_dateEndController.text}"),
                                                         lastDate:
                                                             DateTime(2100));
+                                                  },
+                                                  onChanged: (ini) {
+                                                    if (_dateStartController
+                                                            .text ==
+                                                        '') {
+                                                      _dateStartController
+                                                              .text =
+                                                          _dateEndController
+                                                              .text;
+                                                    }
                                                   },
                                                 ),
                                               ),
@@ -1904,7 +1953,7 @@ class _DetailProjectState extends State<DetailProject>
                                                 margin: EdgeInsets.only(
                                                     bottom: 10.0),
                                                 child: Text(
-                                                  'Tambah To Do',
+                                                  'Tambah ToDo',
                                                   style: TextStyle(
                                                       fontWeight:
                                                           FontWeight.w500),
@@ -1928,16 +1977,17 @@ class _DetailProjectState extends State<DetailProject>
                                                             EdgeInsets.all(8),
                                                         border:
                                                             OutlineInputBorder(),
-                                                        hintText:
-                                                            'Judul To Do',
+                                                        hintText: 'Judul ToDo',
                                                         hintStyle: TextStyle(
                                                           fontSize: 12,
                                                           color: Colors.black,
                                                         )),
                                                   )),
                                               Container(
-                                                margin: EdgeInsets.only(top:5.0),
-                                                child: Divider(),),
+                                                margin:
+                                                    EdgeInsets.only(top: 5.0),
+                                                child: Divider(),
+                                              ),
                                               Padding(
                                                 padding: const EdgeInsets.only(
                                                     top: 5.0),
@@ -2000,7 +2050,7 @@ class _DetailProjectState extends State<DetailProject>
                                                             left: 10,
                                                             right: 10),
                                                     hintText:
-                                                        'Tanggal Dimulainya To Do',
+                                                        'Tanggal Dimulainya ToDo',
                                                     hintStyle: TextStyle(
                                                         fontSize: 12,
                                                         color: Colors.black),
@@ -2075,7 +2125,7 @@ class _DetailProjectState extends State<DetailProject>
                                                             left: 10,
                                                             right: 10),
                                                     hintText:
-                                                        'Tanggal Berakhirnya To Do',
+                                                        'Tanggal Berakhirnya ToDo',
                                                     hintStyle: TextStyle(
                                                         fontSize: 12,
                                                         color: Colors.black),
@@ -2139,9 +2189,11 @@ class _DetailProjectState extends State<DetailProject>
                                                   onChanged: (ini) {},
                                                 ),
                                               ),
-                                                  Container(
-                                                margin: EdgeInsets.only(top:5.0,bottom:10.0),
-                                                child: Divider(),),
+                                              Container(
+                                                margin: EdgeInsets.only(
+                                                    top: 5.0, bottom: 10.0),
+                                                child: Divider(),
+                                              ),
                                               Container(
                                                   height: 100.0,
                                                   margin: EdgeInsets.only(
@@ -2155,7 +2207,7 @@ class _DetailProjectState extends State<DetailProject>
                                                         border:
                                                             OutlineInputBorder(),
                                                         hintText:
-                                                            'Deskripsi To Do',
+                                                            'Deskripsi ToDo',
                                                         hintStyle: TextStyle(
                                                           fontSize: 12,
                                                           color: Colors.black,
@@ -2175,27 +2227,28 @@ class _DetailProjectState extends State<DetailProject>
                                                               Fluttertoast
                                                                   .showToast(
                                                                       msg:
-                                                                          'Masukkan Nama To Do');
+                                                                          'Masukkan Judul ToDo');
                                                             } else if (_tanggalawalTodoController
                                                                     .text ==
                                                                 '') {
                                                               Fluttertoast
                                                                   .showToast(
                                                                       msg:
-                                                                          'Tanggal Dimulainya To Do Tidak Boleh Kosong');
+                                                                          'Tanggal Dimulainya ToDo Tidak Boleh Kosong');
                                                             } else if (_tanggalakhirTodoController
                                                                     .text ==
                                                                 '') {
                                                               Fluttertoast
                                                                   .showToast(
                                                                       msg:
-                                                                          'Tanggal Berakhirnya To Do Tidak Boleh Kosong');
-                                                            } else if(dataProject['p_status'] == 'Finish'){
+                                                                          'Tanggal Berakhirnya ToDo Tidak Boleh Kosong');
+                                                            } else if (dataProject[
+                                                                    'p_status'] ==
+                                                                'Finish') {
                                                               Fluttertoast
                                                                   .showToast(
                                                                       msg:
-                                                                          'Tidak Dapat Membuat To Do, Project Telah Selesai');
-
+                                                                          'Tidak Dapat Membuat ToDo, Project Telah Selesai');
                                                             } else {
                                                               _tambahtodo();
                                                             }
@@ -2215,7 +2268,7 @@ class _DetailProjectState extends State<DetailProject>
                                                           splashColor:
                                                               Colors.blueAccent,
                                                           child: Text(
-                                                              "Tambahkan To Do",
+                                                              "Tambahkan ToDo",
                                                               style: TextStyle(
                                                                   fontSize: 12,
                                                                   color: Colors
@@ -2267,7 +2320,7 @@ class _DetailProjectState extends State<DetailProject>
                                                                         Center(
                                                                       child:
                                                                           Text(
-                                                                        "To Do Yang Anda Cari Tidak Ditemukan",
+                                                                        "ToDo Yang Anda Cari Tidak Ditemukan",
                                                                         style:
                                                                             TextStyle(
                                                                           fontSize:
@@ -2325,7 +2378,7 @@ class _DetailProjectState extends State<DetailProject>
                                                                                   ),
                                                                                 ),
                                                                               ),
-                                                                              title: Text(item.title == '' || item.title == null ? 'To Do Tidak Diketahui' : item.title, overflow: TextOverflow.ellipsis, softWrap: true, maxLines: 1, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
+                                                                              title: Text(item.title == '' || item.title == null ? 'ToDo Tidak Diketahui' : item.title, overflow: TextOverflow.ellipsis, softWrap: true, maxLines: 1, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
                                                                               subtitle: Padding(
                                                                                 padding: const EdgeInsets.only(top: 15.0),
                                                                                 child: Column(
@@ -2360,11 +2413,11 @@ class _DetailProjectState extends State<DetailProject>
                                                                                     itemBuilder: (context) => [
                                                                                       // PopupMenuItem(
                                                                                       //   value: PageTodo.gantistatusTodo,
-                                                                                      //   child: Text("Ganti Status To Do"),
-                                                                                      // ),                                                                 
+                                                                                      //   child: Text("Ganti Status ToDo"),
+                                                                                      // ),
                                                                                       PopupMenuItem(
                                                                                         value: PageTodo.hapusTodo,
-                                                                                        child: Text("Hapus To Do"),
+                                                                                        child: Text("Hapus ToDo"),
                                                                                       ),
                                                                                     ],
                                                                                   ),
@@ -2422,8 +2475,6 @@ class _DetailProjectState extends State<DetailProject>
       print(e.toString());
     }
   }
-
-  
 
   Widget _loadingview() {
     return Container(

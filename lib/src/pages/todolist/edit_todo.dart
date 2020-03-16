@@ -64,7 +64,6 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
   DateTime timeReplacement;
   TabController _tabController;
   List<ListKategori> listCategory = [];
-  List<FriendList> listFriends = [];
   List<MemberTodo> listMemberTodo = [];
   List<FileTodo> listFileTodo = [];
   String titleTodo, planStartTodo, planEndTodo, categoryTodo, descTodo;
@@ -100,14 +99,6 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
   }
 
   Future<List<List>> getDataEdit() async {
-    var storage = new DataStore();
-    var tokenTypeStorage = await storage.getDataString('token_type');
-    var accessTokenStorage = await storage.getDataString('access_token');
-
-    tokenType = tokenTypeStorage;
-    accessToken = accessTokenStorage;
-    requestHeaders['Accept'] = 'application/json';
-    requestHeaders['Authorization'] = '$tokenType $accessToken';
     setState(() {
       isLoading = true;
       listCategory.clear();
@@ -117,11 +108,30 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
       listFileTodo.clear();
       listFileTodo = [];
     });
+    listCategory.clear();
+    listCategory = [];
+    listMemberTodo.clear();
+    listMemberTodo = [];
+    listFileTodo.clear();
+    listFileTodo = [];
     try {
       final participant = await http.get(url('api/todo/edit/${widget.idTodo}'),
           headers: requestHeaders);
 
       if (participant.statusCode == 200) {
+        setState(() {
+          listCategory.clear();
+          listCategory = [];
+          listMemberTodo.clear();
+          listMemberTodo = [];
+          listFileTodo.clear();
+          listFileTodo = [];
+        });
+        listCategory.clear();
+        listCategory = [];
+        listMemberTodo.clear();
+        listMemberTodo = [];
+        listFileTodo.clear();
         var listParticipantToJson = json.decode(participant.body);
         Map rawTodo = listParticipantToJson['todo'];
         Map rawStatusKita = listParticipantToJson['statuskita'];
@@ -204,18 +214,6 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
   }
 
   Future<List<List>> getDataCategory() async {
-    var storage = new DataStore();
-    var tokenTypeStorage = await storage.getDataString('token_type');
-    var accessTokenStorage = await storage.getDataString('access_token');
-
-    tokenType = tokenTypeStorage;
-    accessToken = accessTokenStorage;
-    requestHeaders['Accept'] = 'application/json';
-    requestHeaders['Authorization'] = '$tokenType $accessToken';
-
-    setState(() {
-      isLoading = true;
-    });
     try {
       final participant =
           await http.get(url('api/category'), headers: requestHeaders);
@@ -267,75 +265,9 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
     return null;
   }
 
-  Future<List<List>> getDataFriendList() async {
-    var storage = new DataStore();
-    var tokenTypeStorage = await storage.getDataString('token_type');
-    var accessTokenStorage = await storage.getDataString('access_token');
-
-    tokenType = tokenTypeStorage;
-    accessToken = accessTokenStorage;
-    requestHeaders['Accept'] = 'application/json';
-    requestHeaders['Authorization'] = '$tokenType $accessToken';
-
-    setState(() {
-      isLoading = true;
-    });
-    try {
-      final participant =
-          await http.get(url('api/get_friendlist'), headers: requestHeaders);
-
-      if (participant.statusCode == 200) {
-        var listParticipantToJson = json.decode(participant.body);
-        var participants = listParticipantToJson;
-        print(participants);
-        for (var i in participants) {
-          FriendList participant = FriendList(
-            users: i['fl_users'],
-            namafriend: i['us_name'],
-            friend: i['fl_friend'],
-          );
-          listFriends.add(participant);
-        }
-
-        setState(() {
-          isLoading = false;
-          isError = false;
-        });
-      } else if (participant.statusCode == 401) {
-        Fluttertoast.showToast(
-            msg: "Token Telah Kadaluwarsa, Silahkan Login Kembali");
-        setState(() {
-          isLoading = false;
-          isError = true;
-        });
-      } else {
-        setState(() {
-          isLoading = false;
-          isError = true;
-        });
-        print(participant.body);
-        return null;
-      }
-    } on TimeoutException catch (_) {
-      setState(() {
-        isLoading = false;
-        isError = true;
-      });
-      Fluttertoast.showToast(msg: "Timed out, Try again");
-    } catch (e) {
-      setState(() {
-        isLoading = false;
-        isError = true;
-      });
-      debugPrint('$e');
-    }
-    return null;
-  }
-
   @override
   void initState() {
     getHeaderHTTP();
-    getDataFriendList();
     _tabController = TabController(
         length: 3, vsync: _ManajemenEditTodoState(), initialIndex: 0);
     _tabController.addListener(_handleTabIndex);
@@ -395,7 +327,7 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
             nameMemberFriend = null;
           });
         } else if (addMemberTodoJson['status'] == 'member sudah terdaftar') {
-          Fluttertoast.showToast(msg: "Member Ini Sudah Terdaftar Pada To Do");
+          Fluttertoast.showToast(msg: "Member Ini Sudah Terdaftar Pada ToDo");
           progressApiAction.hide().then((isHidden) {
             print(isHidden);
           });
@@ -716,7 +648,7 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
         title: Text(
             titleEdit == null
                 ? 'Tunggu Sebentar...'
-                : 'Manajemen To Do ($titleEdit)',
+                : 'Manajemen ToDo ($titleEdit)',
             style: TextStyle(fontSize: 14)),
         actions: <Widget>[],
       ), //
@@ -892,7 +824,7 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
                                                       children: <Widget>[
                                                         Container(
                                                           child: Text(
-                                                            'Edit To Do',
+                                                            'Edit ToDo',
                                                             style: TextStyle(
                                                                 fontWeight:
                                                                     FontWeight
@@ -924,7 +856,7 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
                                                                   border:
                                                                       OutlineInputBorder(),
                                                                   hintText:
-                                                                      'Judul To Do',
+                                                                      'Judul ToDo',
                                                                   hintStyle: TextStyle(
                                                                       fontSize:
                                                                           12,
@@ -1099,23 +1031,29 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
                                                             Text("All Day")
                                                           ],
                                                         ),
-                                                        _alldayTipe == '0'
-                                                            ? Container(
-                                                                margin: EdgeInsets
-                                                                    .only(
-                                                                        bottom:
-                                                                            10.0),
-                                                                child:
-                                                                    DateTimeField(
-                                                                  controller:
-                                                                      _dateStartController,
-                                                                  format: DateFormat(
-                                                                      "dd-MM-yyyy HH:mm:ss"),
-                                                                  readOnly:
-                                                                      true,
-                                                                  decoration:
-                                                                      InputDecoration(
-                                                                    contentPadding: EdgeInsets.only(
+                                                        Container(
+                                                            alignment: Alignment
+                                                                .center,
+                                                            height: 45.0,
+                                                            margin:
+                                                                EdgeInsets.only(
+                                                                    bottom:
+                                                                        10.0),
+                                                            child:
+                                                                DateTimeField(
+                                                              controller:
+                                                                  _dateStartController,
+                                                              format: _alldayTipe ==
+                                                                      '0'
+                                                                  ? DateFormat(
+                                                                      "dd-MM-yyyy HH:mm:ss")
+                                                                  : DateFormat(
+                                                                      "dd-MM-yyyy "),
+                                                              readOnly: true,
+                                                              decoration:
+                                                                  InputDecoration(
+                                                                contentPadding:
+                                                                    EdgeInsets.only(
                                                                         top: 2,
                                                                         bottom:
                                                                             2,
@@ -1123,213 +1061,125 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
                                                                             10,
                                                                         right:
                                                                             10),
-                                                                    border:
-                                                                        OutlineInputBorder(),
-                                                                    hintText:
-                                                                        'Tanggal Dimulainya To Do',
-                                                                    hintStyle: TextStyle(
-                                                                        fontSize:
-                                                                            12,
-                                                                        color: Colors
-                                                                            .black),
-                                                                  ),
-                                                                  onShowPicker:
-                                                                      (context,
-                                                                          currentValue) async {
-                                                                    final date = await showDatePicker(
-                                                                        context:
-                                                                            context,
-                                                                        firstDate:
-                                                                            DateTime(
-                                                                                2000),
-                                                                        initialDate:
-                                                                            DateTime
-                                                                                .now(),
-                                                                        lastDate:
-                                                                            DateTime(2100));
-                                                                    if (date !=
-                                                                        null) {
-                                                                      final time =
-                                                                          await showTimePicker(
-                                                                        context:
-                                                                            context,
-                                                                        initialTime:
-                                                                            TimeOfDay.fromDateTime(currentValue ??
-                                                                                DateTime.now()),
-                                                                      );
-                                                                      return DateTimeField.combine(
-                                                                          date,
-                                                                          time);
-                                                                    } else {
-                                                                      return currentValue;
-                                                                    }
-                                                                  },
-                                                                  onChanged:
-                                                                      (ini) {
-                                                                    setState(
-                                                                        () {
-                                                                      _dateEndController
-                                                                          .text = '';
-                                                                    });
-                                                                  },
-                                                                ))
-                                                            : Container(
-                                                                margin: EdgeInsets
-                                                                    .only(
-                                                                        bottom:
-                                                                            10.0),
-                                                                child:
-                                                                    DateTimeField(
-                                                                  controller:
-                                                                      _dateStartController,
-                                                                  readOnly:
-                                                                      true,
-                                                                  format: DateFormat(
-                                                                      "dd-MM-yyyy"),
-                                                                  decoration:
-                                                                      InputDecoration(
-                                                                    contentPadding: EdgeInsets.only(
-                                                                        top: 2,
-                                                                        bottom:
-                                                                            2,
-                                                                        left:
-                                                                            10,
-                                                                        right:
-                                                                            10),
-                                                                    border:
-                                                                        OutlineInputBorder(),
-                                                                    hintText:
-                                                                        'Tanggal Dimulainya To Do',
-                                                                    hintStyle: TextStyle(
-                                                                        fontSize:
-                                                                            12,
-                                                                        color: Colors
-                                                                            .black),
-                                                                  ),
-                                                                  onShowPicker:
-                                                                      (context,
-                                                                          currentValue) {
-                                                                    return showDatePicker(
-                                                                        context:
-                                                                            context,
-                                                                        firstDate:
-                                                                            DateTime(
-                                                                                2000),
-                                                                        initialDate:
-                                                                            DateTime
-                                                                                .now(),
-                                                                        lastDate:
-                                                                            DateTime(2100));
-                                                                  },
-                                                                  onChanged:
-                                                                      (ini) {
-                                                                    setState(
-                                                                        () {
-                                                                      _dateEndController
-                                                                          .text = '';
-                                                                    });
-                                                                  },
-                                                                ),
+                                                                border:
+                                                                    OutlineInputBorder(),
+                                                                hintText:
+                                                                    'Tanggal Mulainya ToDo',
+                                                                hintStyle: TextStyle(
+                                                                    fontSize:
+                                                                        12,
+                                                                    color: Colors
+                                                                        .black),
                                                               ),
-                                                        _alldayTipe == '0'
-                                                            ? Container(
-                                                                margin: EdgeInsets
-                                                                    .only(
-                                                                        bottom:
-                                                                            10.0),
-                                                                child:
-                                                                    DateTimeField(
-                                                                  controller:
-                                                                      _dateEndController,
-                                                                  format: DateFormat(
-                                                                      "dd-MM-yyyy HH:mm:ss"),
-                                                                  readOnly:
-                                                                      true,
-                                                                  decoration:
-                                                                      InputDecoration(
-                                                                    contentPadding: EdgeInsets.only(
-                                                                        top: 2,
-                                                                        bottom:
-                                                                            2,
-                                                                        left:
-                                                                            10,
-                                                                        right:
-                                                                            10),
-                                                                    border:
-                                                                        OutlineInputBorder(),
-                                                                    hintText:
-                                                                        'Tanggal Berakhirnya To Do',
-                                                                    hintStyle: TextStyle(
-                                                                        fontSize:
-                                                                            12,
-                                                                        color: Colors
-                                                                            .black),
-                                                                  ),
-                                                                  onShowPicker:
-                                                                      (context,
-                                                                          currentValue) async {
-                                                                    DateFormat
-                                                                        inputFormat =
-                                                                        DateFormat(
-                                                                            "dd-MM-yyyy");
-                                                                    DateTime
-                                                                        dateTime =
-                                                                        inputFormat
-                                                                            .parse("${_dateStartController.text}");
-                                                                    final date = await showDatePicker(
-                                                                        context:
-                                                                            context,
-                                                                        firstDate: _dateStartController.text ==
-                                                                                ''
-                                                                            ? DateTime(
-                                                                                2000)
-                                                                            : dateTime,
-                                                                        initialDate: _dateStartController.text ==
+                                                              onShowPicker:
+                                                                  (context,
+                                                                      currentValue) async {
+                                                                final date = await showDatePicker(
+                                                                    context:
+                                                                        context,
+                                                                    firstDate:
+                                                                        DateTime(
+                                                                            2018),
+                                                                    initialDate: _dateStartController
+                                                                                .text !=
+                                                                            ''
+                                                                        ? DateFormat("dd-MM-yyyy").parse(
+                                                                            "${_dateStartController.text}")
+                                                                        : _dateEndController.text ==
                                                                                 ''
                                                                             ? DateTime
                                                                                 .now()
-                                                                            : dateTime,
-                                                                        lastDate:
-                                                                            DateTime(2100));
-                                                                    if (date !=
-                                                                        null) {
-                                                                      final time =
-                                                                          await showTimePicker(
-                                                                        context:
-                                                                            context,
-                                                                        initialTime:
-                                                                            TimeOfDay.fromDateTime(currentValue ??
-                                                                                DateTime.now()),
-                                                                      );
-                                                                      return DateTimeField.combine(
-                                                                          date,
-                                                                          time);
-                                                                    } else {
-                                                                      return currentValue;
-                                                                    }
-                                                                  },
-                                                                  onChanged:
-                                                                      (ini) {
+                                                                            : DateFormat("dd-MM-yyyy").parse(
+                                                                                "${_dateEndController.text}"),
+                                                                    lastDate: _dateEndController
+                                                                                .text ==
+                                                                            ''
+                                                                        ? DateTime(
+                                                                            2100)
+                                                                        : DateFormat("dd-MM-yyyy")
+                                                                            .parse("${_dateEndController.text}"));
+                                                                if (date !=
+                                                                    null) {
+                                                                  if (_alldayTipe ==
+                                                                      '0') {
+                                                                    final times =
+                                                                        await showTimePicker(
+                                                                      context:
+                                                                          context,
+                                                                      initialTime:
+                                                                          TimeOfDay.fromDateTime(
+                                                                              DateTime.now()),
+                                                                    );
+                                                                    return DateTimeField
+                                                                        .combine(
+                                                                            date,
+                                                                            times);
+                                                                  } else {
+                                                                    final time =
+                                                                        TimeOfDay.fromDateTime(
+                                                                            DateTime.now());
+                                                                    return DateTimeField
+                                                                        .combine(
+                                                                            date,
+                                                                            time);
+                                                                  }
+                                                                } else {
+                                                                  return currentValue;
+                                                                }
+                                                              },
+                                                              onChanged: (ini) {
+                                                                setState(() {
+                                                                  // _dateEndController.text = '';
+                                                                });
+                                                              },
+                                                            )),
+                                                        Container(
+                                                            alignment: Alignment
+                                                                .center,
+                                                            height: 45.0,
+                                                            margin:
+                                                                EdgeInsets.only(
+                                                                    bottom:
+                                                                        10.0),
+                                                            child:
+                                                                DateTimeField(
+                                                              onChanged: (ini) {
+                                                                if (_dateStartController
+                                                                        .text ==
+                                                                    '') {
+                                                                  if (_alldayTipe ==
+                                                                      '0') {
                                                                     setState(
-                                                                        () {});
-                                                                  },
-                                                                ))
-                                                            : Container(
-                                                                margin: EdgeInsets
-                                                                    .only(
-                                                                        bottom:
-                                                                            10.0),
-                                                                child:
-                                                                    DateTimeField(
-                                                                  controller:
-                                                                      _dateEndController,
-                                                                  readOnly:
-                                                                      true,
-                                                                  format: DateFormat(
-                                                                      "dd-MM-yyyy"),
-                                                                  decoration:
-                                                                      InputDecoration(
-                                                                    contentPadding: EdgeInsets.only(
+                                                                        () {
+                                                                      _dateStartController
+                                                                              .text =
+                                                                          _dateEndController
+                                                                              .text;
+                                                                    });
+                                                                  } else {
+                                                                    setState(
+                                                                        () {
+                                                                      _dateStartController
+                                                                              .text =
+                                                                          _dateEndController
+                                                                              .text;
+                                                                    });
+                                                                  }
+                                                                }
+                                                              },
+                                                              controller:
+                                                                  _dateEndController,
+                                                              format: _alldayTipe ==
+                                                                      '0'
+                                                                  ? DateFormat(
+                                                                      "dd-MM-yyyy HH:mm:ss")
+                                                                  : DateFormat(
+                                                                      "dd-MM-yyyy "),
+                                                              readOnly: true,
+                                                              decoration:
+                                                                  InputDecoration(
+                                                                contentPadding:
+                                                                    EdgeInsets.only(
                                                                         top: 2,
                                                                         bottom:
                                                                             2,
@@ -1337,45 +1187,76 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
                                                                             10,
                                                                         right:
                                                                             10),
-                                                                    border:
-                                                                        OutlineInputBorder(),
-                                                                    hintText:
-                                                                        'Tanggal Berakhirnya To Do',
-                                                                    hintStyle: TextStyle(
-                                                                        fontSize:
-                                                                            12,
-                                                                        color: Colors
-                                                                            .black),
-                                                                  ),
-                                                                  onShowPicker:
-                                                                      (context,
-                                                                          currentValue) {
-                                                                    DateFormat
-                                                                        inputFormat =
-                                                                        DateFormat(
-                                                                            "dd-MM-yyyy");
-                                                                    DateTime
-                                                                        dateTime =
-                                                                        inputFormat
-                                                                            .parse("${_dateStartController.text}");
-                                                                    return showDatePicker(
-                                                                        context:
-                                                                            context,
-                                                                        firstDate: _dateStartController.text ==
-                                                                                ''
-                                                                            ? DateTime(
-                                                                                2000)
-                                                                            : dateTime,
-                                                                        initialDate: _dateStartController.text ==
+                                                                border:
+                                                                    OutlineInputBorder(),
+                                                                hintText:
+                                                                    'Tanggal Berakhirnya ToDo',
+                                                                hintStyle: TextStyle(
+                                                                    fontSize:
+                                                                        12,
+                                                                    color: Colors
+                                                                        .black),
+                                                              ),
+                                                              onShowPicker:
+                                                                  (context,
+                                                                      currentValue) async {
+                                                                DateFormat
+                                                                    inputFormat =
+                                                                    DateFormat(
+                                                                        "dd-MM-yyyy");
+
+                                                                final date = await showDatePicker(
+                                                                    context:
+                                                                        context,
+                                                                    firstDate: _dateStartController.text ==
+                                                                            ''
+                                                                        ? DateTime(
+                                                                            2000)
+                                                                        : inputFormat.parse(
+                                                                            "${_dateStartController.text}"),
+                                                                    initialDate: _dateEndController.text ==
+                                                                            ''
+                                                                        ? _dateStartController.text ==
                                                                                 ''
                                                                             ? DateTime
                                                                                 .now()
-                                                                            : dateTime,
-                                                                        lastDate:
-                                                                            DateTime(2100));
-                                                                  },
-                                                                ),
-                                                              ),
+                                                                            : inputFormat.parse(
+                                                                                "${_dateStartController.text}")
+                                                                        : inputFormat.parse(
+                                                                            "${_dateEndController.text}"),
+                                                                    lastDate:
+                                                                        DateTime(
+                                                                            2100));
+                                                                if (date !=
+                                                                    null) {
+                                                                  if (_alldayTipe ==
+                                                                      '0') {
+                                                                    final times =
+                                                                        await showTimePicker(
+                                                                      context:
+                                                                          context,
+                                                                      initialTime:
+                                                                          TimeOfDay.fromDateTime(
+                                                                              DateTime.now()),
+                                                                    );
+                                                                    return DateTimeField
+                                                                        .combine(
+                                                                            date,
+                                                                            times);
+                                                                  } else {
+                                                                    final time =
+                                                                        TimeOfDay.fromDateTime(
+                                                                            DateTime.now());
+                                                                    return DateTimeField
+                                                                        .combine(
+                                                                            date,
+                                                                            time);
+                                                                  }
+                                                                } else {
+                                                                  return currentValue;
+                                                                }
+                                                              },
+                                                            )),
                                                         Divider(),
                                                         Container(
                                                             margin:
@@ -1409,7 +1290,10 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
                                                                 EdgeInsets.only(
                                                                     bottom: 16),
                                                             child: RaisedButton(
-                                                              padding: EdgeInsets.all(15.0),
+                                                              padding:
+                                                                  EdgeInsets
+                                                                      .all(
+                                                                          15.0),
                                                               color:
                                                                   primaryAppBarColor,
                                                               child: Text(
@@ -1425,7 +1309,7 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
                                                                   Fluttertoast
                                                                       .showToast(
                                                                           msg:
-                                                                              "Nama To Do Tidak Boleh Kosong");
+                                                                              "Nama ToDo Tidak Boleh Kosong");
                                                                 } else if (categoriesID
                                                                             .toString() ==
                                                                         '' ||
@@ -1441,14 +1325,14 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
                                                                   Fluttertoast
                                                                       .showToast(
                                                                           msg:
-                                                                              "Tanggal Dimulainya To Do Tidak Boleh Kosong");
+                                                                              "Tanggal Dimulainya ToDo Tidak Boleh Kosong");
                                                                 } else if (_dateEndController
                                                                         .text ==
                                                                     '') {
                                                                   Fluttertoast
                                                                       .showToast(
                                                                           msg:
-                                                                              "Tanggal Berakhirnya To Do Tidak Boleh Kosong");
+                                                                              "Tanggal Berakhirnya ToDo Tidak Boleh Kosong");
                                                                 } else if (_descController
                                                                         .text ==
                                                                     '') {
@@ -1506,7 +1390,7 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
                                                       children: <Widget>[
                                                         Expanded(
                                                           child: Text(
-                                                              'Ingin Menghapus To Do Ini ?',
+                                                              'Ingin Menghapus ToDo Ini ?',
                                                               style: TextStyle(
                                                                   color: Colors
                                                                       .black87)),
@@ -1918,7 +1802,7 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
                                                                               context: context,
                                                                               builder: (BuildContext context) => AlertDialog(
                                                                                 title: Text('Peringatan!'),
-                                                                                content: Text('Apakah Anda Ingin Menghapus Member To Do'),
+                                                                                content: Text('Apakah Anda Ingin Menghapus Member ToDo'),
                                                                                 actions: <Widget>[
                                                                                   FlatButton(
                                                                                     child: Text('Tidak'),
@@ -2006,7 +1890,9 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
                                             ),
                                           ),
                                           Divider(),
-                                          _loadingPath == true ? Container() :Container() ,
+                                          _loadingPath == true
+                                              ? Container()
+                                              : Container(),
                                           InkWell(
                                             onTap: () async {
                                               _openFileExplorer();
@@ -2112,7 +1998,7 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
                                                       ),
                                                       child: Center(
                                                         child: Text(
-                                                          "Document To Do Belum Ditambahkan",
+                                                          "Document ToDo Belum Ditambahkan",
                                                           style: TextStyle(
                                                             fontSize: 16,
                                                             color:
@@ -2173,7 +2059,7 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
                                                                                 context: context,
                                                                                 builder: (BuildContext context) => AlertDialog(
                                                                                   title: Text('Peringatan!'),
-                                                                                  content: Text('Apakah Anda Ingin Menghapus Document To Do'),
+                                                                                  content: Text('Apakah Anda Ingin Menghapus Document ToDo'),
                                                                                   actions: <Widget>[
                                                                                     FlatButton(
                                                                                       child: Text('Tidak'),
@@ -2396,43 +2282,6 @@ class _ManajemenEditTodoState extends State<ManajemenEditTodo>
                         child: Padding(
                           padding: const EdgeInsets.all(15.0),
                           child: Text(listCategory[i].name),
-                        ),
-                      ),
-                    )),
-            ]),
-          ));
-        });
-  }
-
-  void showFriendList() {
-    showModalBottomSheet(
-        isScrollControlled: true,
-        context: context,
-        builder: (builder) {
-          return SingleChildScrollView(
-              child: Container(
-            // height: 200.0 + MediaQuery.of(context).viewInsets.bottom,
-            padding: EdgeInsets.only(
-                bottom: MediaQuery.of(context).viewInsets.bottom,
-                right: 5.0,
-                left: 5.0,
-                top: 40.0),
-            child: Column(children: <Widget>[
-              for (int i = 0; i < listFriends.length; i++)
-                InkWell(
-                    onTap: () async {
-                      setState(() {
-                        friendId = listFriends[i].friend.toString();
-                        friendName = listFriends[i].namafriend.toString();
-                      });
-                      Navigator.pop(context);
-                    },
-                    child: Container(
-                      width: double.infinity,
-                      child: Card(
-                        child: Padding(
-                          padding: const EdgeInsets.all(15.0),
-                          child: Text(listFriends[i].namafriend),
                         ),
                       ),
                     )),

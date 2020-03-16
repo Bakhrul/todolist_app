@@ -3,6 +3,7 @@ import 'package:todolist_app/src/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 // import 'login.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'dart:convert';
 import 'dart:io';
 import 'package:todolist_app/src/routes/env.dart';
@@ -28,6 +29,7 @@ class Register extends StatefulWidget {
 }
 
 class _Register extends State<Register> {
+  FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
   void initState() {
     super.initState();
     isLoading = true;
@@ -35,6 +37,13 @@ class _Register extends State<Register> {
     namalengkap.text = '';
     email.text = '';
     password.text = '';
+  }
+  void getToken() {
+    _firebaseMessaging.getToken().then((token) {
+      setState(() {
+        fcmToken = token;
+      });
+    });
   }
 
   
@@ -79,15 +88,46 @@ class _Register extends State<Register> {
 
           if (getUser.statusCode == 200) {
             dynamic datauser = json.decode(getUser.body);
-
             DataStore store = new DataStore();
             store.setDataString("id", datauser['us_id'].toString());
-            store.setDataString("email", datauser['us_email']);
-            store.setDataString("name", datauser['us_name']);
-            // Navigator.pushReplacementNamed(context, "/dashboard");
-            Navigator.of(context)
-    .pushNamedAndRemoveUntil('/dashboard', (Route<dynamic> route) => false);
-          Fluttertoast.showToast(msg: 'Selamat Datang ${datauser['us_name']}');
+            try {
+              _firebaseMessaging.getToken().then((token) {
+                setState(() {
+                  fcmToken = token;
+                });
+              });
+              Map body = {
+                'id': datauser['us_id'].toString(),
+                'token': fcmToken.toString()
+              };
+              final getToken = await http.post(url("api/updateTokenFcm"),
+                  headers: requestHeaders, body: body);
+
+              if (getToken.statusCode == 200) {
+                store.setDataString("email", datauser['us_email']);
+                store.setDataString("name", datauser['us_name']);
+                store.setDataString("phone", datauser['us_phone']);
+                store.setDataString("address", datauser['us_address']);
+                store.setDataString("photo", datauser['us_image']);
+                Navigator.pushReplacementNamed(context, "/dashboard");
+                Fluttertoast.showToast(
+                    msg: 'Selamat Datang ${datauser['us_name']}');
+                setState(() {
+                  isRegister = false;
+                });
+              } else if (getToken.statusCode != 200) {
+                print(getToken.body);
+                Fluttertoast.showToast(msg: "error: cannot update token");
+                setState(() {
+                  isRegister = false;
+                });
+              }
+            } catch (e) {
+              Fluttertoast.showToast(msg: "error: $e");
+              setState(() {
+                isRegister = false;
+              });
+            }
             
           } else {
             Fluttertoast.showToast(

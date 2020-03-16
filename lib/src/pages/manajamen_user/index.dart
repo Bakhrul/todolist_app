@@ -1070,7 +1070,7 @@ class _ManajemenUserState extends State<ManajemenUser>
                                                                             '' ||
                                                                         item.title ==
                                                                             null
-                                                                    ? 'To Do Tidak Diketahui'
+                                                                    ? 'ToDo Tidak Diketahui'
                                                                     : item
                                                                         .title,
                                                                 overflow:
@@ -1135,7 +1135,7 @@ class _ManajemenUserState extends State<ManajemenUser>
                                               bottom: 35.0),
                                           child: Center(
                                             child: Text(
-                                              "To Do Yang Anda Cari Tidak Ditemukan",
+                                              "ToDo Yang Anda Cari Tidak Ditemukan",
                                               style: TextStyle(
                                                 fontSize: 16,
                                                 height: 1.5,
@@ -1234,7 +1234,7 @@ class _ManajemenUserState extends State<ManajemenUser>
                                                                             '' ||
                                                                         item.title ==
                                                                             null
-                                                                    ? 'To Do Tidak Diketahui'
+                                                                    ? 'ToDo Tidak Diketahui'
                                                                     : item
                                                                         .title,
                                                                 overflow:

@@ -96,7 +96,7 @@ class _ManageDeleteTodoState extends State<ManageDeleteTodo> {
           color: Colors.white,
         ),
         title: new Text(
-          "Hapus To Do ${widget.namatodo}",
+          "Hapus ToDo ${widget.namatodo}",
           style: TextStyle(
             color: Colors.white,
             fontSize: 14,
@@ -115,14 +115,14 @@ class _ManageDeleteTodoState extends State<ManageDeleteTodo> {
               Padding(
                 padding: const EdgeInsets.only(bottom: 10.0, top: 10.0),
                 child: Text(
-                  'Menghapus To Do ${widget.namatodo} ?',
+                  'Menghapus ToDo ${widget.namatodo} ?',
                   style: TextStyle(color: Colors.black, fontSize: 16),
                 ),
               ),
               Padding(
                 padding: const EdgeInsets.only(bottom: 20.0),
                 child: Text(
-                  'Jika anda ingin menghapus To Do ini, semua data yang berhubungan dengan To Do ini akan dihapus secara permanen, misalnya : To Do Activity, Member, dll.',
+                  'Jika anda ingin menghapus ToDo ini, semua data yang berhubungan dengan ToDo ini akan dihapus secara permanen, misalnya : ToDo Activity, Member, dll.',
                   style:
                       TextStyle(color: Colors.black54, fontSize: 14, height: 2),
                 ),

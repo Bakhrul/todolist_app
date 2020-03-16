@@ -52,7 +52,7 @@ class _ManajemenSerachTodoState extends State<ManajemenSerachTodo>
   @override
   void initState() {
     getHeaderHTTP();
-    currentFilter = 2;
+    currentFilter = 3;
     actionBackAppBar = false;
     iconButtonAppbarColor = true;
     isLoading = true;
@@ -101,14 +101,16 @@ class _ManajemenSerachTodoState extends State<ManajemenSerachTodo>
     listFilter.addAll(listFilter2);
 
     setState(() {
+      isLoading = true;
       listTodoSearch.clear();
       listTodoSearch = [];
       listProjectSearch = [];
       listProjectSearch.clear();
-    });
-    setState(() {
-      isLoading = true;
-    });
+    });   
+      listTodoSearch.clear();
+      listTodoSearch = [];
+      listProjectSearch = [];
+      listProjectSearch.clear();
     try {
       final getDetailProject = await http
           .post(url('api/searc_todo_project'), headers: requestHeaders, body: {
@@ -211,7 +213,7 @@ class _ManajemenSerachTodoState extends State<ManajemenSerachTodo>
   }
 
   Widget appBarTitle = Text(
-    "To Do Berbintang",
+    "ToDo Berbintang",
     style: TextStyle(fontSize: 14),
   );
   Icon actionIcon = Icon(
@@ -287,7 +289,7 @@ class _ManajemenSerachTodoState extends State<ManajemenSerachTodo>
                       children: <Widget>[
                         Padding(
                           padding: const EdgeInsets.only(top: 5.0, bottom: 5.0),
-                          child: Text('To Do',
+                          child: Text('ToDo',
                               style: TextStyle(
                                   fontSize: 14, color: Colors.black87)),
                         ),
@@ -453,7 +455,7 @@ class _ManajemenSerachTodoState extends State<ManajemenSerachTodo>
                                                                             Center(
                                                                           child:
                                                                               Text(
-                                                                            "To Do Yang Anda Cari Tidak Ditemukan",
+                                                                            "ToDo Yang Anda Cari Tidak Ditemukan",
                                                                             style:
                                                                                 TextStyle(
                                                                               fontSize: 16,
@@ -481,7 +483,7 @@ class _ManajemenSerachTodoState extends State<ManajemenSerachTodo>
                                                             left: 10.0,
                                                             bottom: 5.0),
                                                         child: Text(
-                                                          '$jumlahTodosearch To Do',
+                                                          '$jumlahTodosearch ToDo',
                                                           style: TextStyle(
                                                               color:
                                                                   Colors.black,
@@ -597,7 +599,7 @@ class _ManajemenSerachTodoState extends State<ManajemenSerachTodo>
                                                                                       ],
                                                                                     ),
                                                                                     title: Text(
-                                                                                      item.title == '' || item.title == null ? 'To Do Tidak Diketahui' : item.title,
+                                                                                      item.title == '' || item.title == null ? 'ToDo Tidak Diketahui' : item.title,
                                                                                       style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
                                                                                       overflow: TextOverflow.ellipsis,
                                                                                       softWrap: true,

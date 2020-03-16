@@ -32,6 +32,8 @@ dependencies:
   draggable_fab: ^0.1.1
   intl: ^0.15.0  
   progress_dialog: ^1.2.1
+  flutter_local_notifications: ^1.2.2
+  firebase_messaging: ^6.0.9
   image_picker: ^0.6.2+2
   datetime_picker_formfield: ^0.4.3
   percent_indicator: "^2.1.1"
@@ -108,6 +110,7 @@ flutter:
       - images/icon_person.png
       - images/caution.png
       - images/google-play-service.png
+      - images/bell.png
   
   # fonts:
   #   - family: Schyler

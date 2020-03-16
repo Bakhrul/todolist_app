@@ -65,7 +65,15 @@ class _ManajemenDetailProjectAllState extends State<ManajemenDetailProjectAll> {
   Future<List<List>> detailProject() async {
     setState(() {
       isLoading = true;
+       projectMemberdetail.clear();
+          projectMemberdetail = [];
+          projectTododetail.clear();
+          projectTododetail = [];
     });
+     projectMemberdetail.clear();
+          projectMemberdetail = [];
+          projectTododetail.clear();
+          projectTododetail = [];
     try {
       final getDetailProject = await http
           .post(url('api/detail_project_all'), headers: requestHeaders, body: {
@@ -79,6 +87,10 @@ class _ManajemenDetailProjectAllState extends State<ManajemenDetailProjectAll> {
           projectTododetail.clear();
           projectTododetail = [];
         });
+         projectMemberdetail.clear();
+          projectMemberdetail = [];
+          projectTododetail.clear();
+          projectTododetail = [];
         var getDetailProjectJson = json.decode(getDetailProject.body);
         print(getDetailProjectJson['progressproject']);
         var members = getDetailProjectJson['member'];
@@ -111,11 +123,11 @@ class _ManajemenDetailProjectAllState extends State<ManajemenDetailProjectAll> {
               id: i['tl_id'],
               title: i['tl_title'],
               desc: i['tl_desc'],
-              timestart: i['tl_allday'] == '0' || i['tl_allday'] == 0 ? DateFormat("dd MMMM yyyy HH:mm")
-                  .format(DateTime.parse(i['tl_planstart'])) : DateFormat("dd MMMM yyyy")
+              timestart: i['tl_allday'] == '0' || i['tl_allday'] == 0 ? DateFormat("dd MMM yyyy HH:mm")
+                  .format(DateTime.parse(i['tl_planstart'])) : DateFormat("dd MMM yyyy")
                   .format(DateTime.parse(i['tl_planstart'])),
-              timeend: i['tl_allday'] == '0' || i['tl_allday'] == 0 ? DateFormat("dd MMMM yyyy HH:mm")
-                  .format(DateTime.parse(i['tl_planend'])) : DateFormat("dd MMMM yyyy")
+              timeend: i['tl_allday'] == '0' || i['tl_allday'] == 0 ? DateFormat("dd MMM yyyy HH:mm")
+                  .format(DateTime.parse(i['tl_planend'])) : DateFormat("dd MMM yyyy")
                   .format(DateTime.parse(i['tl_planend'])),
               progress: i['tl_progress'].toString(),
               status: i['tl_status'],
@@ -464,95 +476,7 @@ class _ManajemenDetailProjectAllState extends State<ManajemenDetailProjectAll> {
                                         : dataProject['p_desc'],
                                 style: TextStyle(height: 2),
                               ),
-                            ),
-                            // Container(
-                            //   margin: EdgeInsets.only(top: 25.0, bottom: 15.0),
-                            //   child: Row(
-                            //     mainAxisAlignment: MainAxisAlignment.center,
-                            //     children: <Widget>[
-                            //       InkWell(
-                            //         onTap: () async {
-                            //           Fluttertoast.showToast(
-                            //               msg: 'Fitur ini masih dikerjakan');
-                            //         },
-                            //         child: Container(
-                            //           margin: EdgeInsets.only(right: 3),
-                            //           padding: EdgeInsets.only(
-                            //               top: 10.0,
-                            //               left: 5,
-                            //               bottom: 10.0,
-                            //               right: 5),
-                            //           decoration: BoxDecoration(
-                            //             border: Border.all(
-                            //                 color: Colors.grey[300],
-                            //                 width: 1.0),
-                            //             borderRadius:
-                            //                 BorderRadius.circular(10.0),
-                            //           ),
-                            //           child: Row(
-                            //             children: <Widget>[
-                            //               Icon(
-                            //                 Icons.insert_drive_file,
-                            //                 size: 13,
-                            //                 color: Colors.red,
-                            //               ),
-                            //               Padding(
-                            //                 padding: const EdgeInsets.only(
-                            //                     left: 5.0),
-                            //                 child: Text(
-                            //                   'Proposal Project',
-                            //                   style: TextStyle(
-                            //                       color: Colors.black,
-                            //                       fontSize: 12),
-                            //                 ),
-                            //               ),
-                            //             ],
-                            //           ),
-                            //         ),
-                            //       ),
-                            //       InkWell(
-                            //         onTap: () async {
-                            //           Fluttertoast.showToast(
-                            //               msg: 'Fitur ini masih dikerjakan');
-                            //         },
-                            //         child: Container(
-                            //           margin: EdgeInsets.only(left: 3),
-                            //           padding: EdgeInsets.only(
-                            //               top: 10.0,
-                            //               left: 5,
-                            //               bottom: 10.0,
-                            //               right: 5),
-                            //           decoration: BoxDecoration(
-                            //             border: Border.all(
-                            //                 color: Colors.grey[300],
-                            //                 width: 1.0),
-                            //             borderRadius:
-                            //                 BorderRadius.circular(10.0),
-                            //           ),
-                            //           child: Row(
-                            //             children: <Widget>[
-                            //               Icon(
-                            //                 Icons.insert_drive_file,
-                            //                 size: 13,
-                            //                 color: Colors.red,
-                            //               ),
-                            //               Padding(
-                            //                 padding: const EdgeInsets.only(
-                            //                     left: 5.0),
-                            //                 child: Text(
-                            //                   'Ruang Lingkup',
-                            //                   style: TextStyle(
-                            //                       color: Colors.black,
-                            //                       fontSize: 12),
-                            //                 ),
-                            //               ),
-                            //             ],
-                            //           ),
-                            //         ),
-                            //       ),
-                            //     ],
-                            //   ),
-                            // ),
+                            ),                        
                             Container(
                                 margin: EdgeInsets.only(bottom: 15.0),
                                 child: Padding(
@@ -745,7 +669,7 @@ class _ManajemenDetailProjectAllState extends State<ManajemenDetailProjectAll> {
                                 child: Padding(
                                   padding: const EdgeInsets.only(top: 20.0),
                                   child: Text(
-                                    'To Do',
+                                    'ToDo',
                                     style: TextStyle(
                                         color: Colors.black87,
                                         fontWeight: FontWeight.w500),
@@ -769,7 +693,7 @@ class _ManajemenDetailProjectAllState extends State<ManajemenDetailProjectAll> {
                                             bottom: 35.0),
                                         child: Center(
                                           child: Text(
-                                            "${widget.namaproject} Tidak Memiliki To Do Sama Sekali",
+                                            "${widget.namaproject} Tidak Memiliki ToDo Sama Sekali",
                                             style: TextStyle(
                                               fontSize: 16,
                                               height: 1.5,
@@ -819,7 +743,7 @@ class _ManajemenDetailProjectAllState extends State<ManajemenDetailProjectAll> {
                                                                               '' ||
                                                                           item.title ==
                                                                               null
-                                                                      ? 'Nama To Do Tidak Diketahui'
+                                                                      ? 'Nama ToDo Tidak Diketahui'
                                                                       : item
                                                                           .title,
                                                                   overflow:

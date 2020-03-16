@@ -191,7 +191,7 @@ void dispose() {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Membuat To Do"),
+        title: Text("Membuat ToDo"),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: (){

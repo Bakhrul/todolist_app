@@ -98,28 +98,18 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
       currentIndex = _tabController.index;
     });
     new Timer(new Duration(seconds: 1), () {
-      if (_tabController.index == 3) {
-        setState(() {
-          listTodoReadyData();
-        });
-      } else if (_tabController.index == 2) {
-        setState(() {
-          listTodoActionData();
-        });
-      } else if (_tabController.index == 4) {
-        setState(() {
-          listTodoNormalData();
-        });
-      } else if (_tabController.index == 5) {
-        setState(() {
-          listTodoDoneData();
-        });
-      } else if (_tabController.index == 0) {
-        setState(() {
-          getHeaderHTTP();
-        });
+      if (_tabController.index == 0) {
+        getHeaderHTTP();
       } else if (_tabController.index == 1) {
         todoActivity();
+      } else if (_tabController.index == 2) {
+        listTodoDoneData();
+      } else if (_tabController.index == 3) {
+        listTodoActionData();
+      } else if (_tabController.index == 4) {
+        listTodoReadyData();
+      } else if (_tabController.index == 5) {
+        listTodoNormalData();
       }
     });
   }
@@ -141,7 +131,19 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
   Future<List<List>> detailProject() async {
     setState(() {
       isLoading = true;
+      todoMemberDetail.clear();
+      todoMemberDetail = [];
+      todoActivityDetail.clear();
+      todoActivityDetail = [];
+      todoAttachmentDetail.clear();
+      todoAttachmentDetail = [];
     });
+    todoMemberDetail.clear();
+    todoMemberDetail = [];
+    todoActivityDetail.clear();
+    todoActivityDetail = [];
+    todoAttachmentDetail.clear();
+    todoAttachmentDetail = [];
     try {
       final getDetailProject = await http
           .post(url('api/detail_todo'), headers: requestHeaders, body: {
@@ -149,14 +151,6 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
       });
 
       if (getDetailProject.statusCode == 200) {
-        setState(() {
-          todoMemberDetail.clear();
-          todoMemberDetail = [];
-          todoActivityDetail.clear();
-          todoActivityDetail = [];
-          todoAttachmentDetail.clear();
-          todoAttachmentDetail = [];
-        });
         var getDetailProjectJson = json.decode(getDetailProject.body);
         var members = getDetailProjectJson['todo_member'];
         var filetodos = getDetailProjectJson['todo_file'];
@@ -230,7 +224,12 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
   Future<List<List>> todoActivity() async {
     setState(() {
       isLoadingActivity = true;
+      isErrorActivity = false;
+      todoActivityDetail.clear();
+      todoActivityDetail = [];
     });
+    todoActivityDetail.clear();
+    todoActivityDetail = [];
     try {
       final getDetailProject = await http
           .post(url('api/todo_activity'), headers: requestHeaders, body: {
@@ -238,10 +237,6 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
       });
 
       if (getDetailProject.statusCode == 200) {
-        setState(() {
-          todoActivityDetail.clear();
-          todoActivityDetail = [];
-        });
         var getDetailProjectJson = json.decode(getDetailProject.body);
 
         var activitys = getDetailProjectJson;
@@ -300,9 +295,12 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
   Future<List<List>> listTodoReadyData() async {
     setState(() {
       isLoadingTodoAll = true;
+      isErrorTodoAll = false;
       listTodoReady.clear();
       listTodoReady = [];
     });
+    listTodoReady.clear();
+    listTodoReady = [];
     try {
       final getTodoReadyurl = await http.get(
         url('api/todo/todo_ready/${widget.idtodo}'),
@@ -314,6 +312,8 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
           listTodoReady.clear();
           listTodoReady = [];
         });
+        listTodoReady.clear();
+        listTodoReady = [];
         var getTodoReadyurlJson = json.decode(getTodoReadyurl.body);
         print(getTodoReadyurlJson);
         var members = getTodoReadyurlJson['todo_ready'];
@@ -370,9 +370,12 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
   Future<List<List>> listTodoDoneData() async {
     setState(() {
       isLoadingTodoAll = true;
+      isErrorTodoAll = false;
       listTodoDone.clear();
       listTodoDone = [];
     });
+    listTodoDone.clear();
+    listTodoDone = [];
     try {
       final getTodoDoneyurl = await http.get(
         url('api/todo/todo_done/${widget.idtodo}'),
@@ -384,6 +387,8 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
           listTodoDone.clear();
           listTodoDone = [];
         });
+        listTodoDone.clear();
+        listTodoDone = [];
         var getTodoDoneyurlJson = json.decode(getTodoDoneyurl.body);
         print(getTodoDoneyurlJson);
         var dones = getTodoDoneyurlJson['todo_done'];
@@ -439,12 +444,13 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
 
   Future<List<List>> listTodoActionData() async {
     setState(() {
+      isLoadingTodoAll = true;
+      isErrorTodoAll = false;
       listTodoAction.clear();
       listTodoAction = [];
     });
-    setState(() {
-      isLoadingTodoAll = true;
-    });
+    listTodoAction.clear();
+    listTodoAction = [];
     try {
       final getTodoActionUrl = await http.get(
           url('api/todo/list/actions/${widget.idtodo}'),
@@ -455,6 +461,8 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
           listTodoAction.clear();
           listTodoAction = [];
         });
+        listTodoAction.clear();
+        listTodoAction = [];
         var getTodoActionUrlJson = json.decode(getTodoActionUrl.body);
         var actions = getTodoActionUrlJson;
         print(actions);
@@ -509,9 +517,12 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
   Future<List<List>> listTodoNormalData() async {
     setState(() {
       isLoadingTodoAll = true;
+      isErrorTodoAll = false;
       listTodoNormal.clear();
       listTodoNormal = [];
     });
+    listTodoNormal.clear();
+    listTodoNormal = [];
     try {
       final getTodoNormalurl = await http.get(
         url('api/todo/todo_normal/${widget.idtodo}'),
@@ -523,6 +534,8 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
           listTodoNormal.clear();
           listTodoNormal = [];
         });
+        listTodoNormal.clear();
+        listTodoNormal = [];
         var getTodoNormalurlJson = json.decode(getTodoNormalurl.body);
         print(getTodoNormalurlJson);
         var normals = getTodoNormalurlJson['todo_normal'];
@@ -887,27 +900,28 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
                     actions: <Widget>[
                       dataStatusKita == null
                           ? Container()
-                          :dataTodo['tl_status'] == 'Finish' ? Container()
-                          : dataStatusKita['tlr_role'] == 1 ||
-                                  dataStatusKita['tlr_role'] == 2
-                              ? IconButton(
-                                  icon: const Icon(
-                                    Icons.edit,
-                                    size: 16,
-                                    color: Colors.white,
-                                  ),
-                                  tooltip: 'Edit Data Todo',
-                                  onPressed: () async {
-                                    Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) =>
-                                                ManajemenEditTodo(
-                                                  idTodo: widget.idtodo,
-                                                )));
-                                  },
-                                )
-                              : Container(),
+                          : dataTodo['tl_status'] == 'Finish'
+                              ? Container()
+                              : dataStatusKita['tlr_role'] == 1 ||
+                                      dataStatusKita['tlr_role'] == 2
+                                  ? IconButton(
+                                      icon: const Icon(
+                                        Icons.edit,
+                                        size: 16,
+                                        color: Colors.white,
+                                      ),
+                                      tooltip: 'Edit Data Todo',
+                                      onPressed: () async {
+                                        Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    ManajemenEditTodo(
+                                                      idTodo: widget.idtodo,
+                                                    )));
+                                      },
+                                    )
+                                  : Container(),
                     ],
                     // automaticallyImplyLeading: false,
                     backgroundColor: primaryAppBarColor,
@@ -942,11 +956,11 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
                         unselectedLabelColor: Colors.grey,
                         tabs: [
                           Tab(text: "Deskripsi"),
-                          Tab(text: "Aktifitas"),
-                          Tab(text: "To Do Action"),
-                          Tab(text: "To Do Ready"),
-                          Tab(text: "To Do Normal"),
-                          Tab(text: "To Do Done"),
+                          Tab(text: "Progress Report"),
+                          Tab(text: "ToDo Done"),
+                          Tab(text: "ToDo Action"),
+                          Tab(text: "ToDo Ready"),
+                          Tab(text: "ToDo Normal"),
                         ],
                       ),
                     ),
@@ -993,8 +1007,21 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
                     ? widgetLoadingTodo()
                     : isErrorTodoAll == true
                         ? errorSystem(context)
+                        : listTodoDone.length == 0
+                            ? emptyTodoAction('ToDo Done')
+                            : Container(
+                                child: Column(
+                                  children: <Widget>[
+                                    dataTodoDone(),
+                                  ],
+                                ),
+                              ),
+                isLoadingTodoAll == true
+                    ? widgetLoadingTodo()
+                    : isErrorTodoAll == true
+                        ? errorSystem(context)
                         : listTodoAction.length == 0
-                            ? emptyTodoAction()
+                            ? emptyTodoAction('ToDo Action')
                             : Container(
                                 child: Column(
                                   children: <Widget>[
@@ -1007,7 +1034,7 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
                     : isErrorTodoAll == true
                         ? errorSystem(context)
                         : listTodoReady.length == 0
-                            ? emptyTodoAction()
+                            ? emptyTodoAction('ToDo Ready')
                             : Container(
                                 child: Column(
                                   children: <Widget>[
@@ -1020,24 +1047,11 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
                     : isErrorTodoAll == true
                         ? errorSystem(context)
                         : listTodoNormal.length == 0
-                            ? emptyTodoAction()
+                            ? emptyTodoAction('ToDo Normal')
                             : Container(
                                 child: Column(
                                   children: <Widget>[
                                     dataTodoNormal(),
-                                  ],
-                                ),
-                              ),
-                isLoadingTodoAll == true
-                    ? widgetLoadingTodo()
-                    : isErrorTodoAll == true
-                        ? errorSystem(context)
-                        : listTodoDone.length == 0
-                            ? emptyTodoAction()
-                            : Container(
-                                child: Column(
-                                  children: <Widget>[
-                                    dataTodoDone(),
                                   ],
                                 ),
                               ),
@@ -1140,6 +1154,11 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
                               Fluttertoast.showToast(
                                   msg:
                                       'Anda Tidak Memiliki Akses Untuk Melakukan Aksi Ini');
+                            } else if (dataStatusKita['tlr_role'] == 3 ||
+                                dataStatusKita['tlr_role'] == '3') {
+                              Fluttertoast.showToast(
+                                  msg:
+                                      'Anda Tidak Memiliki Akses Untuk Melakukan Aksi Ini');
                             } else {
                               actionmulaimengerjakan('pending');
                             }
@@ -1177,6 +1196,11 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
                             }
                             if (dataStatusKita['tlr_role'] == 4 ||
                                 dataStatusKita['tlr_role'] == '4') {
+                              Fluttertoast.showToast(
+                                  msg:
+                                      'Anda Tidak Memiliki Akses Untuk Melakukan Aksi Ini');
+                            } else if (dataStatusKita['tlr_role'] == 3 ||
+                                dataStatusKita['tlr_role'] == '3') {
                               Fluttertoast.showToast(
                                   msg:
                                       'Anda Tidak Memiliki Akses Untuk Melakukan Aksi Ini');
@@ -1272,7 +1296,7 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
                           ),
                           onPressed: null,
                           child: Text(
-                            "To Do Sudah Selesai",
+                            "ToDo Sudah Selesai",
                             style: TextStyle(fontSize: 14.0),
                           ),
                         ),
@@ -1291,20 +1315,24 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
     } else {
       return dataStatusKita == null
           ? null
-          :dataTodo['tl_status'] == 'Finish' ? null
-          : dataStatusKita['tlr_role'] == 1 || dataStatusKita['tlr_role'] == 2
-              ? DraggableFab(
-                  child: FloatingActionButton(
-                      shape: StadiumBorder(),
-                      onPressed: () async {
-                        _showModal();
-                      },
-                      backgroundColor: Color.fromRGBO(254, 86, 14, 1),
-                      child: Icon(
-                        Icons.add,
-                        size: 20.0,
-                      )))
-              : null;
+          : dataTodo['tl_status'] == 'Finish'
+              ? null
+              : dataStatusKita['tlr_role'] == 1 ||
+                      dataStatusKita['tlr_role'] == 2 ||
+                      dataStatusKita['tlr_role'] == '1' ||
+                      dataStatusKita['tlr_role'] == '2'
+                  ? DraggableFab(
+                      child: FloatingActionButton(
+                          shape: StadiumBorder(),
+                          onPressed: () async {
+                            _showModal();
+                          },
+                          backgroundColor: Color.fromRGBO(254, 86, 14, 1),
+                          child: Icon(
+                            Icons.add,
+                            size: 20.0,
+                          )))
+                  : null;
     }
   }
 
@@ -1330,6 +1358,7 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
                 Container(
                     margin: EdgeInsets.only(bottom: 20.0, top: 10.0),
                     child: TextField(
+                      maxLines: 3,
                       controller: _titleTodoListAction,
                       decoration: InputDecoration(
                           border: OutlineInputBorder(),
@@ -1362,19 +1391,19 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
   void tambahAction() async {
     String type;
     if (_tabController.index == 2) {
-      type = 'Action';
-    } else if (_tabController.index == 3) {
-      type = 'Ready';
-    } else if (_tabController.index == 4) {
-      type = 'Normal';
-    } else if (_tabController.index == 5) {
       type = 'Done';
+    } else if (_tabController.index == 3) {
+      type = 'Action';
+    } else if (_tabController.index == 4) {
+      type = 'Ready';
+    } else if (_tabController.index == 5) {
+      type = 'Normal';
     } else if (_tabController.index == 0 || _tabController.index == 1) {
       Navigator.pop(context);
       return null;
     }
     if (_titleTodoListAction.text == '') {
-      Fluttertoast.showToast(msg: 'Masukkan Judul To Do Action');
+      Fluttertoast.showToast(msg: 'Masukkan Judul ToDo Action');
       return null;
     }
     Navigator.pop(context);
@@ -1391,13 +1420,13 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
         if (addpesertaJson['status'] == 'success') {
           Fluttertoast.showToast(msg: "Berhasil");
           if (_tabController.index == 2) {
-            listTodoActionData();
-          } else if (_tabController.index == 3) {
-            listTodoReadyData();
-          } else if (_tabController.index == 4) {
-            listTodoNormalData();
-          } else if (_tabController.index == 5) {
             listTodoDoneData();
+          } else if (_tabController.index == 3) {
+            listTodoActionData();
+          } else if (_tabController.index == 4) {
+            listTodoReadyData();
+          } else if (_tabController.index == 5) {
+            listTodoNormalData();
           }
           progressApiAction.hide().then((isHidden) {});
         }
@@ -1505,7 +1534,7 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
                 child: Padding(
                   padding: const EdgeInsets.only(top: 20.0),
                   child: Text(
-                    'File To Do',
+                    'File ToDo',
                     style: TextStyle(
                         color: Colors.black87, fontWeight: FontWeight.w500),
                   ),
@@ -1558,7 +1587,7 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
             child: Padding(
               padding: const EdgeInsets.only(top: 20.0),
               child: Text(
-                'To Do Progress',
+                'ToDo Progress',
                 style: TextStyle(
                     color: Colors.black87, fontWeight: FontWeight.w500),
               ),
@@ -1667,7 +1696,7 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
             child: Padding(
               padding: const EdgeInsets.only(top: 20.0),
               child: Text(
-                'To Do Member',
+                'ToDo Member',
                 style: TextStyle(
                     color: Colors.black87, fontWeight: FontWeight.w500),
               ),
@@ -1792,11 +1821,11 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
                                   dataTodo['tl_exestart'] == null) {
                                 Fluttertoast.showToast(
                                     msg:
-                                        'Tidak Dapat Melakukan Realisasi, To Do Belum Mulai Dikerjakan');
+                                        'Tidak Dapat Melakukan Progress Report, ToDo Belum Mulai Dikerjakan');
                               } else if (dataTodo['tl_status'] == 'Pending') {
                                 Fluttertoast.showToast(
                                     msg:
-                                        'Tidak Dapat Melakukan Realisasi, To Do Masih Tahap Pending');
+                                        'Tidak Dapat Melakukan Progress Report, ToDo Masih Tahap Pending');
                               } else if (dataStatusKita == null) {
                                 Fluttertoast.showToast(
                                     msg:
@@ -1806,11 +1835,10 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
                                 Fluttertoast.showToast(
                                     msg:
                                         'Anda Tidak Memiliki Akses Untuk Melakukan Aksi Ini');
-                              } else if(dataTodo['tl_status'] == 'Finish'){
+                              } else if (dataTodo['tl_status'] == 'Finish') {
                                 Fluttertoast.showToast(
                                     msg:
-                                        'Tidak Dapat Melakukan Realisasi, To Do Telah Selesai');
-
+                                        'Tidak Dapat Melakukan Progress Report, ToDo Telah Selesai');
                               } else {
                                 _realisasiTodo();
                               }
@@ -1820,7 +1848,7 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
                             ),
                             color: primaryAppBarColor,
                             textColor: Colors.white,
-                            child: Text('Tambahkan Aktifitas')),
+                            child: Text('Tambahkan Progress Report')),
                       )),
                   Container(height: 15.0),
                   todoActivityDetail.length > 0 ? Divider() : Container(),
@@ -1946,13 +1974,13 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
                           dataTodo['tl_exestart'] == null) {
                         Fluttertoast.showToast(
                             msg:
-                                'To Do Masih Belum Dikerjakan, Tidak Dapat Melakukan Konfirmasi Selesai');
+                                'ToDo Masih Belum Dikerjakan, Tidak Dapat Melakukan Konfirmasi Selesai');
                       } else if (dataTodo['tl_status'] == 'Pending') {
                         Fluttertoast.showToast(
                             msg:
-                                'To Do Masih Tahap Pending, Tidak Dapat Melakukan Konfirmasi Selesai');
+                                'ToDo Masih Tahap Pending, Tidak Dapat Melakukan Konfirmasi Selesai');
                       } else if (dataTodo['tl_status'] == 'Finish') {
-                        Fluttertoast.showToast(msg: 'To Do Sudah Selesai');
+                        Fluttertoast.showToast(msg: 'ToDo Sudah Selesai');
                       } else if (dataStatusKita == null) {
                         Fluttertoast.showToast(
                             msg:
@@ -1992,53 +2020,58 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
                   subtitle: statusTodo(listTodoReady[index].selesai,
                       listTodoReady[index].validation),
                   trailing: dataTodo == null
-                        ? null
-                        : dataTodo['tl_status'] == 'Open' &&
-                                dataTodo['tl_exestart'] == null
-                            ? null
-                            : dataTodo['tl_status'] == 'Pending'
-                                ? null
-                                : listTodoReady[index].selesai == null ||
-                          listTodoReady[index].selesai == ''
                       ? null
-                      : dataStatusKita == null
+                      : dataTodo['tl_status'] == 'Open' &&
+                              dataTodo['tl_exestart'] == null
                           ? null
-                          : dataStatusKita['tlr_role'] == 1 ||
-                                  dataStatusKita['tlr_role'] == 2
-                              ? ButtonTheme(
-                                  minWidth: 0,
-                                  height: 0,
-                                  child: FlatButton(
-                                    padding: EdgeInsets.all(0),
-                                    color: Colors.white,
-                                    child: Icon(
-                                        listTodoReady[index].validation ==
-                                                    null ||
-                                                listTodoReady[index]
-                                                        .validation ==
-                                                    ''
-                                            ? Icons.check
-                                            : Icons.close,
-                                        color:
-                                            listTodoReady[index].validation ==
-                                                        null ||
+                          : dataTodo['tl_status'] == 'Pending'
+                              ? null
+                              : listTodoReady[index].selesai == null ||
+                                      listTodoReady[index].selesai == ''
+                                  ? null
+                                  : dataStatusKita == null
+                                      ? null
+                                      : dataStatusKita['tlr_role'] == 1 ||
+                                              dataStatusKita['tlr_role'] == 2
+                                          ? ButtonTheme(
+                                              minWidth: 0,
+                                              height: 0,
+                                              child: FlatButton(
+                                                padding: EdgeInsets.all(0),
+                                                color: Colors.white,
+                                                child: Icon(
                                                     listTodoReady[index]
-                                                            .validation ==
-                                                        ''
-                                                ? Colors.green
-                                                : Colors.red),
-                                    onPressed: () async {
-                                      accValidation(
-                                          listTodoReady[index].number,
-                                          listTodoReady[index].idtodo,
-                                          listTodoReady[index].selesai,
-                                          listTodoReady[index].validation,
-                                          listTodoReady[index],
-                                          'Ready');
-                                    },
-                                  ),
-                                )
-                              : null),
+                                                                    .validation ==
+                                                                null ||
+                                                            listTodoReady[index]
+                                                                    .validation ==
+                                                                ''
+                                                        ? Icons.check
+                                                        : Icons.close,
+                                                    color: listTodoReady[index]
+                                                                    .validation ==
+                                                                null ||
+                                                            listTodoReady[index]
+                                                                    .validation ==
+                                                                ''
+                                                        ? Colors.green
+                                                        : Colors.red),
+                                                onPressed: () async {
+                                                  accValidation(
+                                                      listTodoReady[index]
+                                                          .number,
+                                                      listTodoReady[index]
+                                                          .idtodo,
+                                                      listTodoReady[index]
+                                                          .selesai,
+                                                      listTodoReady[index]
+                                                          .validation,
+                                                      listTodoReady[index],
+                                                      'Ready');
+                                                },
+                                              ),
+                                            )
+                                          : null),
             );
           },
         ),
@@ -2075,13 +2108,13 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
                           dataTodo['tl_exestart'] == null) {
                         Fluttertoast.showToast(
                             msg:
-                                'To Do Masih Belum Dikerjakan, Tidak Dapat Melakukan Konfirmasi Selesai');
+                                'ToDo Masih Belum Dikerjakan, Tidak Dapat Melakukan Konfirmasi Selesai');
                       } else if (dataTodo['tl_status'] == 'Pending') {
                         Fluttertoast.showToast(
                             msg:
-                                'To Do Masih Tahap Pending, Tidak Dapat Melakukan Konfirmasi Selesai');
+                                'ToDo Masih Tahap Pending, Tidak Dapat Melakukan Konfirmasi Selesai');
                       } else if (dataTodo['tl_status'] == 'Finish') {
-                        Fluttertoast.showToast(msg: 'To Do Sudah Selesai');
+                        Fluttertoast.showToast(msg: 'ToDo Sudah Selesai');
                       } else if (dataStatusKita == null) {
                         Fluttertoast.showToast(
                             msg:
@@ -2121,53 +2154,60 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
                   subtitle: statusTodo(listTodoAction[index].selesai,
                       listTodoAction[index].validation),
                   trailing: dataTodo == null
-                        ? null
-                        : dataTodo['tl_status'] == 'Open' &&
-                                dataTodo['tl_exestart'] == null
-                            ? null
-                            : dataTodo['tl_status'] == 'Pending'
-                                ? null
-                                : listTodoAction[index].selesai == null ||
-                          listTodoAction[index].selesai == ''
                       ? null
-                      : dataStatusKita == null
+                      : dataTodo['tl_status'] == 'Open' &&
+                              dataTodo['tl_exestart'] == null
                           ? null
-                          : dataStatusKita['tlr_role'] == 1 ||
-                                  dataStatusKita['tlr_role'] == 2
-                              ? ButtonTheme(
-                                  minWidth: 0,
-                                  height: 0,
-                                  child: FlatButton(
-                                    padding: EdgeInsets.all(0),
-                                    color: Colors.white,
-                                    child: Icon(
-                                        listTodoAction[index].validation ==
-                                                    null ||
-                                                listTodoAction[index]
-                                                        .validation ==
-                                                    ''
-                                            ? Icons.check
-                                            : Icons.close,
-                                        color:
-                                            listTodoAction[index].validation ==
-                                                        null ||
+                          : dataTodo['tl_status'] == 'Pending'
+                              ? null
+                              : listTodoAction[index].selesai == null ||
+                                      listTodoAction[index].selesai == ''
+                                  ? null
+                                  : dataStatusKita == null
+                                      ? null
+                                      : dataStatusKita['tlr_role'] == 1 ||
+                                              dataStatusKita['tlr_role'] == 2
+                                          ? ButtonTheme(
+                                              minWidth: 0,
+                                              height: 0,
+                                              child: FlatButton(
+                                                padding: EdgeInsets.all(0),
+                                                color: Colors.white,
+                                                child: Icon(
                                                     listTodoAction[index]
-                                                            .validation ==
-                                                        ''
-                                                ? Colors.green
-                                                : Colors.red),
-                                    onPressed: () async {
-                                      accValidation(
-                                          listTodoAction[index].number,
-                                          listTodoAction[index].idtodo,
-                                          listTodoAction[index].selesai,
-                                          listTodoAction[index].validation,
-                                          listTodoAction[index],
-                                          'Action');
-                                    },
-                                  ),
-                                )
-                              : null),
+                                                                    .validation ==
+                                                                null ||
+                                                            listTodoAction[
+                                                                        index]
+                                                                    .validation ==
+                                                                ''
+                                                        ? Icons.check
+                                                        : Icons.close,
+                                                    color: listTodoAction[index]
+                                                                    .validation ==
+                                                                null ||
+                                                            listTodoAction[
+                                                                        index]
+                                                                    .validation ==
+                                                                ''
+                                                        ? Colors.green
+                                                        : Colors.red),
+                                                onPressed: () async {
+                                                  accValidation(
+                                                      listTodoAction[index]
+                                                          .number,
+                                                      listTodoAction[index]
+                                                          .idtodo,
+                                                      listTodoAction[index]
+                                                          .selesai,
+                                                      listTodoAction[index]
+                                                          .validation,
+                                                      listTodoAction[index],
+                                                      'Action');
+                                                },
+                                              ),
+                                            )
+                                          : null),
             );
           },
         ),
@@ -2204,13 +2244,13 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
                           dataTodo['tl_exestart'] == null) {
                         Fluttertoast.showToast(
                             msg:
-                                'To Do Masih Belum Dikerjakan, Tidak Dapat Melakukan Konfirmasi Selesai');
+                                'ToDo Masih Belum Dikerjakan, Tidak Dapat Melakukan Konfirmasi Selesai');
                       } else if (dataTodo['tl_status'] == 'Pending') {
                         Fluttertoast.showToast(
                             msg:
-                                'To Do Masih Tahap Pending, Tidak Dapat Melakukan Konfirmasi Selesai');
+                                'ToDo Masih Tahap Pending, Tidak Dapat Melakukan Konfirmasi Selesai');
                       } else if (dataTodo['tl_status'] == 'Finish') {
-                        Fluttertoast.showToast(msg: 'To Do Sudah Selesai');
+                        Fluttertoast.showToast(msg: 'ToDo Sudah Selesai');
                       } else if (dataStatusKita == null) {
                         Fluttertoast.showToast(
                             msg:
@@ -2249,53 +2289,59 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
                         ),
                   subtitle: statusTodo(listTodoDone[index].selesai,
                       listTodoDone[index].validation),
-                  trailing:dataTodo == null
-                        ? null
-                        : dataTodo['tl_status'] == 'Open' &&
-                                dataTodo['tl_exestart'] == null
-                            ? null
-                            : dataTodo['tl_status'] == 'Pending'
-                                ? null
-                                : listTodoDone[index].selesai == null ||
-                          listTodoDone[index].selesai == ''
+                  trailing: dataTodo == null
                       ? null
-                      : dataStatusKita == null
+                      : dataTodo['tl_status'] == 'Open' &&
+                              dataTodo['tl_exestart'] == null
                           ? null
-                          : dataStatusKita['tlr_role'] == 1 ||
-                                  dataStatusKita['tlr_role'] == 2
-                              ? ButtonTheme(
-                                  minWidth: 0,
-                                  height: 0,
-                                  child: FlatButton(
-                                    padding: EdgeInsets.all(0),
-                                    color: Colors.white,
-                                    child: Icon(
-                                        listTodoDone[index].validation ==
-                                                    null ||
-                                                listTodoReady[index]
-                                                        .validation ==
-                                                    ''
-                                            ? Icons.check
-                                            : Icons.close,
-                                        color: listTodoDone[index].validation ==
-                                                    null ||
-                                                listTodoDone[index]
-                                                        .validation ==
-                                                    ''
-                                            ? Colors.green
-                                            : Colors.red),
-                                    onPressed: () async {
-                                      accValidation(
-                                          listTodoDone[index].number,
-                                          listTodoDone[index].idtodo,
-                                          listTodoDone[index].selesai,
-                                          listTodoDone[index].validation,
-                                          listTodoDone[index],
-                                          'Done');
-                                    },
-                                  ),
-                                )
-                              : null),
+                          : dataTodo['tl_status'] == 'Pending'
+                              ? null
+                              : listTodoDone[index].selesai == null ||
+                                      listTodoDone[index].selesai == ''
+                                  ? null
+                                  : dataStatusKita == null
+                                      ? null
+                                      : dataStatusKita['tlr_role'] == 1 ||
+                                              dataStatusKita['tlr_role'] == 2
+                                          ? ButtonTheme(
+                                              minWidth: 0,
+                                              height: 0,
+                                              child: FlatButton(
+                                                padding: EdgeInsets.all(0),
+                                                color: Colors.white,
+                                                child: Icon(
+                                                    listTodoDone[index]
+                                                                    .validation ==
+                                                                null ||
+                                                            listTodoReady[index]
+                                                                    .validation ==
+                                                                ''
+                                                        ? Icons.check
+                                                        : Icons.close,
+                                                    color: listTodoDone[index]
+                                                                    .validation ==
+                                                                null ||
+                                                            listTodoDone[index]
+                                                                    .validation ==
+                                                                ''
+                                                        ? Colors.green
+                                                        : Colors.red),
+                                                onPressed: () async {
+                                                  accValidation(
+                                                      listTodoDone[index]
+                                                          .number,
+                                                      listTodoDone[index]
+                                                          .idtodo,
+                                                      listTodoDone[index]
+                                                          .selesai,
+                                                      listTodoDone[index]
+                                                          .validation,
+                                                      listTodoDone[index],
+                                                      'Done');
+                                                },
+                                              ),
+                                            )
+                                          : null),
             );
           },
         ),
@@ -2332,13 +2378,13 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
                           dataTodo['tl_exestart'] == null) {
                         Fluttertoast.showToast(
                             msg:
-                                'To Do Masih Belum Dikerjakan, Tidak Dapat Melakukan Konfirmasi Selesai');
+                                'ToDo Masih Belum Dikerjakan, Tidak Dapat Melakukan Konfirmasi Selesai');
                       } else if (dataTodo['tl_status'] == 'Pending') {
                         Fluttertoast.showToast(
                             msg:
-                                'To Do Masih Tahap Pending, Tidak Dapat Melakukan Konfirmasi Selesai');
+                                'ToDo Masih Tahap Pending, Tidak Dapat Melakukan Konfirmasi Selesai');
                       } else if (dataTodo['tl_status'] == 'Finish') {
-                        Fluttertoast.showToast(msg: 'To Do Sudah Selesai');
+                        Fluttertoast.showToast(msg: 'ToDo Sudah Selesai');
                       } else if (dataStatusKita == null) {
                         Fluttertoast.showToast(
                             msg:
@@ -2377,54 +2423,60 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
                         ),
                   subtitle: statusTodo(listTodoNormal[index].selesai,
                       listTodoNormal[index].validation),
-                  trailing:dataTodo == null
-                        ? null
-                        : dataTodo['tl_status'] == 'Open' &&
-                                dataTodo['tl_exestart'] == null
-                            ? null
-                            : dataTodo['tl_status'] == 'Pending'
-                                ? null
-                                : listTodoNormal[index].selesai == null ||
-                          listTodoNormal[index].selesai == ''
+                  trailing: dataTodo == null
                       ? null
-                      : dataStatusKita == null
+                      : dataTodo['tl_status'] == 'Open' &&
+                              dataTodo['tl_exestart'] == null
                           ? null
-                          : dataStatusKita['tlr_role'] == 1 ||
-                                  dataStatusKita['tlr_role'] == 2
-                              ? ButtonTheme(
-                                  minWidth: 0,
-                                  height: 0,
-                                  child: FlatButton(
-                                    padding: EdgeInsets.all(0),
-                                    color: Colors.white,
-                                    child: Icon(
-                                        listTodoNormal[index].validation ==
-                                                    null ||
-                                                listTodoReady[index]
-                                                        .validation ==
-                                                    ''
-                                            ? Icons.check
-                                            : Icons.close,
-                                        color:
-                                            listTodoNormal[index].validation ==
-                                                        null ||
+                          : dataTodo['tl_status'] == 'Pending'
+                              ? null
+                              : listTodoNormal[index].selesai == null ||
+                                      listTodoNormal[index].selesai == ''
+                                  ? null
+                                  : dataStatusKita == null
+                                      ? null
+                                      : dataStatusKita['tlr_role'] == 1 ||
+                                              dataStatusKita['tlr_role'] == 2
+                                          ? ButtonTheme(
+                                              minWidth: 0,
+                                              height: 0,
+                                              child: FlatButton(
+                                                padding: EdgeInsets.all(0),
+                                                color: Colors.white,
+                                                child: Icon(
                                                     listTodoNormal[index]
-                                                            .validation ==
-                                                        ''
-                                                ? Colors.green
-                                                : Colors.red),
-                                    onPressed: () async {
-                                      accValidation(
-                                          listTodoNormal[index].number,
-                                          listTodoNormal[index].idtodo,
-                                          listTodoNormal[index].selesai,
-                                          listTodoNormal[index].validation,
-                                          listTodoNormal[index],
-                                          'Normal');
-                                    },
-                                  ),
-                                )
-                              : null),
+                                                                    .validation ==
+                                                                null ||
+                                                            listTodoReady[index]
+                                                                    .validation ==
+                                                                ''
+                                                        ? Icons.check
+                                                        : Icons.close,
+                                                    color: listTodoNormal[index]
+                                                                    .validation ==
+                                                                null ||
+                                                            listTodoNormal[
+                                                                        index]
+                                                                    .validation ==
+                                                                ''
+                                                        ? Colors.green
+                                                        : Colors.red),
+                                                onPressed: () async {
+                                                  accValidation(
+                                                      listTodoNormal[index]
+                                                          .number,
+                                                      listTodoNormal[index]
+                                                          .idtodo,
+                                                      listTodoNormal[index]
+                                                          .selesai,
+                                                      listTodoNormal[index]
+                                                          .validation,
+                                                      listTodoNormal[index],
+                                                      'Normal');
+                                                },
+                                              ),
+                                            )
+                                          : null),
             );
           },
         ),
@@ -2546,7 +2598,7 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
           progressApiAction.hide().then((isHidden) {});
         } else {
           progressApiAction.hide().then((isHidden) {});
-          Fluttertoast.showToast(msg: 'To Do tidak ditemukan');
+          Fluttertoast.showToast(msg: 'ToDo tidak ditemukan');
         }
       } else {
         print(addpeserta.body);
@@ -2611,13 +2663,13 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
                     } else if (_tabController.index == 1) {
                       todoActivity();
                     } else if (_tabController.index == 2) {
-                      listTodoActionData();
-                    } else if (_tabController.index == 3) {
-                      listTodoReadyData();
-                    } else if (_tabController.index == 4) {
-                      listTodoNormalData();
-                    } else if (_tabController.index == 5) {
                       listTodoDoneData();
+                    } else if (_tabController.index == 3) {
+                      listTodoActionData();
+                    } else if (_tabController.index == 4) {
+                      listTodoReadyData();
+                    } else if (_tabController.index == 5) {
+                      listTodoNormalData();
                     }
                   },
                   child: Text(
@@ -2898,17 +2950,17 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
     ));
   }
 
-  Widget emptyTodoAction() {
+  Widget emptyTodoAction(typetodo) {
     return RefreshIndicator(
       onRefresh: () async {
         if (_tabController.index == 2) {
-          listTodoActionData();
-        } else if (_tabController.index == 3) {
-          listTodoReadyData();
-        } else if (_tabController.index == 4) {
-          listTodoNormalData();
-        } else if (_tabController.index == 5) {
           listTodoDoneData();
+        } else if (_tabController.index == 3) {
+          listTodoActionData();
+        } else if (_tabController.index == 4) {
+          listTodoReadyData();
+        } else if (_tabController.index == 5) {
+          listTodoNormalData();
         }
       },
       child: SingleChildScrollView(
@@ -2926,7 +2978,7 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
                     top: 20.0, left: 25.0, right: 25.0, bottom: 35.0),
                 child: Center(
                   child: Text(
-                    "To Do Action Yang Anda Cari Tidak Ditemukan",
+                    "$typetodo Yang Anda Cari Tidak Ditemukan",
                     style: TextStyle(
                       fontSize: 16,
                       height: 1.5,
@@ -2970,7 +3022,7 @@ class _ManajemenDetailTodoState extends State<ManajemenDetailTodo>
           });
         } else if (addpesertaJson['status'] ==
             'type todolist tidak ditemukan') {
-          Fluttertoast.showToast(msg: "To Do List Tidak Ditemukan");
+          Fluttertoast.showToast(msg: "ToDo List Tidak Ditemukan");
           progressApiAction.hide().then((isHidden) {});
         } else {
           Fluttertoast.showToast(msg: "Gagal, Silahkan Coba Kembali");

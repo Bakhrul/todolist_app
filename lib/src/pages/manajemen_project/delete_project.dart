@@ -122,7 +122,7 @@ class _ManageDeleteProjectState extends State<ManageDeleteProject> {
               Padding(
                 padding: const EdgeInsets.only(bottom: 20.0),
                 child: Text(
-                  'Jika anda ingin menghapus project ini, semua data yang berhubungan dengan project ini akan dihapus secara permanen, misalnya : To Do, Member, dll.',
+                  'Jika anda ingin menghapus project ini, semua data yang berhubungan dengan project ini akan dihapus secara permanen, misalnya : ToDo, Member, dll.',
                   style:
                       TextStyle(color: Colors.black54, fontSize: 14, height: 2),
                 ),

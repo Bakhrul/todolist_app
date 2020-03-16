@@ -372,7 +372,7 @@ class _AddUserFileTodoState extends State<AddUserFileTodo>
             nameMemberFriend = null;
           });
         } else if (addMemberTodoJson['status'] == 'member sudah terdaftar') {
-          Fluttertoast.showToast(msg: "Member Ini Sudah Terdaftar Pada To Do");
+          Fluttertoast.showToast(msg: "Member Ini Sudah Terdaftar Pada ToDo");
           progressApiAction.hide().then((isHidden) {
             print(isHidden);
           });
@@ -1286,7 +1286,7 @@ class _AddUserFileTodoState extends State<AddUserFileTodo>
                                                                         Center(
                                                                       child:
                                                                           Text(
-                                                                        "Document To Do Belum Ditambahkan",
+                                                                        "Document ToDo Belum Ditambahkan",
                                                                         style:
                                                                             TextStyle(
                                                                           fontSize:

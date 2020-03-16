@@ -76,22 +76,22 @@ class _ManajemenTodoImportantState extends State<ManajemenTodoImportant>
 
   Future<List<List>> getDataTodo() async {
     setState(() {
-      listTodoImportant.clear();
-    });
-    print(widget.idproject);
-    setState(() {
       isLoading = true;
+      isError = false;
+      isFilter = false;
+      isErrorFilter = false;
+      listTodoImportant.clear();
+      listTodoImportant = [];
     });
+    listTodoImportant.clear();
+    listTodoImportant = [];
     try {
-        
       final getDetailProject = await http
           .post(url('api/todolist_berbintang'), headers: requestHeaders, body: {
         'project': widget.idproject.toString(),
         'filter': currentFilter.toString(),
         'search': _searchQuery.text,
       });
-
-     
 
       if (getDetailProject.statusCode == 200) {
         var getDetailProjectJson = json.decode(getDetailProject.body);
@@ -109,13 +109,15 @@ class _ManajemenTodoImportantState extends State<ManajemenTodoImportant>
               statuspinned: i['statuspinned'].toString(),
               allday: i['allday'],
               statusProgress: i['statusprogress'],
-               coloredProgress: i['statusprogress'] == 'compleshed'
+              coloredProgress: i['statusprogress'] == 'compleshed'
                   ? Colors.green
                   : i['statusprogress'] == 'overdue'
                       ? Colors.red
                       : i['statusprogress'] == 'pending'
                           ? Colors.grey
-                          : i['statusprogress'] == 'working' ? Colors.blue: Colors.white);
+                          : i['statusprogress'] == 'working'
+                              ? Colors.blue
+                              : Colors.white);
           listTodoImportant.add(todo);
         }
 
@@ -167,13 +169,15 @@ class _ManajemenTodoImportantState extends State<ManajemenTodoImportant>
 
   Future<List<List>> filterDataTodo() async {
     setState(() {
+      isFilter = true;
+      isLoading = false;
+      isError = false;
+      isErrorFilter = false;
       listTodoImportant.clear();
       listTodoImportant = [];
     });
-    // print(widget.idproject);
-    setState(() {
-      isFilter = true;
-    });
+    listTodoImportant.clear();
+    listTodoImportant = [];
     try {
       final getDetailProject = await http
           .post(url('api/todolist_berbintang'), headers: requestHeaders, body: {
@@ -182,8 +186,6 @@ class _ManajemenTodoImportantState extends State<ManajemenTodoImportant>
         'search': _searchQuery.text,
       });
 
-   
-
       if (getDetailProject.statusCode == 200) {
         var getDetailProjectJson = json.decode(getDetailProject.body);
         print(getDetailProjectJson);
@@ -191,7 +193,7 @@ class _ManajemenTodoImportantState extends State<ManajemenTodoImportant>
         setState(() {
           countTodo = int.parse(getDetailProjectJson['counttodo'].toString());
         });
-         for (var i in todos) {
+        for (var i in todos) {
           Todo todo = Todo(
               id: i['id'],
               title: i['title'].toString(),
@@ -200,13 +202,15 @@ class _ManajemenTodoImportantState extends State<ManajemenTodoImportant>
               statuspinned: i['statuspinned'].toString(),
               allday: i['allday'],
               statusProgress: i['statusprogress'],
-            coloredProgress: i['statusprogress'] == 'compleshed'
+              coloredProgress: i['statusprogress'] == 'compleshed'
                   ? Colors.green
                   : i['statusprogress'] == 'overdue'
                       ? Colors.red
                       : i['statusprogress'] == 'pending'
                           ? Colors.grey
-                          : i['statusprogress'] == 'working' ? Colors.blue: Colors.white);
+                          : i['statusprogress'] == 'working'
+                              ? Colors.blue
+                              : Colors.white);
 
           listTodoImportant.add(todo);
         }
@@ -270,7 +274,7 @@ class _ManajemenTodoImportantState extends State<ManajemenTodoImportant>
         color: Colors.white,
       );
       this.appBarTitle = new Text(
-        "To Do Berbintang",
+        "ToDo Berbintang",
         style: TextStyle(
           color: Colors.white,
           fontSize: 14,
@@ -280,7 +284,7 @@ class _ManajemenTodoImportantState extends State<ManajemenTodoImportant>
   }
 
   Widget appBarTitle = Text(
-    "To Do Berbintang",
+    "ToDo Berbintang",
     style: TextStyle(fontSize: 14),
   );
   Icon actionIcon = Icon(
@@ -376,34 +380,36 @@ class _ManajemenTodoImportantState extends State<ManajemenTodoImportant>
                                       ? _errorFilter(context)
                                       : listTodoImportant.length == 0
                                           ? Padding(
-                                padding: const EdgeInsets.only(top: 25.0),
-                                child: Column(children: <Widget>[
-                                  new Container(
-                                    width: 100.0,
-                                    height: 100.0,
-                                    child: Image.asset(
-                                        "images/todo_icon2.png"),
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.only(
-                                        top: 20.0,
-                                        left: 25.0,
-                                        right: 25.0,
-                                        bottom: 35.0),
-                                    child: Center(
-                                      child: Text(
-                                        "To Do Yang Anda Cari Tidak Ditemukan",
-                                        style: TextStyle(
-                                          fontSize: 16,
-
-                                          height: 1.5,
-                                        ),
-                                        textAlign: TextAlign.center,
-                                      ),
-                                    ),
-                                  ),
-                                ]),
-                              )
+                                              padding: const EdgeInsets.only(
+                                                  top: 25.0),
+                                              child: Column(children: <Widget>[
+                                                new Container(
+                                                  width: 100.0,
+                                                  height: 100.0,
+                                                  child: Image.asset(
+                                                      "images/todo_icon2.png"),
+                                                ),
+                                                Padding(
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                          top: 20.0,
+                                                          left: 25.0,
+                                                          right: 25.0,
+                                                          bottom: 35.0),
+                                                  child: Center(
+                                                    child: Text(
+                                                      "ToDo Yang Anda Cari Tidak Ditemukan",
+                                                      style: TextStyle(
+                                                        fontSize: 16,
+                                                        height: 1.5,
+                                                      ),
+                                                      textAlign:
+                                                          TextAlign.center,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ]),
+                                            )
                                           : Column(
                                               crossAxisAlignment:
                                                   CrossAxisAlignment.start,
@@ -414,7 +420,7 @@ class _ManajemenTodoImportantState extends State<ManajemenTodoImportant>
                                                       left: 10.0,
                                                       bottom: 5.0),
                                                   child: Text(
-                                                    '$countTodo To Do',
+                                                    '$countTodo ToDo',
                                                     style: TextStyle(
                                                         color: Colors.black,
                                                         fontSize: 16,
@@ -456,20 +462,9 @@ class _ManajemenTodoImportantState extends State<ManajemenTodoImportant>
                                                                               elevation: 0.5,
                                                                               margin: EdgeInsets.only(top: 5.0, bottom: 5.0, left: 0.0, right: 0.0),
                                                                               child: ClipPath(
-                                                                                clipper: ShapeBorderClipper(
-                                                                                  shape: RoundedRectangleBorder(
-                                                                                    borderRadius: BorderRadius.circular(3)
-                                                                                  )
-                                                                                ),
+                                                                                clipper: ShapeBorderClipper(shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(3))),
                                                                                 child: Container(
-                                                                                  decoration: BoxDecoration(
-                                                                                    border:Border(
-                                                                                      right: BorderSide(
-                                                                                        color: item.coloredProgress,
-                                                                                        width: 5
-                                                                                      )
-                                                                                    )
-                                                                                  ),
+                                                                                  decoration: BoxDecoration(border: Border(right: BorderSide(color: item.coloredProgress, width: 5))),
                                                                                   child: ListTile(
                                                                                     leading: ClipRRect(
                                                                                       borderRadius: BorderRadius.circular(100.0),
@@ -529,14 +524,14 @@ class _ManajemenTodoImportantState extends State<ManajemenTodoImportant>
                                                                                       ],
                                                                                     ),
                                                                                     title: Text(
-                                                                                      item.title == '' || item.title == null ? 'To Do Tidak Diketahui' : item.title,
+                                                                                      item.title == '' || item.title == null ? 'ToDo Tidak Diketahui' : item.title,
                                                                                       overflow: TextOverflow.ellipsis,
                                                                                       softWrap: true,
                                                                                       maxLines: 1,
                                                                                       style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
                                                                                     ),
                                                                                     subtitle: Padding(
-                                                                                      padding: const EdgeInsets.only(top:2.0),
+                                                                                      padding: const EdgeInsets.only(top: 5.0,bottom: 10.0),
                                                                                       child: Text(
                                                                                         DateFormat(item.allday > 0 ? 'dd MMM yyyy' : 'dd MMM yyyy HH:mm').format(DateTime.parse("${item.timestart}")).toString() + ' - ' + DateFormat(item.allday > 0 ? 'dd MMM yyyy' : 'dd MMM yyyy HH:mm:ss').format(DateTime.parse("${item.timeend}")).toString(),
                                                                                         // overflow: TextOverflow.ellipsis,
@@ -897,7 +892,7 @@ class _ManajemenTodoImportantState extends State<ManajemenTodoImportant>
                                   border: InputBorder.none,
                                   prefixIcon: new Icon(Icons.search,
                                       color: Colors.black87),
-                                  hintText: "Cari To Do Anda Sekarang Juga",
+                                  hintText: "Cari ToDo Anda Sekarang Juga",
                                   hintStyle: TextStyle(
                                     color: Colors.black87,
                                     fontSize: 14,

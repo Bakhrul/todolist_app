@@ -860,7 +860,7 @@ class _AddPesertaState extends State<AddPeserta> {
   }
 
   Widget appBarTitle = Text(
-    "Tambah Peserta To Do",
+    "Tambah Peserta ToDo",
     style: TextStyle(fontSize: 14),
   );
   Icon actionIcon = Icon(
@@ -877,7 +877,7 @@ class _AddPesertaState extends State<AddPeserta> {
       actionBackAppBar = true;
       iconButtonAppbarColor = true;
       this.appBarTitle = new Text(
-        "Tambah Peserta To Do",
+        "Tambah Peserta ToDo",
         style: TextStyle(
           color: Colors.white,
           fontSize: 14,

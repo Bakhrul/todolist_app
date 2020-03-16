@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "754506389185",
+    "firebase_url": "https://bisniskitatodolist.firebaseio.com",
+    "project_id": "bisniskitatodolist",
+    "storage_bucket": "bisniskitatodolist.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:754506389185:android:42e41ef8880e876164e640",
+        "android_client_info": {
+          "package_name": "com.bisniskita.todolist_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "754506389185-gc1u9p9vpsmege0jn9g8vebn56b2bpok.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyATPLw0aDhYKvnPkA8-UfZv1CgouvpCnLA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "754506389185-gc1u9p9vpsmege0jn9g8vebn56b2bpok.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

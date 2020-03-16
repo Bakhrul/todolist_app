@@ -15,9 +15,9 @@ import 'choose_project.dart';
 import 'package:todolist_app/src/storage/storage.dart';
 import 'package:progress_dialog/progress_dialog.dart';
 
-
 String idProjectChoose;
 String namaProjectChoose;
+
 class TodoList extends StatefulWidget {
   @override
   _TodoListState createState() => _TodoListState();
@@ -26,11 +26,11 @@ class TodoList extends StatefulWidget {
 class _TodoListState extends State<TodoList> {
   ProgressDialog progressApiAction;
   String tokenType, accessToken;
-String categoriesID;
-String categoriesName;
-bool isLoading, isError;
+  String categoriesID;
+  String categoriesName;
+  bool isLoading, isError;
 
-bool isAllday;
+  bool isAllday;
   final _formKey = GlobalKey<FormState>();
 
   DateTime timeReplacement;
@@ -143,7 +143,7 @@ bool isAllday;
         "desc": _descController.text.toString(),
         "category": categoriesID.toString(),
         'project': idProjectChoose.toString(),
-        'allday' : isAllday == false ? '0' : '1',
+        'allday': isAllday == false ? '0' : '1',
       };
       final addadminevent = await http.post(url('api/todo/create'),
           headers: requestHeaders, body: body);
@@ -215,7 +215,7 @@ bool isAllday;
       appBar: AppBar(
         backgroundColor: primaryAppBarColor,
         title: Text(
-          "Tambahkan To Do",
+          "Tambahkan ToDo",
           style: TextStyle(
             fontSize: 14,
           ),
@@ -314,15 +314,15 @@ bool isAllday;
                                       // textAlignVertical:
                                       //     TextAlignVertical.center,
                                       decoration: InputDecoration(
-                                        contentPadding: EdgeInsets.all(8),
+                                          contentPadding: EdgeInsets.all(8),
                                           border: OutlineInputBorder(),
-                                          hintText: 'Judul To Do',
+                                          hintText: 'Judul ToDo',
                                           hintStyle: TextStyle(
                                               fontSize: 12,
                                               color: Colors.black)),
                                       controller: _titleController,
                                     )),
-                                    InkWell(
+                                InkWell(
                                   onTap: () async {
                                     showCategory();
                                   },
@@ -400,15 +400,18 @@ bool isAllday;
                                         ),
                                       )
                                     : Container(),
-                                Container(margin:EdgeInsets.only(top:10.0),child: Divider()),
+                                Container(
+                                    margin: EdgeInsets.only(top: 10.0),
+                                    child: Divider()),
                                 Padding(
-                                  padding: const EdgeInsets.only(top:8.0),
+                                  padding: const EdgeInsets.only(top: 8.0),
                                   child: Text("Pelaksanaan Kegiatan"),
                                 ),
                                 Row(
                                   children: <Widget>[
                                     Container(
-                                      margin: EdgeInsets.only(top:10.0,bottom:10.0),
+                                      margin: EdgeInsets.only(
+                                          top: 10.0, bottom: 10.0),
                                       child: SizedBox(
                                         height: 24.0,
                                         width: 24.0,
@@ -427,7 +430,7 @@ bool isAllday;
                                       ),
                                     ),
                                     Padding(
-                                      padding: const EdgeInsets.only(left:5.0),
+                                      padding: const EdgeInsets.only(left: 5.0),
                                       child: Text("All Day"),
                                     )
                                   ],
@@ -449,7 +452,7 @@ bool isAllday;
                                             left: 10,
                                             right: 10),
                                         border: OutlineInputBorder(),
-                                        hintText: 'Tanggal Mulainya To Do',
+                                        hintText: 'Tanggal Mulainya ToDo',
                                         hintStyle: TextStyle(
                                             fontSize: 12, color: Colors.black),
                                       ),
@@ -458,8 +461,19 @@ bool isAllday;
                                         final date = await showDatePicker(
                                             context: context,
                                             firstDate: DateTime(2018),
-                                            initialDate: DateTime.now(),
-                                            lastDate: DateTime(2100));
+                                            initialDate:_dateStartController.text != '' ? DateFormat("dd-MM-yyyy").parse(
+                                                    "${_dateStartController.text}") :  _dateEndController
+                                                        .text ==
+                                                    ''
+                                                ? DateTime.now()
+                                                :  DateFormat("dd-MM-yyyy").parse(
+                                                    "${_dateEndController.text}"),
+                                            lastDate: _dateEndController
+                                                        .text ==
+                                                    ''
+                                                ? DateTime(2100)
+                                                :  DateFormat("dd-MM-yyyy").parse(
+                                                    "${_dateEndController.text}"));
                                         if (date != null) {
                                           if (isAllday != true) {
                                             final times = await showTimePicker(
@@ -467,13 +481,13 @@ bool isAllday;
                                               initialTime:
                                                   TimeOfDay.fromDateTime(
                                                       currentValue ??
-                                                          timeReplacement),
+                                                          DateTime.now()),
                                             );
                                             return DateTimeField.combine(
                                                 date, times);
                                           } else {
                                             final time = TimeOfDay.fromDateTime(
-                                                timeReplacement);
+                                                DateTime.now());
                                             return DateTimeField.combine(
                                                 date, time);
                                           }
@@ -483,16 +497,30 @@ bool isAllday;
                                       },
                                       onChanged: (ini) {
                                         setState(() {
-                                          _dateEndController.text = '';
+                                          // _dateEndController.text = '';
                                         });
                                       },
                                     )),
-
                                 Container(
                                     alignment: Alignment.center,
                                     height: 45.0,
                                     margin: EdgeInsets.only(bottom: 10.0),
                                     child: DateTimeField(
+                                      onChanged: (ini) {
+                                        if (_dateStartController.text == '') {
+                                          if (isAllday == true) {
+                                            setState(() {
+                                              _dateStartController.text =
+                                                 _dateEndController.text;
+                                            });
+                                          } else {
+                                            setState(() {
+                                              _dateStartController.text =
+                                                 _dateEndController.text;
+                                            });
+                                          }
+                                        }
+                                      },
                                       controller: _dateEndController,
                                       format: isAllday != true
                                           ? DateFormat("dd-MM-yyyy HH:mm:ss")
@@ -505,7 +533,7 @@ bool isAllday;
                                             left: 10,
                                             right: 10),
                                         border: OutlineInputBorder(),
-                                        hintText: 'Tanggal Berakhirnya To Do',
+                                        hintText: 'Tanggal Berakhirnya ToDo',
                                         hintStyle: TextStyle(
                                             fontSize: 12, color: Colors.black),
                                       ),
@@ -513,20 +541,22 @@ bool isAllday;
                                           (context, currentValue) async {
                                         DateFormat inputFormat =
                                             DateFormat("dd-MM-yyyy");
-                                        DateTime dateTime = inputFormat.parse(
-                                            "${_dateStartController.text}");
 
-                                        print(dateTime);
                                         final date = await showDatePicker(
                                             context: context,
-                                            firstDate:
-                                                _dateStartController.text == ''
-                                                    ? DateTime.now()
-                                                    : dateTime,
-                                            initialDate:
-                                                _dateStartController.text == ''
-                                                    ? DateTime.now()
-                                                    : dateTime,
+                                            firstDate: _dateStartController
+                                                        .text ==
+                                                    ''
+                                                ? DateTime(2000)
+                                                : inputFormat.parse(
+                                                    "${_dateStartController.text}"),
+                                            initialDate: _dateEndController.text == '' ? _dateStartController
+                                                        .text ==
+                                                    ''
+                                                ? DateTime.now()
+                                                : inputFormat.parse(
+                                                    "${_dateStartController.text}") :inputFormat.parse(
+                                                    "${_dateEndController.text}"),
                                             lastDate: DateTime(2100));
                                         if (date != null) {
                                           if (isAllday != true) {
@@ -535,13 +565,13 @@ bool isAllday;
                                               initialTime:
                                                   TimeOfDay.fromDateTime(
                                                       currentValue ??
-                                                          timeReplacement),
+                                                          DateTime.now()),
                                             );
                                             return DateTimeField.combine(
                                                 date, times);
                                           } else {
                                             final time = TimeOfDay.fromDateTime(
-                                                timeReplacement);
+                                                DateTime.now());
                                             return DateTimeField.combine(
                                                 date, time);
                                           }
@@ -550,9 +580,7 @@ bool isAllday;
                                         }
                                       },
                                     )),
-                                    Divider(),
-
-                                
+                                Divider(),
                                 Container(
                                     margin: EdgeInsets.only(
                                         bottom: 10.0, top: 10.0),
@@ -569,7 +597,6 @@ bool isAllday;
                                               fontSize: 12,
                                               color: Colors.black)),
                                     )),
-                               
                               ],
                             )),
               ],
@@ -580,15 +607,15 @@ bool isAllday;
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           if (_titleController.text == '') {
-            Fluttertoast.showToast(msg: "Nama To Do Tidak Boleh Kosong");
+            Fluttertoast.showToast(msg: "Judul ToDo Tidak Boleh Kosong");
           } else if (categoriesID.toString() == '' || categoriesID == null) {
             Fluttertoast.showToast(msg: "Kategori Tidak Boleh Kosong");
           } else if (_dateStartController.text == '') {
             Fluttertoast.showToast(
-                msg: "Tanggal Dimulainya To Do Tidak Boleh Kosong");
+                msg: "Tanggal Dimulainya ToDo Tidak Boleh Kosong");
           } else if (_dateEndController.text == '') {
             Fluttertoast.showToast(
-                msg: "Tanggal Berakhirnya To Do Tidak Boleh Kosong");
+                msg: "Tanggal Berakhirnya ToDo Tidak Boleh Kosong");
           } else if (categoriesID.toString() == '1') {
             if (idProjectChoose == null) {
               Fluttertoast.showToast(
@@ -611,37 +638,36 @@ bool isAllday;
         isScrollControlled: true,
         context: context,
         builder: (builder) {
-          return 
-          SingleChildScrollView(
-            scrollDirection: Axis.vertical,
-          child: Container(
-            // height: 200.0 + MediaQuery.of(context).viewInsets.bottom,
-            padding: EdgeInsets.only(
-                bottom: MediaQuery.of(context).viewInsets.bottom,
-                right: 5.0,
-                left: 5.0,
-                top: 40.0),
-            child: Column(children: <Widget>[
-              for (int i = 0; i < listCategory.length; i++)
-                InkWell(
-                    onTap: () async {
-                      setState(() {
-                        categoriesID = listCategory[i].id.toString();
-                        categoriesName = listCategory[i].name.toString();
-                      });
-                      Navigator.pop(context);
-                    },
-                    child: Container(
-                      width: double.infinity,
-                      child: Card(
-                        child: Padding(
-                          padding: const EdgeInsets.all(15.0),
-                          child: Text(listCategory[i].name),
-                        ),
-                      ),
-                    )),
-            ]),
-          ));
+          return SingleChildScrollView(
+              scrollDirection: Axis.vertical,
+              child: Container(
+                // height: 200.0 + MediaQuery.of(context).viewInsets.bottom,
+                padding: EdgeInsets.only(
+                    bottom: MediaQuery.of(context).viewInsets.bottom,
+                    right: 5.0,
+                    left: 5.0,
+                    top: 40.0),
+                child: Column(children: <Widget>[
+                  for (int i = 0; i < listCategory.length; i++)
+                    InkWell(
+                        onTap: () async {
+                          setState(() {
+                            categoriesID = listCategory[i].id.toString();
+                            categoriesName = listCategory[i].name.toString();
+                          });
+                          Navigator.pop(context);
+                        },
+                        child: Container(
+                          width: double.infinity,
+                          child: Card(
+                            child: Padding(
+                              padding: const EdgeInsets.all(15.0),
+                              child: Text(listCategory[i].name),
+                            ),
+                          ),
+                        )),
+                ]),
+              ));
         });
   }
 
@@ -728,5 +754,4 @@ bool isAllday;
           ),
         )));
   }
-
 }

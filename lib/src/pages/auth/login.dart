@@ -9,6 +9,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:todolist_app/src/routes/env.dart';
 import 'package:flutter/cupertino.dart';
 import 'reset_password.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 TextEditingController username = TextEditingController();
 TextEditingController password = TextEditingController();
@@ -25,6 +26,7 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   // String indexIki
+  FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
   String fcmToken;
   bool validateEmail = false;
   bool validatePassword = false;
@@ -36,10 +38,19 @@ class _LoginPageState extends State<LoginPage> {
     validatePassword = false;
     validateEmail = false;
     super.initState();
+    getToken();
   }
 
   void dispose() {
     super.dispose();
+  }
+
+  void getToken() {
+    _firebaseMessaging.getToken().then((token) {
+      setState(() {
+        fcmToken = token;
+      });
+    });
   }
 
   String msg = '';
@@ -106,35 +117,51 @@ class _LoginPageState extends State<LoginPage> {
           // await http.get(url('api/checkversion/${versionNumber.toInt()}'), headers: requestHeaders);
           final getUser =
               await http.get(url("api/user"), headers: requestHeaders);
-          
+
           // print('getUser ' + getUser.body);
 
           if (getUser.statusCode == 200) {
             dynamic datauser = json.decode(getUser.body);
-
             DataStore store = new DataStore();
             store.setDataString("id", datauser['us_id'].toString());
-            store.setDataString("email", datauser['us_email']);
-            store.setDataString("name", datauser['us_name']);
-            store.setDataString("phone", datauser['us_phone']);
-            store.setDataString("address", datauser['us_address']);
-            store.setDataString("photo", datauser['us_image']);
-            // store.setDataString("photo", datauser['us_image']);
-            // if(checkversion.statusCode == 200){
-            //   var version = json.decode(checkversion.body);
-            //   if(version == 'Warning'){
-            //     showModalVersionWarning(context);
-            //   }else if(version == 'Expired'){
-            //     showModalVersionDanger(context);
-            //   }else{
-            // Navigator.pushReplacementNamed(context, "/dashboard");
-            //   }
-            // }else{
-            // }
-            Navigator.pushReplacementNamed(context, "/dashboard");
+            try {
+              _firebaseMessaging.getToken().then((token) {
+                setState(() {
+                  fcmToken = token;
+                });
+              });
+              Map body = {
+                'id': datauser['us_id'].toString(),
+                'token': fcmToken.toString()
+              };
+              final getToken = await http.post(url("api/updateTokenFcm"),
+                  headers: requestHeaders, body: body);
 
-            Fluttertoast.showToast(
-                msg: 'Selamat Datang ${datauser['us_name']}');
+              if (getToken.statusCode == 200) {
+                store.setDataString("email", datauser['us_email']);
+                store.setDataString("name", datauser['us_name']);
+                store.setDataString("phone", datauser['us_phone']);
+                store.setDataString("address", datauser['us_address']);
+                store.setDataString("photo", datauser['us_image']);
+                Navigator.pushReplacementNamed(context, "/dashboard");
+                Fluttertoast.showToast(
+                    msg: 'Selamat Datang ${datauser['us_name']}');
+                setState(() {
+                  _isLoading = false;
+                });
+              } else if (getToken.statusCode != 200) {
+                print(getToken.body);
+                Fluttertoast.showToast(msg: "error: cannot update token");
+                setState(() {
+                  _isLoading = false;
+                });
+              }
+            } catch (e) {
+              Fluttertoast.showToast(msg: "error: $e");
+              setState(() {
+                _isLoading = false;
+              });
+            }
           } else {
             print(getUser.body);
             Fluttertoast.showToast(
@@ -378,9 +405,9 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-   void showModalVersionWarning(BuildContext context) {
+  void showModalVersionWarning(BuildContext context) {
     showDialog(
-      barrierDismissible: false,
+        barrierDismissible: false,
         context: context,
         builder: (BuildContext context) {
           // return object of type Dialog
@@ -409,12 +436,17 @@ class _LoginPageState extends State<LoginPage> {
                           mainAxisAlignment: MainAxisAlignment.start,
                           mainAxisSize: MainAxisSize.min,
                           children: <Widget>[
-                            Icon(Icons.info_outline,color: Colors.white , size: 40,),
+                            Icon(
+                              Icons.info_outline,
+                              color: Colors.white,
+                              size: 40,
+                            ),
                             Padding(
-                              padding: const EdgeInsets.only(left:8.0),
+                              padding: const EdgeInsets.only(left: 8.0),
                               child: Text(
                                 "Version Update",
-                                style: TextStyle(fontSize: 16.0,color: Colors.white),
+                                style: TextStyle(
+                                    fontSize: 16.0, color: Colors.white),
                               ),
                             ),
                           ],
@@ -426,34 +458,39 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                     Divider(),
                     Padding(
-                      padding: EdgeInsets.only(left:16.0,right:16.0,bottom:8.0),
-                      child: Text("Versi Terbaru Telah Tersedia",style: TextStyle(fontSize: 14),)
-                      
-                    ),
+                        padding: EdgeInsets.only(
+                            left: 16.0, right: 16.0, bottom: 8.0),
+                        child: Text(
+                          "Versi Terbaru Telah Tersedia",
+                          style: TextStyle(fontSize: 14),
+                        )),
                     Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16.0),
-                      child: Text("Todolist menyarankan anda untuk mengupdate ke versi terbaru. Anda dapat tetap menggunakan aplikasi ini saat mendownload update",style: TextStyle(fontSize: 12,color:Colors.grey,height: 1.5),textAlign: TextAlign.justify,)
-
-                    ),
+                        padding: EdgeInsets.symmetric(horizontal: 16.0),
+                        child: Text(
+                          "Todolist menyarankan anda untuk mengupdate ke versi terbaru. Anda dapat tetap menggunakan aplikasi ini saat mendownload update",
+                          style: TextStyle(
+                              fontSize: 12, color: Colors.grey, height: 1.5),
+                          textAlign: TextAlign.justify,
+                        )),
                     Divider(),
-
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: <Widget>[
                         FlatButton(
-                          onPressed: () { 
-                            Navigator.pushReplacementNamed(context, "/dashboard");
-                           },
-                          child: Text("CANCEL",style: TextStyle(color:Colors.black54)),
+                          onPressed: () {
+                            Navigator.pushReplacementNamed(
+                                context, "/dashboard");
+                          },
+                          child: Text("CANCEL",
+                              style: TextStyle(color: Colors.black54)),
                         ),
                         FlatButton(
-                          onPressed: () {  },
-                          child: Text("UPDATE",style: TextStyle(color:primaryAppBarColor)),
+                          onPressed: () {},
+                          child: Text("UPDATE",
+                              style: TextStyle(color: primaryAppBarColor)),
                         )
-
                       ],
-
                     ),
                   ],
                 ),
@@ -463,9 +500,9 @@ class _LoginPageState extends State<LoginPage> {
         });
   }
 
-   void showModalVersionDanger(BuildContext context) {
+  void showModalVersionDanger(BuildContext context) {
     showDialog(
-      barrierDismissible: false,
+        barrierDismissible: false,
         context: context,
         builder: (BuildContext context) {
           // return object of type Dialog
@@ -494,12 +531,17 @@ class _LoginPageState extends State<LoginPage> {
                           mainAxisAlignment: MainAxisAlignment.start,
                           mainAxisSize: MainAxisSize.min,
                           children: <Widget>[
-                            Icon(Icons.warning,color: Colors.white , size: 40,),
+                            Icon(
+                              Icons.warning,
+                              color: Colors.white,
+                              size: 40,
+                            ),
                             Padding(
-                              padding: const EdgeInsets.only(left:8.0),
+                              padding: const EdgeInsets.only(left: 8.0),
                               child: Text(
                                 "Version Update",
-                                style: TextStyle(fontSize: 16.0,color: Colors.white),
+                                style: TextStyle(
+                                    fontSize: 16.0, color: Colors.white),
                               ),
                             ),
                           ],
@@ -511,28 +553,31 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                     Divider(),
                     Padding(
-                      padding: EdgeInsets.only(left:16.0,right:16.0,bottom:8.0),
-                      child: Text("Versi Terbaru Telah Tersedia",style: TextStyle(fontSize: 14),)
-                      
-                    ),
+                        padding: EdgeInsets.only(
+                            left: 16.0, right: 16.0, bottom: 8.0),
+                        child: Text(
+                          "Versi Terbaru Telah Tersedia",
+                          style: TextStyle(fontSize: 14),
+                        )),
                     Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16.0),
-                      child: Text("Todolist menyarankan anda untuk mengupdate ke versi terbaru. Versi yang anda gunakan telah kadaluarsa",style: TextStyle(fontSize: 12,color:Colors.grey,height: 1.5),textAlign: TextAlign.justify,)
-
-                    ),
+                        padding: EdgeInsets.symmetric(horizontal: 16.0),
+                        child: Text(
+                          "Todolist menyarankan anda untuk mengupdate ke versi terbaru. Versi yang anda gunakan telah kadaluarsa",
+                          style: TextStyle(
+                              fontSize: 12, color: Colors.grey, height: 1.5),
+                          textAlign: TextAlign.justify,
+                        )),
                     Divider(),
-
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: <Widget>[
                         FlatButton(
-                          onPressed: () {  },
-                          child: Text("UPDATE",style: TextStyle(color:primaryAppBarColor)),
+                          onPressed: () {},
+                          child: Text("UPDATE",
+                              style: TextStyle(color: primaryAppBarColor)),
                         )
-
                       ],
-
                     ),
                   ],
                 ),
@@ -541,5 +586,4 @@ class _LoginPageState extends State<LoginPage> {
           );
         });
   }
-
 }

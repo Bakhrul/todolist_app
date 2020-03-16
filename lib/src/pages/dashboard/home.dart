@@ -18,10 +18,16 @@ import '../todolist/detail_todo.dart';
 import 'package:flutter/services.dart';
 import 'package:todolist_app/src/utils/utils.dart';
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
+import 'package:todolist_app/src/pages/manajemen_notifications/index.dart';
 
 final Widget placeholder = Container(color: Colors.grey);
 TextEditingController _namaprojectController = TextEditingController();
-String emailStore, imageStore, namaStore, phoneStore, locationStore;
+String emailStore,
+    imageStore,
+    namaStore,
+    phoneStore,
+    locationStore,
+    jumlahnotifindex;
 bool isFilter, isErrorFilter, isLoading, isError;
 int currentFilter;
 TextEditingController _tanggalawalProjectController = TextEditingController();
@@ -82,11 +88,12 @@ class _HomeState extends State<Home> {
     _tanggalakhirProject = 'kosong';
     currentFilter = 3;
     getHeaderHTTP();
+    jumlahnotifindex = '0';
     getDataUser();
     isLoading = true;
     _getStoreData();
   }
-  
+
   Future<void> getHeaderHTTP() async {
     var storage = new DataStore();
 
@@ -121,16 +128,18 @@ class _HomeState extends State<Home> {
 
   void _tambahProject() async {
     Navigator.pop(context);
-    await progressApiAction.show();
+
     try {
-      Fluttertoast.showToast(msg: "Mohon Tunggu Sebentar");
+      await progressApiAction.show();
       final addadminevent = await http
           .post(url('api/create_project'), headers: requestHeaders, body: {
         'nama_project': _namaprojectController.text,
-        'time_end':
-            _tanggalakhirProject == 'kosong' ? null : _tanggalakhirProject,
-        'time_start':
-            _tanggalawalProject == 'kosong' ? null : _tanggalawalProject,
+        'time_end': _tanggalakhirProjectController.text == ''
+            ? null
+            : _tanggalakhirProjectController.text,
+        'time_start': _tanggalawalProjectController.text == ''
+            ? null
+            : _tanggalawalProjectController.text,
       });
 
       if (addadminevent.statusCode == 200) {
@@ -160,27 +169,31 @@ class _HomeState extends State<Home> {
   }
 
   Future<List<List>> getDataProject() async {
-    var storage = new DataStore();
-    var tokenTypeStorage = await storage.getDataString('token_type');
-    var accessTokenStorage = await storage.getDataString('access_token');
-
-    tokenType = tokenTypeStorage;
-    accessToken = accessTokenStorage;
-    requestHeaders['Accept'] = 'application/json';
-    requestHeaders['Authorization'] = '$tokenType $accessToken';
-
     setState(() {
       isLoading = true;
       isError = false;
       listProject.clear();
+      listProject = [];
     });
+    listProject.clear();
+    listProject = [];
     try {
       final participant =
           await http.get(url('api/dashboard'), headers: requestHeaders);
 
       if (participant.statusCode == 200) {
+        setState(() {
+          listProject.clear();
+          listProject = [];
+        });
+        listProject.clear();
+        listProject = [];
         var listParticipantToJson = json.decode(participant.body);
         var project = listParticipantToJson['project'];
+        String notifx = listParticipantToJson['notif'].toString();
+        setState(() {
+          jumlahnotifindex = notifx;
+        });
         print(project);
 
         for (var i in project) {
@@ -238,14 +251,14 @@ class _HomeState extends State<Home> {
 
   Future<List<List>> getDataToDo() async {
     List listFilter2 = [
-    {'index': "1", 'name': "Molor"},
-    {'index': "2", 'name': "Bintang"},
-    {'index': "3", 'name': "Hari Ini"},
-    {'index': "4", 'name': "Besok"},
-    {'index': "5", 'name': "Lusa"},
-    {'index': "6", 'name': "Minggu Ini"},
-    {'index': "7", 'name': "Bulan Ini"},
-    {'index': "8", 'name': "Pending"}
+      {'index': "1", 'name': "Molor"},
+      {'index': "2", 'name': "Bintang"},
+      {'index': "3", 'name': "Hari Ini"},
+      {'index': "4", 'name': "Besok"},
+      {'index': "5", 'name': "Lusa"},
+      {'index': "6", 'name': "Minggu Ini"},
+      {'index': "7", 'name': "Bulan Ini"},
+      {'index': "8", 'name': "Pending"}
     ];
     listFilter = [];
     listFilter.addAll(listFilter2);
@@ -254,11 +267,19 @@ class _HomeState extends State<Home> {
       listTodo = [];
       isLoading = true;
     });
+    listTodo.clear();
+    listTodo = [];
     try {
       final participant = await http.get(url('api/todo/$currentFilter'),
           headers: requestHeaders);
 
       if (participant.statusCode == 200) {
+        listTodo.clear();
+        listTodo = [];
+        setState(() {
+          listTodo.clear();
+          listTodo = [];
+        });
         var listParticipantToJson = json.decode(participant.body);
         var todos = listParticipantToJson['todo'];
         print(todos);
@@ -345,13 +366,22 @@ class _HomeState extends State<Home> {
       listTodo = [];
       isFilter = true;
     });
+    listTodo.clear();
+    listTodo = [];
     try {
       final participant =
           await http.get(url('api/todo/$index'), headers: requestHeaders);
 
       if (participant.statusCode == 200) {
+        listTodo.clear();
+        listTodo = [];
+        setState(() {
+          listTodo.clear();
+          listTodo = [];
+        });
         var listParticipantToJson = json.decode(participant.body);
         var todos = listParticipantToJson['todo'];
+        print(todos);
 
         for (var i in todos) {
           Todo todo = Todo(
@@ -462,9 +492,6 @@ class _HomeState extends State<Home> {
                     readOnly: true,
                     format: DateFormat('dd-MM-yyy'),
                     focusNode: datepickerfirst,
-                    initialValue: _tanggalawalProject == 'kosong'
-                        ? null
-                        : DateTime.parse(_tanggalawalProject),
                     decoration: InputDecoration(
                       contentPadding: EdgeInsets.only(
                           top: 5, bottom: 5, left: 10, right: 10),
@@ -476,13 +503,22 @@ class _HomeState extends State<Home> {
                       return showDatePicker(
                           firstDate: DateTime(1900),
                           context: context,
-                          initialDate: DateTime.now(),
-                          lastDate: DateTime(2100));
+                          initialDate: _tanggalawalProjectController.text != ''
+                              ? DateFormat("dd-MM-yyyy").parse(
+                                  "${_tanggalawalProjectController.text}")
+                              : _tanggalakhirProjectController.text == ''
+                                  ? DateTime.now()
+                                  : DateFormat("dd-MM-yyyy").parse(
+                                      "${_tanggalakhirProjectController.text}"),
+                          lastDate: _tanggalakhirProjectController.text == ''
+                              ? DateTime(2100)
+                              : DateFormat("dd-MM-yyyy").parse(
+                                  "${_tanggalakhirProjectController.text}"));
                     },
                     onChanged: (ini) {
                       setState(() {
-                        _tanggalawalProject =
-                            ini == null ? 'kosong' : ini.toString();
+                        // _tanggalawalProject =
+                        //     ini == null ? 'kosong' : ini.toString();
                       });
                     },
                   ),
@@ -494,9 +530,6 @@ class _HomeState extends State<Home> {
                     readOnly: true,
                     format: DateFormat('dd-MM-yyy'),
                     focusNode: datepickerlast,
-                    initialValue: _tanggalakhirProject == 'kosong'
-                        ? null
-                        : DateTime.parse(_tanggalakhirProject),
                     decoration: InputDecoration(
                       border: OutlineInputBorder(),
                       contentPadding: EdgeInsets.only(
@@ -506,20 +539,26 @@ class _HomeState extends State<Home> {
                     ),
                     onShowPicker: (context, currentValue) {
                       DateFormat inputFormat = DateFormat("dd-MM-yyyy");
-                      DateTime dateTime = inputFormat
-                          .parse("${_tanggalawalProjectController.text}");
-
                       return showDatePicker(
-                          firstDate: dateTime,
                           context: context,
-                          initialDate: dateTime,
+                          firstDate: _tanggalawalProjectController.text == ''
+                              ? DateTime(2000)
+                              : inputFormat.parse(
+                                  "${_tanggalawalProjectController.text}"),
+                          initialDate: _tanggalakhirProjectController.text == ''
+                              ? _tanggalawalProjectController.text == ''
+                                  ? DateTime.now()
+                                  : inputFormat.parse(
+                                      "${_tanggalawalProjectController.text}")
+                              : inputFormat.parse(
+                                  "${_tanggalakhirProjectController.text}"),
                           lastDate: DateTime(2100));
                     },
                     onChanged: (ini) {
-                      setState(() {
-                        _tanggalakhirProject =
-                            ini == null ? 'kosong' : ini.toString();
-                      });
+                      if (_tanggalawalProjectController.text == '') {
+                        _tanggalawalProjectController.text =
+                            _tanggalakhirProjectController.text;
+                      }
                     },
                   ),
                 ),
@@ -596,7 +635,7 @@ class _HomeState extends State<Home> {
                       ),
                       Container(
                         margin:
-                            EdgeInsets.only(top: 25.0, left: 15.0, right: 15.0),
+                            EdgeInsets.only(top: 10.0, left: 10.0, right: 10.0),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: <Widget>[
@@ -613,47 +652,84 @@ class _HomeState extends State<Home> {
                                 maxLines: 1,
                               ),
                             ),
-                            Container(
-                              margin: EdgeInsets.only(left: 20),
-                              height: 40,
-                              width: 40,
-                              decoration: BoxDecoration(
-                                border:
-                                    Border.all(color: Colors.white, width: 1.0),
-                                color: Colors.white,
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(100.0)),
-                              ),
-                              child: GestureDetector(
-                                child: Hero(
-                                    tag: 'imageHero',
-                                    child: ClipOval(
-                                        child: FadeInImage.assetNetwork(
-                                            fit: BoxFit.cover,
-                                            placeholder: 'images/imgavatar.png',
-                                            image: imageData == null ||
-                                                    imageData == '' ||
-                                                    imageData ==
-                                                        'Tidak ditemukan'
-                                                ? url(
-                                                    'assets/images/imgavatar.png')
-                                                : url(
-                                                    'storage/image/profile/$imageData')))),
-                                onTap: () {
-                                  Navigator.push(context,
-                                      MaterialPageRoute(builder: (_) {
-                                    return DetailScreen(
-                                        tag: 'imageHero',
-                                        url: imageData == null ||
-                                                imageData == '' ||
-                                                imageData == 'Tidak ditemukan'
-                                            ? url('assets/images/imgavatar.png')
-                                            : url(
-                                                'storage/image/profile/$imageData'));
-                                  }));
-                                },
-                              ),
-                            ),
+                            Stack(children: <Widget>[
+                              new IconButton(
+                                  color: Colors.white,
+                                  icon: Icon(Icons.notifications),
+                                  onPressed: () async {
+                                    await Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                ManajemenNotifications()));
+                                    setState(() {
+                                      jumlahnotifindex = '0';
+                                    });
+                                  }),
+                              new Positioned(
+                                right: 6,
+                                top: 2,
+                                child: new Container(
+                                  height: 20.0,
+                                  alignment: Alignment.center,
+                                  width: 20.0,
+                                  decoration: new BoxDecoration(
+                                    color: Colors.yellow,
+                                    borderRadius: BorderRadius.circular(100),
+                                  ),
+                                  constraints: BoxConstraints(),
+                                  child: Text(
+                                    jumlahnotifindex,
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 8,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ),
+                              )
+                            ]),
+                            // Container(
+                            //   margin: EdgeInsets.only(left: 20),
+                            //   height: 40,
+                            //   width: 40,
+                            //   decoration: BoxDecoration(
+                            //     border:
+                            //         Border.all(color: Colors.white, width: 1.0),
+                            //     color: Colors.white,
+                            //     borderRadius:
+                            //         BorderRadius.all(Radius.circular(100.0)),
+                            //   ),
+                            //   child: GestureDetector(
+                            //     child: Hero(
+                            //         tag: 'imageHero',
+                            //         child: ClipOval(
+                            //             child: FadeInImage.assetNetwork(
+                            //                 fit: BoxFit.cover,
+                            //                 placeholder: 'images/imgavatar.png',
+                            //                 image: imageData == null ||
+                            //                         imageData == '' ||
+                            //                         imageData ==
+                            //                             'Tidak ditemukan'
+                            //                     ? url(
+                            //                         'assets/images/imgavatar.png')
+                            //                     : url(
+                            //                         'storage/image/profile/$imageData')))),
+                            //     onTap: () {
+                            //       Navigator.push(context,
+                            //           MaterialPageRoute(builder: (_) {
+                            //         return DetailScreen(
+                            //             tag: 'imageHero',
+                            //             url: imageData == null ||
+                            //                     imageData == '' ||
+                            //                     imageData == 'Tidak ditemukan'
+                            //                 ? url('assets/images/imgavatar.png')
+                            //                 : url(
+                            //                     'storage/image/profile/$imageData'));
+                            //       }));
+                            //     },
+                            //   ),
+                            // ),
                           ],
                         ),
                       ),
@@ -781,7 +857,7 @@ class _HomeState extends State<Home> {
                                               ),
                                             ],
                                           ),
-                                          height: 160.0,
+                                          // height: 150.0,
                                           width: 300.0,
                                           child: Column(
                                             crossAxisAlignment:
@@ -790,7 +866,8 @@ class _HomeState extends State<Home> {
                                                 MainAxisAlignment.spaceBetween,
                                             children: <Widget>[
                                               Container(
-                                                height: 80.0,
+                                                padding: EdgeInsets.only(
+                                                    top: 10.0, bottom: 10.0),
                                                 child: Row(
                                                   children: <Widget>[
                                                     Container(
@@ -816,7 +893,6 @@ class _HomeState extends State<Home> {
                                                               fontWeight:
                                                                   FontWeight
                                                                       .w400,
-                                                              height: 1.5,
                                                             ),
                                                           ),
                                                         ))
@@ -1173,7 +1249,7 @@ class _HomeState extends State<Home> {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: <Widget>[
-                              Text(('List To Do').toUpperCase(),
+                              Text(('List ToDo').toUpperCase(),
                                   style: TextStyle(
                                     fontSize: 14,
                                     fontWeight: FontWeight.w500,
@@ -1205,7 +1281,7 @@ class _HomeState extends State<Home> {
                                         bottom: 35.0),
                                     child: Center(
                                       child: Text(
-                                        "To Do Yang Anda Cari Tidak Ditemukan",
+                                        "ToDo Yang Anda Cari Tidak Ditemukan",
                                         style: TextStyle(
                                           fontSize: 16,
                                           height: 1.5,
@@ -1376,7 +1452,7 @@ class _HomeState extends State<Home> {
                                                           x.title == '' ||
                                                                   x.title ==
                                                                       null
-                                                              ? 'To Do Tidak Diketahui'
+                                                              ? 'ToDo Tidak Diketahui'
                                                               : x.title,
                                                           overflow: TextOverflow
                                                               .ellipsis,

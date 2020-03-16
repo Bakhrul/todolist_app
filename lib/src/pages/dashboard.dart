@@ -95,22 +95,19 @@ class _DashboardState extends State<Dashboard> {
 
     requestHeaders['Accept'] = 'application/json';
     requestHeaders['Authorization'] = '$tokenType $accessToken';
-    if(isCheckVersion == true){
-    return checkVersion();
-
-    }else{
-    return getDataProject();
-
+    if (isCheckVersion == true) {
+      return checkVersion();
+    } else {
+      return getDataProject();
     }
   }
 
   Future<List<List>> checkVersion() async {
-    setState(() {
-      isLoading = true;
-      isError = false;
-      listProject.clear();
-    });
+    print('start cek versi');
     try {
+      setState(() {
+        isLoading = true;
+      });
       final participant = await http.get(
           url('api/checkversion/${versionNumber.toInt()}'),
           headers: requestHeaders);
@@ -121,10 +118,9 @@ class _DashboardState extends State<Dashboard> {
         if (version == 'Warning') {
           showModalVersionWarning(context);
         } else if (version == 'Expired') {
-           showModalVersionDanger(context);
-        } else {
-          getDataProject();
+          showModalVersionDanger(context);
         }
+        getDataProject();
         setState(() {
           isCheckVersion = false;
         });
@@ -138,6 +134,7 @@ class _DashboardState extends State<Dashboard> {
           isErrorFilter = false;
         });
       } else {
+        print('eror cek versi');
         setState(() {
           isLoading = false;
           isError = true;
@@ -162,7 +159,7 @@ class _DashboardState extends State<Dashboard> {
         isFilter = false;
         isErrorFilter = false;
       });
-      debugPrint('$e');
+      debugPrint('eororor $e');
     }
     return null;
   }
@@ -171,13 +168,24 @@ class _DashboardState extends State<Dashboard> {
     setState(() {
       isLoading = true;
       isError = false;
+      isFilter = false;
+      isErrorFilter = false;
       listProject.clear();
+      listProject = [];
     });
+    listProject.clear();
+    listProject = [];
     try {
       final participant =
           await http.get(url('api/dashboard'), headers: requestHeaders);
 
       if (participant.statusCode == 200) {
+        setState(() {
+          listProject.clear();
+          listProject = [];
+        });
+        listProject.clear();
+        listProject = [];
         var listParticipantToJson = json.decode(participant.body);
         var project = listParticipantToJson['project'];
         print(project);
@@ -236,25 +244,26 @@ class _DashboardState extends State<Dashboard> {
   }
 
   Future<List<List>> getDataToDo() async {
-    var storage = new DataStore();
-    var tokenTypeStorage = await storage.getDataString('token_type');
-    var accessTokenStorage = await storage.getDataString('access_token');
-
-    tokenType = tokenTypeStorage;
-    accessToken = accessTokenStorage;
-    requestHeaders['Accept'] = 'application/json';
-    requestHeaders['Authorization'] = '$tokenType $accessToken';
-
     setState(() {
       listTodo.clear();
       listTodo = [];
       isLoading = true;
+      isFilter = false;
+      isErrorFilter = false;
     });
+    listTodo.clear();
+    listTodo = [];
     try {
       final participant = await http.get(url('api/todo/$currentFilter'),
           headers: requestHeaders);
 
       if (participant.statusCode == 200) {
+        setState(() {
+          listTodo.clear();
+          listTodo = [];
+        });
+        listTodo.clear();
+        listTodo = [];
         var listParticipantToJson = json.decode(participant.body);
         var todos = listParticipantToJson['todo'];
         for (var i in todos) {
@@ -356,7 +365,7 @@ class _DashboardState extends State<Dashboard> {
                         disabledColor: Color.fromRGBO(254, 86, 14, 0.7),
                         disabledTextColor: Colors.white,
                         splashColor: Colors.blueAccent,
-                        child: Text("Buat To Do",
+                        child: Text("Buat ToDo",
                             style: TextStyle(color: Colors.white)))),
                 Container(
                     margin: EdgeInsets.only(top: 15.0),
@@ -539,9 +548,6 @@ class _DashboardState extends State<Dashboard> {
                       readOnly: true,
                       format: DateFormat('dd-MM-yyy'),
                       focusNode: datepickerfirst,
-                      initialValue: _tanggalawalProject == 'kosong'
-                          ? null
-                          : DateTime.parse(_tanggalawalProject),
                       decoration: InputDecoration(
                         contentPadding: EdgeInsets.only(
                             top: 5, bottom: 5, left: 10, right: 10),
@@ -553,13 +559,23 @@ class _DashboardState extends State<Dashboard> {
                         return showDatePicker(
                             firstDate: DateTime(1900),
                             context: context,
-                            initialDate: DateTime.now(),
-                            lastDate: DateTime(2100));
+                            initialDate: _tanggalawalProjectController.text !=
+                                    ''
+                                ? DateFormat("dd-MM-yyyy").parse(
+                                    "${_tanggalawalProjectController.text}")
+                                : _tanggalakhirProjectController.text == ''
+                                    ? DateTime.now()
+                                    : DateFormat("dd-MM-yyyy").parse(
+                                        "${_tanggalakhirProjectController.text}"),
+                            lastDate: _tanggalakhirProjectController.text == ''
+                                ? DateTime(2100)
+                                : DateFormat("dd-MM-yyyy").parse(
+                                    "${_tanggalakhirProjectController.text}"));
                       },
                       onChanged: (ini) {
                         setState(() {
-                          _tanggalawalProject =
-                              ini == null ? 'kosong' : ini.toString();
+                          // _tanggalawalProject =
+                          //     ini == null ? 'kosong' : ini.toString();
                         });
                       },
                     ),
@@ -571,9 +587,6 @@ class _DashboardState extends State<Dashboard> {
                       readOnly: true,
                       format: DateFormat('dd-MM-yyy'),
                       focusNode: datepickerlast,
-                      initialValue: _tanggalakhirProject == 'kosong'
-                          ? null
-                          : DateTime.parse(_tanggalakhirProject),
                       decoration: InputDecoration(
                         border: OutlineInputBorder(),
                         contentPadding: EdgeInsets.only(
@@ -583,20 +596,27 @@ class _DashboardState extends State<Dashboard> {
                       ),
                       onShowPicker: (context, currentValue) {
                         DateFormat inputFormat = DateFormat("dd-MM-yyyy");
-                        DateTime dateTime = inputFormat
-                            .parse("${_tanggalawalProjectController.text}");
-
                         return showDatePicker(
-                            firstDate: dateTime,
-                            context: context,
-                            initialDate: dateTime,
+                          context: context,
+                            firstDate: _tanggalawalProjectController.text == ''
+                                ? DateTime(2000)
+                                : inputFormat.parse(
+                                    "${_tanggalawalProjectController.text}"),
+                            initialDate: _tanggalakhirProjectController.text ==
+                                    ''
+                                ? _tanggalawalProjectController.text == ''
+                                    ? DateTime.now()
+                                    : inputFormat.parse(
+                                        "${_tanggalawalProjectController.text}")
+                                : inputFormat.parse(
+                                    "${_tanggalakhirProjectController.text}"),
                             lastDate: DateTime(2100));
                       },
                       onChanged: (ini) {
-                        setState(() {
-                          _tanggalakhirProject =
-                              ini == null ? 'kosong' : ini.toString();
-                        });
+                        if (_tanggalawalProjectController.text == '') {
+                          _tanggalawalProjectController.text =
+                              _tanggalakhirProjectController.text;
+                        }
                       },
                     ),
                   ),
@@ -679,14 +699,13 @@ class _DashboardState extends State<Dashboard> {
     Navigator.pop(context);
     await progressApiAction.show();
     try {
-      Fluttertoast.showToast(msg: "Mohon Tunggu Sebentar");
       final addadminevent = await http
           .post(url('api/create_project'), headers: requestHeaders, body: {
         'nama_project': _namaprojectController.text,
         'time_end':
-            _tanggalakhirProject == 'kosong' ? null : _tanggalakhirProject,
+            _tanggalakhirProjectController.text == '' ? null : _tanggalakhirProjectController.text,
         'time_start':
-            _tanggalawalProject == 'kosong' ? null : _tanggalawalProject,
+            _tanggalawalProjectController.text == '' ? null : _tanggalawalProjectController.text,
       });
 
       if (addadminevent.statusCode == 200) {
@@ -882,9 +901,9 @@ class _DashboardState extends State<Dashboard> {
         );
   }
 
-   void showModalVersionWarning(BuildContext context) {
+  void showModalVersionWarning(BuildContext context) {
     showDialog(
-      barrierDismissible: false,
+        barrierDismissible: false,
         context: context,
         builder: (BuildContext context) {
           // return object of type Dialog
@@ -913,12 +932,17 @@ class _DashboardState extends State<Dashboard> {
                           mainAxisAlignment: MainAxisAlignment.start,
                           mainAxisSize: MainAxisSize.min,
                           children: <Widget>[
-                            Icon(Icons.info_outline,color: Colors.white , size: 40,),
+                            Icon(
+                              Icons.info_outline,
+                              color: Colors.white,
+                              size: 40,
+                            ),
                             Padding(
-                              padding: const EdgeInsets.only(left:8.0),
+                              padding: const EdgeInsets.only(left: 8.0),
                               child: Text(
                                 "Version Update",
-                                style: TextStyle(fontSize: 16.0,color: Colors.white),
+                                style: TextStyle(
+                                    fontSize: 16.0, color: Colors.white),
                               ),
                             ),
                           ],
@@ -930,35 +954,39 @@ class _DashboardState extends State<Dashboard> {
                     ),
                     Divider(),
                     Padding(
-                      padding: EdgeInsets.only(left:16.0,right:16.0,bottom:8.0),
-                      child: Text("Versi Terbaru Telah Tersedia",style: TextStyle(fontSize: 14),)
-                      
-                    ),
+                        padding: EdgeInsets.only(
+                            left: 16.0, right: 16.0, bottom: 8.0),
+                        child: Text(
+                          "Versi Terbaru Telah Tersedia",
+                          style: TextStyle(fontSize: 14),
+                        )),
                     Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16.0),
-                      child: Text("Todolist menyarankan anda untuk mengupdate ke versi terbaru. Anda dapat tetap menggunakan aplikasi ini saat mendownload update",style: TextStyle(fontSize: 12,color:Colors.grey,height: 1.5),textAlign: TextAlign.justify,)
-
-                    ),
+                        padding: EdgeInsets.symmetric(horizontal: 16.0),
+                        child: Text(
+                          "Todolist menyarankan anda untuk mengupdate ke versi terbaru. Anda dapat tetap menggunakan aplikasi ini saat mendownload update",
+                          style: TextStyle(
+                              fontSize: 12, color: Colors.grey, height: 1.5),
+                          textAlign: TextAlign.justify,
+                        )),
                     Divider(),
-
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: <Widget>[
                         FlatButton(
-                          onPressed: () { 
+                          onPressed: () {
                             // Navigator.pushReplacementNamed(context, "/dashboard");
                             Navigator.pop(context);
-                           },
-                          child: Text("CANCEL",style: TextStyle(color:Colors.black54)),
+                          },
+                          child: Text("CANCEL",
+                              style: TextStyle(color: Colors.black54)),
                         ),
                         FlatButton(
-                          onPressed: () {  },
-                          child: Text("UPDATE",style: TextStyle(color:primaryAppBarColor)),
+                          onPressed: () {},
+                          child: Text("UPDATE",
+                              style: TextStyle(color: primaryAppBarColor)),
                         )
-
                       ],
-
                     ),
                   ],
                 ),
@@ -968,9 +996,9 @@ class _DashboardState extends State<Dashboard> {
         });
   }
 
-   void showModalVersionDanger(BuildContext context) {
+  void showModalVersionDanger(BuildContext context) {
     showDialog(
-      barrierDismissible: false,
+        barrierDismissible: false,
         context: context,
         builder: (BuildContext context) {
           // return object of type Dialog
@@ -999,12 +1027,17 @@ class _DashboardState extends State<Dashboard> {
                           mainAxisAlignment: MainAxisAlignment.start,
                           mainAxisSize: MainAxisSize.min,
                           children: <Widget>[
-                            Icon(Icons.warning,color: Colors.white , size: 40,),
+                            Icon(
+                              Icons.warning,
+                              color: Colors.white,
+                              size: 40,
+                            ),
                             Padding(
-                              padding: const EdgeInsets.only(left:8.0),
+                              padding: const EdgeInsets.only(left: 8.0),
                               child: Text(
                                 "Version Update",
-                                style: TextStyle(fontSize: 16.0,color: Colors.white),
+                                style: TextStyle(
+                                    fontSize: 16.0, color: Colors.white),
                               ),
                             ),
                           ],
@@ -1016,28 +1049,31 @@ class _DashboardState extends State<Dashboard> {
                     ),
                     Divider(),
                     Padding(
-                      padding: EdgeInsets.only(left:16.0,right:16.0,bottom:8.0),
-                      child: Text("Versi Terbaru Telah Tersedia",style: TextStyle(fontSize: 14),)
-                      
-                    ),
+                        padding: EdgeInsets.only(
+                            left: 16.0, right: 16.0, bottom: 8.0),
+                        child: Text(
+                          "Versi Terbaru Telah Tersedia",
+                          style: TextStyle(fontSize: 14),
+                        )),
                     Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16.0),
-                      child: Text("Todolist menyarankan anda untuk mengupdate ke versi terbaru. Versi yang anda gunakan telah kadaluarsa",style: TextStyle(fontSize: 12,color:Colors.grey,height: 1.5),textAlign: TextAlign.justify,)
-
-                    ),
+                        padding: EdgeInsets.symmetric(horizontal: 16.0),
+                        child: Text(
+                          "Todolist menyarankan anda untuk mengupdate ke versi terbaru. Versi yang anda gunakan telah kadaluarsa",
+                          style: TextStyle(
+                              fontSize: 12, color: Colors.grey, height: 1.5),
+                          textAlign: TextAlign.justify,
+                        )),
                     Divider(),
-
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: <Widget>[
                         FlatButton(
-                          onPressed: () {  },
-                          child: Text("UPDATE",style: TextStyle(color:primaryAppBarColor)),
+                          onPressed: () {},
+                          child: Text("UPDATE",
+                              style: TextStyle(color: primaryAppBarColor)),
                         )
-
                       ],
-
                     ),
                   ],
                 ),
@@ -1046,5 +1082,4 @@ class _DashboardState extends State<Dashboard> {
           );
         });
   }
-
 }
