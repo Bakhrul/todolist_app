@@ -5,12 +5,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:progress_dialog/progress_dialog.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:todolist_app/src/models/todo.dart';
 import 'package:todolist_app/src/pages/auth/login.dart';
-import 'package:todolist_app/src/pages/manajamen_user/change_password.dart';
 import 'package:todolist_app/src/pages/manajamen_user/edit_photo_profile.dart';
 import 'package:todolist_app/src/pages/manajemen_project/detail_project.dart';
 import 'package:todolist_app/src/pages/todolist/detail_todo.dart';
@@ -25,11 +25,13 @@ import 'package:intl/intl.dart';
 import 'dart:async';
 import 'package:todolist_app/src/model/FriendList.dart';
 import 'confirmation_friend.dart';
+import 'package:background_fetch/background_fetch.dart';
 
 enum PageEnum {
   editProfile,
   permintaanTeman,
   gantiPassword,
+  shareLocation
 }
 String validatePasswordLama, validatePasswordBaru, validateConfirmPassword;
 
@@ -42,6 +44,8 @@ class _ManajemenUserState extends State<ManajemenUser>
     with SingleTickerProviderStateMixin {
   TabController _tabController;
   String tokenType, accessToken;
+   int _status = 0;
+   bool _enabled = false;
 
   TextEditingController _emailPenggunaController = TextEditingController();
   String nameUser = '';
@@ -74,6 +78,7 @@ class _ManajemenUserState extends State<ManajemenUser>
   @override
   void initState() {
     super.initState();
+    initPlatformState();
     _getUser();
     getHeaderHTTP();
 
@@ -90,6 +95,73 @@ class _ManajemenUserState extends State<ManajemenUser>
         TabController(length: 3, vsync: _ManajemenUserState(), initialIndex: 0);
     _tabController.addListener(_handleTabIndex);
   }
+    // Platform messages are asynchronous, so we initialize in an async method.
+  Future<void> initPlatformState() async {
+    // Configure BackgroundFetch.
+    BackgroundFetch.configure(
+        BackgroundFetchConfig(
+            minimumFetchInterval: 1,
+            stopOnTerminate: false,
+            enableHeadless: true,
+            requiresBatteryNotLow: false,
+            requiresCharging: false,
+            requiresStorageNotLow: false,
+            requiresDeviceIdle: false,
+            startOnBoot: true,
+            requiredNetworkType: NetworkType.NONE), (String taskId) async {
+      // This is the fetch-event callback.
+      // print("[BackgroundFetch] Event received $taskId");
+      // setState((){
+      _postLocation();
+
+      // });
+
+      // IMPORTANT:  You must signal completion of your task or the OS can punish your app
+      // for taking too long in the background.
+      BackgroundFetch.finish(taskId);
+    }).then((int status) {
+      print('[BackgroundFetch] configure success: $status');
+      setState(() {
+        _status = status;
+      });
+    }).catchError((e) {
+      print('[BackgroundFetch] configure ERROR: $e');
+      setState(() {
+        _status = e;
+      });
+    });
+
+    // Optionally query the current BackgroundFetch status.
+    int status = await BackgroundFetch.status;
+    setState(() {
+      _status = status;
+    });
+
+   
+
+    // If the widget was removed from the tree while the asynchronous platform
+    // message was in flight, we want to discard the reply rather than calling
+    // setState to update our non-existent appearance.
+    if (!mounted) return;
+  }
+
+    void _onClickEnable(enabled) {
+    setState(() {
+      _enabled = enabled;
+    });
+    if (enabled) {
+      BackgroundFetch.start().then((int status) {
+        print('[BackgroundFetch] start success: $status');
+      }).catchError((e) {
+        print('[BackgroundFetch] start FAILURE: $e');
+      });
+    } else {
+      BackgroundFetch.stop().then((int status) {
+        print('[BackgroundFetch] stop success: $status');
+      });
+    }
+  }
+
 
   nameEdit() {
     setState(() {
@@ -157,6 +229,52 @@ class _ManajemenUserState extends State<ManajemenUser>
     } else {
       setState(() {
         getDataFriend();
+      });
+    }
+  }
+
+  // post location wherever
+  Future _postLocation() async {
+    var storage = new DataStore();
+    var tokenTypeStorage = await storage.getDataString('token_type');
+    var accessTokenStorage = await storage.getDataString('access_token');
+    var locationGps = await Geolocator()
+        .getCurrentPosition(desiredAccuracy: LocationAccuracy.best);
+
+    tokenType = tokenTypeStorage;
+    accessToken = accessTokenStorage;
+    requestHeaders['Accept'] = 'application/json';
+    requestHeaders['Authorization'] = '$tokenType $accessToken';
+    Map body = {
+      'latitude': locationGps.latitude.toString(),
+      'longitude': locationGps.longitude.toString()
+    };
+    print(body);
+
+    try {
+      final eventGps = await http.post(url('api/tracking'),
+          headers: requestHeaders, body: body);
+
+      if (eventGps.statusCode == 200) {
+        // var listStoreToJson = json.decode(eventGps.body);
+        // var stores = listStoreToJson;
+        
+        // return Navigator.pop(context);
+      } else if (eventGps.statusCode == 401) {
+        // print("Gagal Membatalkan Event");
+        setState(() {
+          // isLoading = false;
+        });
+      }
+    } on TimeoutException catch (_) {
+      // print("Time out, silahkan coba lagi nanti");
+      setState(() {
+        // isLoading = false;
+      });
+    } catch (e) {
+      // print("$e");
+      setState(() {
+        // isLoading = false;
       });
     }
   }
@@ -749,6 +867,40 @@ class _ManajemenUserState extends State<ManajemenUser>
                                         builder: (context) =>
                                             ConfirmationFriend()));
                                 break;
+                              case PageEnum.shareLocation:
+                              var enabled = _enabled == true ? false : true;
+                              var _message = _enabled == true ? "Mematikan" : "Menghidupkan";
+                               showDialog(
+                          context: context,
+                          builder: (BuildContext context) => AlertDialog(
+                            title: Text('Peringatan!'),
+                            content: Text('Apa Anda Yakin Ingin $_message Share Location?'),
+                            actions: <Widget>[
+                              FlatButton(
+                                child: Text(
+                                  'Tidak',
+                                  style: TextStyle(color: Colors.black54),
+                                ),
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                },
+                              ),
+                              FlatButton(
+                                child: Text(
+                                  'Ya',
+                                  style: TextStyle(color: Colors.cyan),
+                                ),
+                                onPressed: () {
+                                _onClickEnable(enabled);
+                                  Navigator.pop(context);
+                                  
+                                },
+                              )
+                            ],
+                          ),
+                        );
+
+                              break;
                               default:
                             }
                           },
@@ -807,6 +959,34 @@ class _ManajemenUserState extends State<ManajemenUser>
                                       "Permintaan Teman",
                                       style: TextStyle(
                                           color: Colors.black54, fontSize: 14),
+                                    ),
+                                  ]),
+                                ),
+                                PopupMenuItem(
+                                  value: PageEnum.shareLocation,
+                                  child: Row(children: <Widget>[
+                                    Padding(
+                                      padding:
+                                          const EdgeInsets.only(right: 8.0),
+                                      child: Icon(
+                                        Icons.people,
+                                        size: 14,
+                                        color: Colors.black54,
+                                      ),
+                                    ),
+                                    Row(
+                                      children: <Widget>[
+                                        Text(
+                                          "Share Location ",
+                                          style: TextStyle(
+                                              color: Colors.black54, fontSize: 14),
+                                        ),
+                                         Text(
+                                          _enabled == true ? "$_status" : "$_status",
+                                          style: TextStyle(
+                                              color: _enabled == true ? Colors.green :Colors.red, fontSize: 14),
+                                        ),
+                                      ],
                                     ),
                                   ]),
                                 )
