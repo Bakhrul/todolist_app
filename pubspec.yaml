@@ -43,6 +43,9 @@ dependencies:
   path_provider: ^0.4.1
   permission_handler: ^4.0.0
   image_cropper: ^1.2.1
+  background_fetch: ^0.5.4
+  geolocator: ^5.3.0
+
 
 
 
