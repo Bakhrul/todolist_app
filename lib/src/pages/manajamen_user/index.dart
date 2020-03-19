@@ -964,7 +964,7 @@ class _ManajemenUserState extends State<ManajemenUser>
                                       padding:
                                           const EdgeInsets.only(right: 8.0),
                                       child: Icon(
-                                        Icons.people,
+                                        Icons.location_searching,
                                         size: 14,
                                         color: Colors.black54,
                                       ),
