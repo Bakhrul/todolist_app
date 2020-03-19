@@ -110,12 +110,7 @@ class _ManajemenUserState extends State<ManajemenUser>
             startOnBoot: true,
             requiredNetworkType: NetworkType.NONE), (String taskId) async {
       // This is the fetch-event callback.
-      // print("[BackgroundFetch] Event received $taskId");
-      // setState((){
       _postLocation();
-
-      // });
-
       // IMPORTANT:  You must signal completion of your task or the OS can punish your app
       // for taking too long in the background.
       BackgroundFetch.finish(taskId);
@@ -982,7 +977,7 @@ class _ManajemenUserState extends State<ManajemenUser>
                                               color: Colors.black54, fontSize: 14),
                                         ),
                                          Text(
-                                          _enabled == true ? "$_status" : "$_status",
+                                          _enabled == true ? "On" : "Off",
                                           style: TextStyle(
                                               color: _enabled == true ? Colors.green :Colors.red, fontSize: 14),
                                         ),
